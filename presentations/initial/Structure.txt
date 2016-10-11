@@ -45,3 +45,44 @@ Die Angriffsmöglichkeiten sind breit gefächert:
 __TODO:__ Alle Angriffsmöglichkeiten kurz erklären
 
 ## Begriffserklärung: Blockchain
+
+    Blockchain = Verteilte Datenbank
+    enthält erweiterbare Listen von Datensätzen
+    gesichert durch Prüfsumme des vorherigen Datensatzes
+    Verwendet vor allem bei Kryptowährung
+
+Eine Blockchain ist eine verteilte Datenbank die erweiterbare Listen von Datensätzen enthält. Die Integrität wird durch die Prüfsumme des voherigen Datensatzes gesichert. Das wohl bekannteste Beispiel ist die Transaktionsicherung der Kryptowährung Bitcoin.
+
+    Beispiel auf der Tafel oder als Bild siehe http://bit.ly/2e2IvzL (nicht für uns nutzbar)
+
+## unser Projekt
+### Behebung von Sicherheitslücken
+
+    Threatdiagramm
+
+
+
+### Workflow
+
+    Blockchain 1 Block für jeden Build
+    enthält Package namen und Hash
+    Prüfung des Hashes durch Vergleich mit Blockchain
+
+
+### Verwendete Technologien
+
+    Etherieum
+    JSON
+    Python ?? 
+    yaourt ....
+
+
+
+## Zeitplan
+
+    1.11 Server fertig
+    1.1 libary
+    1.3 Package fertig
+    1.5 Webinterface
+    1.6 Projekt fertig
+    ?.6 Abschlusspräsentation
