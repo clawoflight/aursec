@@ -1,3 +1,8 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+// Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+
 pragma solidity ^0.4.0;
 import "contracts/Owned.sol";
 
@@ -26,7 +31,7 @@ contract AURPackageRegistry is Owned {
     /**
      * @notice Get the current consensus and how many nodes submitted it for a given package,version,release combination.
      *
-     * @param  packageID The id of the package to submit: pkgname-pkgver-pkgrel
+     * @param packageID The id of the package to submit: pkgname-pkgver-pkgrel
      *
      * @return pkgHash The hash of the package, or the empty string if none is stored.
      * @return submissionCount The number of nodes that submitted this hash
@@ -40,8 +45,8 @@ contract AURPackageRegistry is Owned {
     /**
      * @notice Submit a new hash for a package.
      *
-     * @param  packageID The id of the package to submit: pkgname-pkgver-pkgrel
-     * @param  pkgHash The hash of the package
+     * @param packageID The id of the package to submit: pkgname-pkgver-pkgrel
+     * @param pkgHash The hash of the package
      * @return success Whether the submission succeeded
      */
     function submitPkgHash(string packageID, string pkgHash) returns (bool success) {
