@@ -16,3 +16,15 @@ And what should we do about VCS data? It would need to be downloaded before our 
 
 Both would be solved by running "makepkg --verifysource" before invoking our library (or adding a corresponding option to the latter).
 However, that would mean *executing the PKGBUILD* in order to complete the verification...
+
+## Get the unique release key
+
+Probably best to parse it from the .SRCINFO.
+
+## Verification
+
+- Get the consensus from the blockchain
+- Compare with the calculated hash
+- Check if the number of submissions is above the selected confidence level
+- Prompt the user if not
+- Submit the the calculated hash
