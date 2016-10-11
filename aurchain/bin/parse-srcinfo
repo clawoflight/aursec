@@ -1,0 +1,21 @@
+#!/bin/bash
+# Small demo that parses a .SRCINFO file
+# and outputs the pkgbase, version and release of all packages
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+
+if [[ $# -ne 1 ]]; then
+	echo usage: "$0" PATH_TO_SRCINFO
+	exit 1
+fi
+
+readonly SRCINFO="$1"
+
+while IFS=' =' read -r key val; do
+	[[ $key == *pkgbase ]] && echo pkgbase: $val
+	[[ $key == *pkgver ]] && echo version: $val
+	[[ $key == *pkgrel ]] && echo release: $val
+done < "$SRCINFO"

@@ -1,0 +1,72 @@
+#!/bin/bash
+# shellcheck disable=SC2046
+# Calculate the canonical hash for a given package directory.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+declare -i vcs_enabled=0
+readonly BASEDIR="$PWD"
+
+# Makepkg ships lots of useful stuff!
+source /usr/share/makepkg/util.sh
+colorize
+
+function usage() {
+	plain "usage: $0 [-h] [--vcs VCS_DIR] [--] BUILD_DIR" >&2
+	exit 1
+}
+
+# Output the recursive hashes of a VCS dir
+# $1: vcs dir
+function vcs_hash() {
+	# TODO: ignore the .folders of all VCS supported by makepkg
+	cd_safe "$1"
+
+	find . \( -path \*.git\* -o -path \*.hg\* \) -prune \
+	 -o -type f -readable \
+	 -exec sha256sum "{}" \;
+
+	cd_safe "$BASEDIR"
+}
+
+# Output the hashes of build files
+# $1: build dir
+function basic_hash() {
+	cd_safe "$1"
+
+	find . \( -name PKGBUILD -o -name .SRCINFO \
+	 -o -name \*.patch -o -name \*install\* \) \
+	 -exec sha256sum "{}" +
+
+	cd_safe "$BASEDIR"
+}
+
+# Parse the arguments
+while true; do
+    case "$1" in
+        --vcs) vcs_enabled=1;
+               readonly vcs_dir="$2";
+               shift 2 ;;
+        --) shift
+            break ;;
+        -h|--help)
+            usage ;;
+        *) [ $# -eq 1 ] && break || usage ;;
+    esac
+done
+
+# Check whether the build directory is valid
+if [[ ! -r "$1/PKGBUILD" || ! -r "$1/.SRCINFO" ]]; then
+	error "$1 is not a valid build directory!" >&2
+	exit 1
+fi
+readonly build_dir="$1"
+
+# Calculate the hash
+if ((vcs_enabled)); then
+	{ basic_hash "$build_dir"; vcs_hash "$vcs_dir"; } | sort | sha256sum | cut -d " " -f 1
+else
+	basic_hash "$build_dir" | sort | sha256sum | cut -d " " -f 1
+fi
