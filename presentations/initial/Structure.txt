@@ -1,0 +1,47 @@
+# Initial Präsentation
+## Inhalt (intern)
+
+- Einleitung
+- Inhalt
+- Was ist die AUR
+- Sicherheitsprobleme der AUR
+- Begriffserklärung: Blockchain
+- Unser Projekt
+- Zeitplan
+
+
+
+## Einleitung
+
+    Initial-Präsentation Piater Bennett - Krismer Lukas
+
+Liebe Anwesende,
+(kurze Vorstellung ). Wir wollen ihnen nun unser Thema näherbringen.
+
+    A blockchain approach to securing software packages of the AUR
+
+Klingt vielleicht für den ein oder anderen kompliziert, aber nach dieser Präsentation sollten Sie einen groben Überblick haben, was wir genau machen.
+
+## Inhalt
+
+    - Was ist die AUR
+    - Sicherheitsprobleme der AUR
+    - Begriffserklärung: Blockchain
+    - Unser Projekt
+    - Zeitplan
+
+## Was ist die AUR
+
+    AUR = Arch User Repository
+    __TODO:__ Add Info to AUR
+
+Die AUR ist die User-Repository von Arch Linux. Auf diese können alle Paketbuilts stellen. Das heißt jeder kann Programme zur Verfügung stellen. Dies vereinfacht die Installation von vielen Programmen enorm. Zum Beispiel sind alle Programme von JetBrain (IntelliJ, PyCharm, ...) in dieser Repo. Allerdings gibt es bei dieser Art von Repo auch Sicherheitsprobleme
+
+## Sicherheitsprobleme der AUR
+
+    Threat-Diagramm
+
+Die Angriffsmöglichkeiten sind breit gefächert:
+__TODO:__ Alle Angriffsmöglichkeiten kurz erklären
+
+## Begriffserklärung: Blockchain
