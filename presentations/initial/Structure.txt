@@ -66,7 +66,7 @@ __TODO:__ Welche Probleme werden gelöst welche nicht
     enthält Package namen und Hash
     Prüfung des Hashes durch Vergleich mit Blockchain
 
-__TODO:__ Formulierung Workflow
+Unser Programm schaltet sich ein sobald ein neues Paket gebaut wird. Als erstes wird ein Hash berechnet, welcher dann, mittels des Namens des Paketes, mit dem dezeit gültigen Hash des Packetes in der Blockchain verglichen wird. Falls es sich um einen gültigen Hash handelt, wird der Hash automatisch der Blockchain hinzugefügt. Falls es sich um einen ungültigen Hash handelt oder der Hash noch unsicher ist (gewisse Anzahl die konfiguriert werden kann) wird in einen manuellen Modus geschalten, in dem man die Installation abbrechen oder fortführen kann. Falls fortgeführt wird, wird der neue Hash in der Blockchain abgelegt. (Somit können sich mit der Zeit die Hashes von Paketen ändern.)
 
 ### Teile
 
