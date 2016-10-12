@@ -9,8 +9,6 @@
 - Unser Projekt
 - Zeitplan
 
-
-
 ## Einleitung
 
     Initial-Präsentation Piater Bennett - Krismer Lukas
@@ -60,7 +58,7 @@ Eine Blockchain ist eine verteilte Datenbank die erweiterbare Listen von Datens�
 
     Threatdiagramm
 
-
+__TODO:__ Welche Probleme werden gelöst welche nicht
 
 ### Workflow
 
@@ -68,6 +66,17 @@ Eine Blockchain ist eine verteilte Datenbank die erweiterbare Listen von Datens�
     enthält Package namen und Hash
     Prüfung des Hashes durch Vergleich mit Blockchain
 
+__TODO:__ Formulierung Workflow
+
+### Teile
+
+    Programm für Etherieum
+    Bibliothek
+    Arch-Paket
+    Web-Interface ??
+    "Integration"
+
+__TODO:__ Teile erklären
 
 ### Verwendete Technologien
 
@@ -76,13 +85,16 @@ Eine Blockchain ist eine verteilte Datenbank die erweiterbare Listen von Datens�
     Python ?? 
     yaourt ....
 
+__TODO:__ Formulierung
 
 
 ## Zeitplan
 
     1.11 Server fertig
-    1.1 libary
+    1.1 Bibliothek
     1.3 Package fertig
     1.5 Webinterface
     1.6 Projekt fertig
     ?.6 Abschlusspräsentation
+
+__TODO:__ Formulierung
