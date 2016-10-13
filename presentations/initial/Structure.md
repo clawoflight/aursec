@@ -90,21 +90,23 @@ __TODO:__ Formulierung
 
 ## Zeitplan
 
-    25.10 Prototyp hashing
-    15.11 Prototyp Bibliothek ohne Blockchain-backend
-    30.11 Bash-API für Blockchain ohne Implementierung
-    30.11 Solidity-Programm vorerst fertig
-    08.12 Lauffähiger Server mit Ethereum-node?
-    08.12 Einheitliche lokale Blockchain für Entwicklungszwecke
-    15.12 Backend der Bibliothek
-    20.12 contrib: Rudimentäre pre-build-hooks in aurutils
-    10.01 contrib: TLS-public-key-pinning in aurutils
-    15.01 Testweise Integration in aurutils
-    15.02 Arch-Paket inkl. privater Blockchain
-    01.03 Fertigstellung von Bibliothek und aurutils-Hook
-    01.04 Web- oder CLI-Interface
-    15.04 Erste Fassung des Papers
+    25.10 Prototyp hashing                                         [B]
+    25.10 od. 01.11 Initialpräsentation                            [L]
+    15.11 Prototyp Bibliothek ohne Blockchain-backend              [B]
+    15.11 Bash-API für Blockchain ohne Implementierung             [L]
+    30.11 Solidity-Programm vorerst fertig                         [B]
+    08.12 Einheitliche lokale Blockchain für Entwicklungszwecke    [L]
+    08.12 Lauffähiger Server mit Ethereum-node?                    [B/L]
+    15.12 Backend der Bibliothek                                   [L]
+    20.12 contrib: Rudimentäre pre-build-hooks in aurutils         [B]
+    10.01 contrib: TLS-public-key-pinning in aurutils              [B]
+    10.01 Konfiguration und Trust-cutoff                           [L]
+    15.01 Testweise Integration in aurutils                        [B]
+    15.02 Arch-Paket inkl. privater Blockchain                     [B]
+    01.03 Fertigstellung von Bibliothek und aurutils-Hook          [B]
+    01.04 Web- oder CLI-Interface                                  [L]
+    15.04 Erste Fassung des Papers 
     ??.05 Abgabe des Papers
-    ??.05 Abschlusspräsentation
+    ??.05 Abschlusspräsentation                                    [L]
 
 __TODO:__ Formulierung
