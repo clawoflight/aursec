@@ -1,5 +1,5 @@
 # Initial Präsentation
-## Inhalt (intern)
+## Inhalt dieser Datei
 
 - Einleitung
 - Inhalt
@@ -22,11 +22,11 @@ Klingt vielleicht für den ein oder anderen kompliziert, aber nach dieser Präse
 
 ## Inhalt
 
-    - Was ist die AUR
-    - Sicherheitsprobleme der AUR
-    - Begriffserklärung: Blockchain
-    - Unser Projekt
-    - Zeitplan
+- Was ist die AUR
+- Sicherheitsprobleme der AUR
+- Begriffserklärung: Blockchain
+- Unser Projekt
+- Zeitplan
 
 ## Was ist die AUR
 
@@ -70,31 +70,41 @@ Unser Programm schaltet sich ein sobald ein neues Paket gebaut wird. Als erstes 
 
 ### Teile
 
-    Programm für Etherieum
-    Bibliothek
-    Arch-Paket
-    Web-Interface ??
-    "Integration"
+- Programm für Ethereum
+- Bibliothek
+- Arch-Paket
+- Web- oder CLI-Interface
+- Integration
 
 __TODO:__ Teile erklären
 
 ### Verwendete Technologien
 
-    Etherieum
-    JSON
-    Python ?? 
-    yaourt ....
+- Ethereum
+- JSON
+- Python ?? 
+- yaourt ....
 
 __TODO:__ Formulierung
 
 
 ## Zeitplan
 
-    1.11 Server fertig
-    1.1 Bibliothek
-    1.3 Package fertig
-    1.5 Webinterface
-    1.6 Projekt fertig
-    ?.6 Abschlusspräsentation
+    25.10 Prototyp hashing
+    15.11 Prototyp Bibliothek ohne Blockchain-backend
+    30.11 Bash-API für Blockchain ohne Implementierung
+    30.11 Solidity-Programm vorerst fertig
+    08.12 Lauffähiger Server mit Ethereum-node?
+    08.12 Einheitliche lokale Blockchain für Entwicklungszwecke
+    15.12 Backend der Bibliothek
+    20.12 contrib: Rudimentäre pre-build-hooks in aurutils
+    10.01 contrib: TLS-public-key-pinning in aurutils
+    15.01 Testweise Integration in aurutils
+    15.02 Arch-Paket inkl. privater Blockchain
+    01.03 Fertigstellung von Bibliothek und aurutils-Hook
+    01.04 Web- oder CLI-Interface
+    15.04 Erste Fassung des Papers
+    ??.05 Abgabe des Papers
+    ??.05 Abschlusspräsentation
 
 __TODO:__ Formulierung
