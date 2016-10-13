@@ -92,7 +92,7 @@ __TODO:__ Formulierung
 
     25.10 Prototyp hashing                                         [B]
     25.10 od. 01.11 Initialpräsentation                            [L]
-    15.11 Prototyp Bibliothek ohne Blockchain-backend              [B]
+    15.11 Prototyp Bibliothek ohne Blockchain-backend              [B/L?]
     15.11 Bash-API für Blockchain ohne Implementierung             [L]
     30.11 Solidity-Programm vorerst fertig                         [B]
     08.12 Einheitliche lokale Blockchain für Entwicklungszwecke    [L]
