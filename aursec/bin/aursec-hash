@@ -36,9 +36,13 @@ function vcs_hash() {
 function basic_hash() {
 	cd_safe "$1"
 
-	find . \( -name PKGBUILD -o -name .SRCINFO \
-	 -o -name \*.patch -o -name \*install\* \) \
+	# Patches etc.
+	find . \( -name .SRCINFO \
+	 -o -name \*.patch -o -name \*.install \) \
 	 -exec sha256sum "{}" +
+
+	# PKGBUILD
+	sed "s/#.*//" PKGBUILD | sha256sum -
 
 	cd_safe "$BASEDIR"
 }
@@ -70,3 +74,5 @@ if ((vcs_enabled)); then
 else
 	basic_hash "$build_dir" | sort | sha256sum | cut -d " " -f 1
 fi
+
+exit 0

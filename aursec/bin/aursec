@@ -1,0 +1,112 @@
+#!/bin/bash
+# Primary executable for the aursec project.
+# It checks a downloaded build directory against what other users submitted to the blockchain,
+# and submits the hash if the user deems it correct.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+readonly BASEDIR="$PWD"
+declare -ri EINIT=1 ENOHASH=2 ECHAIN=3 ENOMATCH=4
+set -o pipefail # Receive error codes from _within_ pipes
+
+function usage() {
+    plain "usage: $0 [-h|--help] [-v|--verbose | --check-only] [--] BUILD_DIR" >&2
+}
+
+function help() {
+    usage
+    echo "$(<<EOF
+TODO TODO TODO
+TODO TODO TODO
+TODO TODO TODO
+TODO TODO TODO
+TODO TODO TODO
+TODO TODO TODO
+EOF
+)"
+}
+
+# Makepkg ships lots of useful stuff!
+source /usr/share/makepkg/util.sh
+readonly NO_TTY=$(tty -s)
+((NO_TTY)) || colorize
+
+# Parse the arguments
+declare -i verbose check_only
+while true; do
+    case "$1" in
+        --) shift
+            break ;;
+        -h|--help)
+            help
+            exit 0 ;;
+        -v|--verbose)
+            verbose=1 ;;
+        --check-only)
+            check_only=1 ;;
+        *)
+          if [ $# -eq 1 ]; then
+            break
+          else
+            usage
+            exit $EINIT
+          fi ;;
+    esac
+done
+readonly BUILD_DIR="$1"
+
+####################
+# Hash calculation #
+####################
+# Identify this package. TODO: wtf do we do about split packages?
+IFS="\0" read -r PKG_ID IS_VCS < <(aursec-parse-srcinfo -0)
+if (($?)) || [ -z "$IS_VCS" ]; then
+    error "Could not parse .SRCINFO - Aborting!"
+    exit $EINIT
+fi
+
+((verbose)) && msg "Calculating hash for $PKG_ID..."
+
+if ((IS_VCS)); then
+    PKG_HASH=$(aursec-hash --vcs -- "$BUILD_DIR")
+else
+    PKG_HASH=$(aursec-hash -- "$BUILD_DIR")
+fi
+if (($?)); then
+    error "Could not calculate a hash - Aborting!"
+    exit $ENOHASH
+fi
+
+((verbose)) && msg2 "Calculated $PKG_HASH for $PKG_ID."
+
+######################
+# Find the consensus #
+######################
+((verbose)) && msg "Querying the blockchain for it's consensus..."
+
+IFS="\0" read -r CONS_H CONS_C < <(aursec-blockchain --get "$PKG_ID")
+if (($?)) || [ -z "$CONS_C" ]; then
+    error "Could not query the blockchain - Aborting!"
+    exit $ECHAIN
+fi
+
+# TODO TODO TODO: Think through which states we need here...
+if [[ "$CONS_H" != "$PKG_HASH" && $CONS_C -gt 0 ]]; then
+    # No match
+    error "The hash for $PKG_ID doesn't match the consensus!"
+    msg2 "Local hash: $PKG_HASH"
+    msg2 "Consensus:  $CONS_H with $CONS_C submissions"
+    exit $ENOMATCH
+elif [[ "$CONS_H" == "$PKG_HASH" && $CONS_C -gt 0 ]]; then
+    # Match TODO
+    # TODO: check and handle the trust level
+    true
+elif [[ $CONS_C -eq 0 ]]; then
+    # No hash in the blockchain TODO
+    true
+else
+    #
+    true
+fi

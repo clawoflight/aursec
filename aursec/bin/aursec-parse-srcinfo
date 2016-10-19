@@ -18,4 +18,10 @@ while IFS=' =' read -r key val; do
 	[[ $key == *pkgbase ]] && echo pkgbase: $val
 	[[ $key == *pkgver ]] && echo version: $val
 	[[ $key == *pkgrel ]] && echo release: $val
+	[[ $key == *src ]] && [[ "$val" =~ (.*git+http.*|.*svn://.*|.*bzr://.*|.*hg://.*) ]] && echo VCS package!
 done < "$SRCINFO"
+
+# NOTE: We will need the architecture in the key as well (uname -m) because of arch-specific sources...
+# NOTE: VCS pkgver: firejail --quiet --read-only=/home --nogroups --seccomp --caps.drop=all bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel'
+
+return 0

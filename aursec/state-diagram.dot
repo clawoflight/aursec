@@ -1,0 +1,16 @@
+digraph states {
+	start [shape=rect];
+	fail [shape=rect, label="exit !=0"];
+	success [shape=rect, label="exit 0"];
+	manual [label="[interactive]\nshow hashes"];
+	auto [label="[automatic]"];
+	start -> hash -> "query blockchain" -> compare;
+	compare -> warn [label="No hash in chain"];
+	compare -> manual [label="Count below threshold"];
+	compare -> auto [label="Count above threshold"];
+	manual -> warn;
+	warn -> success [label="Manual accept"];
+	warn -> fail [label="Manual reject"];
+	auto -> success [label="Match"];
+	auto -> manual [label="No Match"];
+}
