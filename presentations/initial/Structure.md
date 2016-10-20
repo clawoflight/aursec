@@ -4,8 +4,6 @@
 - Einleitung
 - Inhalt
 - Was ist die AUR
-- Sicherheitsprobleme der AUR
-- Begriffserklärung: Blockchain
 - Unser Projekt
 - Zeitplan
 
@@ -24,7 +22,6 @@ Klingt vielleicht für den ein oder anderen kompliziert, aber nach dieser Präse
 
 - Was ist die AUR
 - Sicherheitsprobleme der AUR
-- Begriffserklärung: Blockchain
 - Unser Projekt
 - Zeitplan
 
@@ -42,7 +39,15 @@ Die AUR ist die User-Repository von Arch Linux. Auf diese können alle Paketbuil
 Die Angriffsmöglichkeiten sind breit gefächert:
 __TODO:__ Alle Angriffsmöglichkeiten kurz erklären
 
-## Begriffserklärung: Blockchain
+
+## unser Projekt
+### Behebung von Sicherheitslücken
+
+    Threatdiagramm
+
+__TODO:__ Welche Probleme werden gelöst welche nicht
+
+### Begriffserklärung: Blockchain
 
     Blockchain = Verteilte Datenbank
     enthält erweiterbare Listen von Datensätzen
@@ -52,13 +57,6 @@ __TODO:__ Alle Angriffsmöglichkeiten kurz erklären
 Eine Blockchain ist eine verteilte Datenbank die erweiterbare Listen von Datensätzen enthält. Die Integrität wird durch die Prüfsumme des voherigen Datensatzes gesichert. Das wohl bekannteste Beispiel ist die Transaktionsicherung der Kryptowährung Bitcoin.
 
     Beispiel auf der Tafel oder als Bild siehe http://bit.ly/2e2IvzL (nicht für uns nutzbar)
-
-## unser Projekt
-### Behebung von Sicherheitslücken
-
-    Threatdiagramm
-
-__TODO:__ Welche Probleme werden gelöst welche nicht
 
 ### Workflow
 
@@ -91,8 +89,8 @@ __TODO:__ Formulierung
 ## Zeitplan
 
     25.10 Prototyp hashing                                         [B]
-    25.10 od. 01.11 Initialpräsentation                            [L]
-    15.11 Prototyp Bibliothek ohne Blockchain-backend              [B/L?]
+    08.11 Initialpräsentation                                      [L]
+    15.11 Prototyp Bibliothek ohne Blockchain-backend              [B/L]
     15.11 Bash-API für Blockchain ohne Implementierung             [L]
     30.11 Solidity-Programm vorerst fertig                         [B]
     08.12 Einheitliche lokale Blockchain für Entwicklungszwecke    [L]
