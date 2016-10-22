@@ -2,7 +2,7 @@
 \usetheme[block=fill]{metropolis}
 
 \usepackage[english]{babel}
-\usepackage[utf8]{inputenc}
+%\usepackage[utf8]{inputenc}
 
 % For notes
 \usepackage{pgfpages}
@@ -14,7 +14,7 @@
 \DeclareGraphicsExtensions{.eps,.pdf,.png,.jpg,.gif}
 \graphicspath{{./img/}}
 
-\title{aursec - Master a blockchain approach to securing software packages}
+\title{aursec - A blockchain approach to securing software packages}
 \author{Lukas Krismer \& Bennett Piater}
 \institute{Universität Innsbruck - QE - Christian Sillaber}
 \date{\today}
@@ -34,16 +34,18 @@
 
 \begin{frame}{AUR}
 \begin{itemize}
-	\item AUR=Arch Linux Repository
-	\item Contains package descriptions (PKGBUILDs)
-	\item everybody can upload PKBUILDs
-	\item 3 different Requests
-	\item voting system
+	\item \textbf{AUR}=\alert{A}rch Linux \alert{U}ser \alert{R}epository
+	\item Contains package build scripts (PKGBUILDs)
+	\item Everybody can upload PKGBUILDs
+	\item 3 different Requests %TODO: Ich glaube nicht, dass wir die erklären müssen, sie sind nicht so wichtig...
+	\item Packages can be voted for inclusion in the official repositories
+	\item Anyone can adopt orphaned packages
+	\item Easy to use using so-called AUR helpers
 \end{itemize}
 \note{2min L \\ Orphan,Deletion,Merge}
 \end{frame}
 
-\begin{frame}{Threats}
+\begin{frame}{Threat Assessment}
 \includegraphics[width=\textwidth]{threat.png}
 \note{2 min B}
 \end{frame}
@@ -63,41 +65,41 @@
 
 \begin{frame}{Components}
 \begin{itemize}
-	\item Ethereum program
-	\item libary
-	\item arch-package
-	\item web- and/or CLI-Interface
-	\item integration
+	\item Program on a private Ethereum blockchain
+	\item Library and program using it
+	\item AUR package
+	\item Integration in aurutils
+	\item Web- and/or CLI-Interface for stats
 \end{itemize}
 \note{2 min B}
 \end{frame}
 
 \begin{frame}{Schedule}
-\begin{itemize} 
-	\item \textbf{25.10} Prototype hashing \hfill B
-	\item \textbf{08.11} Inital-Presentation\hfill L
-	\item \textbf{15.11} Libary-prototyp without blockchain-backend \hfill B/L
+\begin{itemize}
+	\item \textbf{25.10} \emph{prototype:} hashing \hfill B
+	\item \textbf{08.11} \alert{Initial Presentation}\hfill L
+	\item \textbf{15.11} \emph{prototype:} library without blockchain back-end \hfill B/L
 	\item \textbf{15.11} Bash-API for the blockchain \hfill L
-	\item \textbf{30.11} Solidity-program finished \hfill B
-	\item \textbf{08.12} unified local libary for development \hfill L
-	\item \textbf{08.12} runnable server with ethereum-node \hfill B/L
-	\item \textbf{15.12} libary-backend \hfill L
-	\item \textbf{20.12} contrib: rudimentary pre-build-hooks in aurutils \hfill B
+	\item \textbf{30.11} \emph{finish:} \alert{Solidity program} \hfill B
+	\item \textbf{08.12} deploy local blockchain for development \hfill L
+	\item \textbf{08.12} running server with ethereum-node \hfill B/L
+	\item \textbf{15.12} \emph{prototype:}\alert{Library} incl. back-end \hfill L
+	\item \textbf{20.12} \emph{contrib:} rudimentary pre-build-hooks in aurutils \hfill B
 \end{itemize}
 \note{2 min B}
 \end{frame}
 
 \begin{frame}{Schedule}
-\begin{itemize} 
-	\item \textbf{10.01} contrib: TLS-public-key-pinning in aurutils \hfill B
+\begin{itemize}
+	\item \textbf{10.01} \emph{contrib:} TLS-public-key-pinning in aurutils \hfill B
 	\item \textbf{10.01} configuration and trust-cutoff \hfill L
-	\item \textbf{15.01} testing: integration in aurutils \hfill B
-	\item \textbf{15.02} arch-package inc. private blockchain \hfill B
-	\item \textbf{01.03} finish: libary and aurutils-Hook \hfill B
-	\item \textbf{01.04} finish: Web- and/or CLI-Interface \hfill L
-	\item \textbf{15.04} draft paper \hfill 
-	\item \textbf{??.05} finish: paper\hfill 
-	\item \textbf{??.05} End-Presentation\hfill L
+	\item \textbf{15.01} \emph{test:} \alert{Integration in aurutils} \hfill B
+	\item \textbf{15.02} \alert{AUR package} incl. private blockchain \hfill B
+	\item \textbf{01.03} \emph{finish:} libary and aurutils-Hook \hfill B
+	\item \textbf{01.04} \emph{finish:} Web- and/or CLI-Interface \hfill L
+	\item \textbf{15.04} \alert{Draft paper} \hfill
+	\item \textbf{??.05} \emph{finish:} Paper\hfill
+	\item \textbf{??.05} Final presentation\hfill L
 \end{itemize}
 \note{2 min B}
 \end{frame}
