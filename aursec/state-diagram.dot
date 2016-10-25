@@ -9,7 +9,8 @@ digraph states {
 	compare -> manual [label="Count below threshold"];
 	compare -> auto [label="Count above threshold"];
 	manual -> warn;
-	warn -> success [label="Manual accept"];
+	warn -> success [label="Manual accept and trust"];
+	warn -> success [label="Manual accept once"];
 	warn -> fail [label="Manual reject"];
 	auto -> success [label="Match"];
 	auto -> manual [label="No Match"];
