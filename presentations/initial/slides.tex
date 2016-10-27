@@ -46,7 +46,14 @@
 
 \begin{frame}{Threat Assessment}
 \includegraphics[width=\textwidth]{threat.png}
-\note{2 min B}
+\note{2 min B | Besonderes Augenmerk auf:
+
+\begin{itemize}
+	\item Die grundlegenden Probleme der AUR sind praktisch unlösbar
+	\item Zu viele haben Zugang zu Quellen und/oder Buildskripten
+	\item Daher: Server-Seitige Signaturen würden nur MITM verhindern
+	\item Bösartige Pakete, Releases oder Veränderungen sehr einfach
+\end{itemize}}
 \end{frame}
 
 \section{Our Project}
@@ -65,13 +72,23 @@
 \begin{frame}{Components}
 \begin{itemize}
 	\item Program on a private Ethereum blockchain
-	\item Library and program using it
+	\item Shell library
 	\item AUR package
 	\item Integration in aurutils
 	\item Threat analysis of the AUR and our software
-	\item Web- and/or CLI-Interface for stats
+	\item Web- and/or CLI-Interface for stats/events
 \end{itemize}
-\note{2 min B}
+\note{2 min B
+
+\begin{itemize}
+	\item Das eigentliche Programm zum Speichern der Hashes
+	\item Unsere Library, die den Workflow automatisiert
+	\item Ein Paket für die AUR
+	\item Integration in einen der Besten AUR-Helper \\
+	--> Im Zuge dessen allgemein nützliche Beiträge dazu
+    \item Threat-analysen, um die Gefährdungsstufe und die Qualität unseres Beitrags einzuschätzen
+    \item Ein Interface, mit dem die Aktivität der Blockchain überwacht werden kann
+\end{itemize}}
 \end{frame}
 
 \begin{frame}{Schedule}
@@ -84,9 +101,19 @@
 	\item \textbf{08.12} deploy local blockchain for development \hfill L
 	\item \textbf{08.12} running server with ethereum-node \hfill B/L
 	\item \textbf{15.12} \emph{prototype:} \alert{Library} incl. back-end \hfill L
-	\item \textbf{20.12} \emph{contrib:} rudimentary pre-build-hooks in aurutils \hfill B
+	\item \textbf{20.12} \emph{contrib:} pre-build-hooks in aurutils \hfill B
 \end{itemize}
-\note{2 min B}
+\note{2 min B
+
+Wir haben eine sehr \textbf{detaillierte Planung} ausgearbeitet.
+Einerseits benötigen wir sie, um effizient \textbf{kooperieren} zu können und zügig voran zu kommen; Andererseits soll sie uns auch ein Maximaltempo vergeben, denn wir tendieren beide eher dazu, uns zu \textbf{überarbeiten}.
+
+\begin{itemize}
+	\item Solidity-program auf Blockchain
+	\item Library-Prototyp
+	\item Beiträge zum AUR-Helper aurutils über Weihnachten
+\end{itemize}
+}
 \end{frame}
 
 \begin{frame}{Schedule}
@@ -96,12 +123,20 @@
 	\item \textbf{15.01} \emph{test:} \alert{Integration in aurutils} \hfill B
 	\item \textbf{15.02} \alert{AUR package} incl. private blockchain \hfill B
 	\item \textbf{01.03} \emph{finish:} libary and aurutils-Hook \hfill B
-	\item \textbf{01.04} \emph{finish:} Web- and/or CLI-Interface \hfill L
-	\item \textbf{15.04} \alert{Draft paper} \hfill
+	\item \textbf{31.03} \emph{finish:} Web- and/or CLI-Interface \hfill L
+	\item \textbf{21.04} \alert{Draft paper} for feedback\hfill
 	\item \textbf{??.05} \emph{finish:} Paper\hfill
 	\item \textbf{??.05} Final presentation\hfill L
 \end{itemize}
-\note{2 min B}
+\note{2 min B
+
+\begin{itemize}
+	\item am 15.01 mit aurutils testbar
+	\item AUR-Paket zur einfachen Verbreitung
+	\item Programmierung endet am 31. März
+	\item Meiste Schreibarbeit im April und besonders über Ostern
+	\item Abgabe bequem for den Klausuren
+\end{itemize}}
 \end{frame}
 
 
