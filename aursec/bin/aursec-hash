@@ -1,11 +1,12 @@
 #!/bin/bash
 # shellcheck disable=SC2046
-# Calculate the canonical hash for a given package directory.
+# Calculate the canonical id and hash of given package directories.
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+set -e -o pipefail
 declare -i vcs_enabled=0
 readonly BASEDIR="$PWD"
 
@@ -14,7 +15,7 @@ source /usr/share/makepkg/util.sh
 colorize
 
 function usage() {
-	plain "usage: $0 [-h] [--vcs VCS_DIR] [--] BUILD_DIR" >&2
+	plain "usage: $0 [-h] [--] [BUILD_DIR]" >&2
 	exit 1
 }
 
@@ -36,43 +37,59 @@ function vcs_hash() {
 function basic_hash() {
 	cd_safe "$1"
 
-	# Patches etc.
+	# Patches and install scripts
 	find . \( -name .SRCINFO \
 	 -o -name \*.patch -o -name \*.install \) \
 	 -exec sha256sum "{}" +
 
-	# PKGBUILD
+	# PKGBUILD without comments TODO: what else could be improved here? Maybe sorting?
 	sed "s/#.*//" PKGBUILD | sha256sum -
 
 	cd_safe "$BASEDIR"
 }
 
+# $1: build dir
+function hash_pkg() {
+	# Check whether the build directory is valid
+	if [[ ! -r "$1/PKGBUILD" || ! -r "$1/.SRCINFO" ]]; then
+		error "$1 is not a valid build directory!" >&2
+		exit 1
+	fi
+	local build_dir="$1"
+	cd_safe "$build_dir"
+	PKGID=$(firejail --quiet --read-only=/ --nogroups --seccomp --caps.drop=all bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel')
+
+	# Calculate the hash
+	if ((vcs_enabled)); then # TODO: actually handle VCS packages. That requires detecting them and the cloned source folder, and that they were cloned... :/
+		HASH=$({ basic_hash .; vcs_hash "$vcs_dir"; } | sort | sha256sum | cut -d " " -f 1)
+	else
+		HASH=$(basic_hash . | sort | sha256sum | cut -d " " -f 1)
+	fi
+
+	cd_safe "$BASEDIR"
+	echo "$PKGID" "$HASH"
+}
+
 # Parse the arguments
 while true; do
     case "$1" in
-        --vcs) vcs_enabled=1;
-               readonly vcs_dir="$2";
-               shift 2 ;;
-        --) shift
+        --|-) shift
             break ;;
         -h|--help)
             usage ;;
-        *) [ $# -eq 1 ] && break || usage ;;
+        *) break ;;
     esac
 done
 
-# Check whether the build directory is valid
-if [[ ! -r "$1/PKGBUILD" || ! -r "$1/.SRCINFO" ]]; then
-	error "$1 is not a valid build directory!" >&2
-	exit 1
-fi
-readonly build_dir="$1"
-
-# Calculate the hash
-if ((vcs_enabled)); then
-	{ basic_hash "$build_dir"; vcs_hash "$vcs_dir"; } | sort | sha256sum | cut -d " " -f 1
+# Either use all remaining arguments, or read from stdin
+if (($#)); then
+	for pkg in "$@"; do
+		hash_pkg "$pkg";
+	done
 else
-	basic_hash "$build_dir" | sort | sha256sum | cut -d " " -f 1
+	while IFS=$'\n' read -r pkg; do
+		hash_pkg "$pkg"
+	done
 fi
 
 exit 0
