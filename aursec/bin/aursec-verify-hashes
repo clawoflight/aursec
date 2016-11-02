@@ -10,7 +10,12 @@
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 set -e -o pipefail
 source /usr/share/makepkg/util.sh
-tty -s || colorize
+tty -s && colorize
+
+# TODO: Dummy for testing.
+function aursec-blockchain() {
+	printf "asdasdas 0\n"
+}
 
 while read -r PKG_ID HASH; do
 	if [[ -z "$PKG_ID" || -z "$HASH" ]]; then

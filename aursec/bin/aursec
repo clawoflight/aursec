@@ -8,7 +8,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 readonly BASEDIR="$PWD"
-declare -ri EINIT=1 ENOHASH=2 ECHAIN=3 ENOMATCH=4
+declare -ri EINIT=64 ENOHASH=65 ECHAIN=66 ENOMATCH=67
 set -o pipefail # Receive error codes from _within_ pipes
 
 function usage() {
@@ -28,10 +28,11 @@ EOF
 )"
 }
 
-# Requires $PKG_ID, $PKG_HASH, $THRESH, $CONS_H, $CONS_C
+# Requires $pkg_hash, $cons_h, $cons_c, $match
 function show_hashes() {
-    msg2 "Local hash: $PKG_HASH"
-    msg2 "Consensus:  $CONS_H with $CONS_C submissions"
+    msg2 "Local hash: $pkg_hash"
+    msg2 "Consensus:  $cons_h with $cons_c submissions"
+    ((match)) && plain "The hashes match."
 }
 
 function manual_override() {
@@ -47,12 +48,42 @@ function manual_override() {
     fi
 }
 
+# Requires $pkg_id, $pkg_hash, $thresh, $cons_h, $cons_c, $match
+function state_machine() {
+    thresh=${thresh:-42} # TODO: load this from config file
+    if [[ $cons_c -eq 0 ]]; then
+        # No hash in the blockchain
+        warning "No hash for $pkg_id was found in the blockchain."
+        manual_override
+
+    elif [[ $cons_c -lt $thresh ]]; then
+        # Count below threshold
+        warning "Consensus count $cons_c for $pkg_id is below the threshold of $thresh!"
+        show_hashes
+        manual_override
+
+    else
+        # Count above or equal to threshold
+        if [[ "$cons_h" == "$pkg_hash" ]]; then
+            # Matching hashes
+            ((verbose)) && msg "Hash for $pkg_id matches the consensus."
+            # TODO: submit hash
+            exit 0
+
+        else
+            # No match
+            error "Hash for $pkg_id doesn't match the consensus!"
+            show_hashes
+            manual_override
+        fi
+    fi
+}
+
 # Makepkg ships lots of useful stuff!
 source /usr/share/makepkg/util.sh
-readonly NO_TTY=$(tty -s)
-((NO_TTY)) || colorize
+tty -s && colorize
 
-# Parse the arguments
+# Parse the arguments TODO: use getopts instead
 declare -i verbose check_only
 while true; do
     case "$1" in
@@ -62,82 +93,29 @@ while true; do
             help
             exit 0 ;;
         -v|--verbose)
-            verbose=1 ;;
+            verbose=1
+            shift ;;
         --check-only)
-            check_only=1 ;;
-        *)
-          if [ $# -eq 1 ]; then
-            break
-          else
-            usage
-            exit $EINIT
-          fi ;;
+            check_only=1
+            shift ;;
+        *) break;;
     esac
 done
-readonly BUILD_DIR="$1"
 
-####################
-# Hash calculation #
-####################
-# Identify this package. TODO: wtf do we do about split packages?
-IFS="\0" read -r PKG_ID IS_VCS < <(aursec-parse-srcinfo -0)
-if (($?)) || [ -z "$IS_VCS" ]; then
-    error "Could not parse .SRCINFO - Aborting!"
-    exit $EINIT
-fi
+# Either use all remaining arguments, or read from stdin
+if (($#)); then
+    # Read the result of the processing pipeline. Using fd5 because manual_override uses STDIN.
+    while read -r -u 5 pkg_id pkg_hash cons_h cons_c match; do
+        if [[ -z "$pkg_id" || -z "$pkg_hash" || -z "$cons_h" || -z "$cons_c" || -z "$match" ]]; then
+            error "Received invalid data from aursec-verify!"
+            exit 1
+        fi
 
-((verbose)) && msg "Calculating hash for $PKG_ID..."
+        state_machine
 
-if ((IS_VCS)); then
-    PKG_HASH=$(aursec-hash --vcs -- "$BUILD_DIR")
+    done 5< <(aursec-hash "$@" | aursec-verify-hashes)
 else
-    PKG_HASH=$(aursec-hash -- "$BUILD_DIR")
-fi
-if (($?)); then
-    error "Could not calculate a hash - Aborting!"
-    exit $ENOHASH
+    true # TODO implement
 fi
 
-((verbose)) && msg2 "Calculated $PKG_HASH for $PKG_ID."
-
-######################
-# Find the consensus #
-######################
-((verbose)) && msg "Querying the blockchain for it's consensus..."
-
-IFS="\0" read -r CONS_H CONS_C < <(aursec-blockchain --get "$PKG_ID")
-if (($?)) || [ -z "$CONS_C" ]; then
-    error "Could not query the blockchain - Aborting!"
-    exit $ECHAIN
-fi
-
-#################
-# State machine #
-#################
-THRESH=${THRESH:-42} # TODO: load this from config file
-if [[ $CONS_C -eq 0 ]]; then
-    # No hash in the blockchain
-    warn "No hash for $PKG_ID was found in the blockchain."
-    manual_override
-
-elif [[ $CONS_C -lt $THRESH ]]; then
-    # Count below threshold
-    warn "Consensus count $CONS_C for $PKG_ID is below the threshold of $THRESH!"
-    show_hashes
-    manual_override
-
-else
-    # Count above or equal to threshold
-    if [[ "$CONS_H" == "$PKG_HASH" ]]; then
-        # Matching hashes
-        ((verbose)) && msg "Hash for $PKG_ID matches the consensus."
-        # TODO: submit hash
-        exit 0
-
-    else
-        # No match
-        error "Hash for $PKG_ID doesn't match the consensus!"
-        show_hashes
-        manual_override
-    fi
-fi
+exit 0
