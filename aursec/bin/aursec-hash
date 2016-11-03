@@ -12,7 +12,7 @@ readonly BASEDIR="$PWD"
 
 # Makepkg ships lots of useful stuff!
 source /usr/share/makepkg/util.sh
-tty -s && colorize
+colorize
 
 function usage() {
 	plain "usage: $0 [-h] [--] [BUILD_DIR]" >&2

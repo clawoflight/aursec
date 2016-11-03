@@ -12,12 +12,12 @@ declare -ri EINIT=64 ENOHASH=65 ECHAIN=66 ENOMATCH=67
 set -o pipefail # Receive error codes from _within_ pipes
 
 function usage() {
-    plain "usage: $0 [-h|--help] [-v|--verbose | --check-only] [--] BUILD_DIR" >&2
+    plain "usage: $0 [-h|--help] [-cvs] [--] [BUILD_DIR]" >&2
 }
 
 function help() {
     usage
-    echo "$(<<EOF
+    cat >&2 <<EOF
 TODO TODO TODO
 TODO TODO TODO
 TODO TODO TODO
@@ -25,7 +25,6 @@ TODO TODO TODO
 TODO TODO TODO
 TODO TODO TODO
 EOF
-)"
 }
 
 # Requires $pkg_hash, $cons_h, $cons_c, $match
@@ -36,13 +35,13 @@ function show_hashes() {
 }
 
 function manual_override() {
-    read -rp "Continue anyway? [y]es, [w]ithout submitting, [N]o "
+    ((status_only)) || read -rp $'Continue anyway? [y]es, [w]ithout submitting, [N]o\n> ' </dev/tty
 
     if [[ "$REPLY" == "y" ]]; then
         # TODO: submit hash
-        exit 0
+        return 0
     elif [[ "$REPLY" == "w" ]]; then
-        exit 0
+        return 0
     else
         exit $ENOMATCH
     fi
@@ -53,13 +52,13 @@ function state_machine() {
     thresh=${thresh:-42} # TODO: load this from config file
     if [[ $cons_c -eq 0 ]]; then
         # No hash in the blockchain
-        warning "No hash for $pkg_id was found in the blockchain."
+        ((status_only)) || warning "No hash for $pkg_id was found in the blockchain."
         manual_override
 
     elif [[ $cons_c -lt $thresh ]]; then
         # Count below threshold
-        warning "Consensus count $cons_c for $pkg_id is below the threshold of $thresh!"
-        show_hashes
+        ((status_only)) || warning "Consensus count $cons_c for $pkg_id is below the threshold of $thresh!"
+        ((status_only)) || show_hashes
         manual_override
 
     else
@@ -68,12 +67,12 @@ function state_machine() {
             # Matching hashes
             ((verbose)) && msg "Hash for $pkg_id matches the consensus."
             # TODO: submit hash
-            exit 0
+            return 0
 
         else
             # No match
-            error "Hash for $pkg_id doesn't match the consensus!"
-            show_hashes
+            ((status_only)) || error "Hash for $pkg_id doesn't match the consensus!"
+            ((status_only)) || show_hashes
             manual_override
         fi
     fi
@@ -81,7 +80,7 @@ function state_machine() {
 
 # Makepkg ships lots of useful stuff!
 source /usr/share/makepkg/util.sh
-tty -s && colorize
+colorize
 
 # Parse the arguments TODO: use getopts instead
 declare -i verbose check_only
@@ -89,33 +88,44 @@ while true; do
     case "$1" in
         --) shift
             break ;;
+        -) shift
+           explicit_stdin=1
+           break ;;
         -h|--help)
             help
             exit 0 ;;
         -v|--verbose)
             verbose=1
             shift ;;
-        --check-only)
+        -c|--check-only)
             check_only=1
+            shift ;;
+        -s|--status-only)
+            status_only=1
             shift ;;
         *) break;;
     esac
 done
 
-# Either use all remaining arguments, or read from stdin
-if (($#)); then
-    # Read the result of the processing pipeline. Using fd5 because manual_override uses STDIN.
-    while read -r -u 5 pkg_id pkg_hash cons_h cons_c match; do
-        if [[ -z "$pkg_id" || -z "$pkg_hash" || -z "$cons_h" || -z "$cons_c" || -z "$match" ]]; then
-            error "Received invalid data from aursec-verify!"
-            exit 1
-        fi
-
-        state_machine
-
-    done 5< <(aursec-hash "$@" | aursec-verify-hashes)
-else
-    true # TODO implement
+# Don't wait for input on stdin if stdin is a tty and the user didn't add a -
+if (( $# == 0 )) && { (( explicit_stdin != 1 )) && tty -s; }; then
+    usage
+    exit 1
 fi
+
+###############################################
+# Read the result of the processing pipeline. #
+###############################################
+while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
+    if [[ -z "$pkg_id" || -z "$pkg_hash" || -z "$cons_h" || -z "$cons_c" || -z "$match" ]]; then
+        error "Received invalid data from aursec-verify!"
+        exit 1
+    fi
+
+    state_machine
+
+# This will automagically use all remaining arguments, or read from stdin
+# Our stdin attaches to aursec-hash, and the loop reads from the pipeline.
+done 4< <(aursec-hash "$@" | aursec-verify-hashes)
 
 exit 0

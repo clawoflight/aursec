@@ -10,7 +10,7 @@
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 set -e -o pipefail
 source /usr/share/makepkg/util.sh
-tty -s && colorize
+colorize
 
 # TODO: Dummy for testing.
 function aursec-blockchain() {
