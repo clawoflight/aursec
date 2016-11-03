@@ -12,11 +12,12 @@
     Initial-Präsentation Piater Bennett - Krismer Lukas
 
 Liebe Anwesende,
-(kurze Vorstellung ). Wir wollen ihnen nun unser Thema näherbringen.
+Mein Name ist Lukas, und Bennett und ich werden euch heute unser Bachelorarbeitsthema näherbringen. Da oben steht so eine schöne große Überschrift ... 
 
-    A blockchain approach to securing software packages of the AUR
+    Aursec - A blockchain approach to securing software packages
 
-Klingt vielleicht für den ein oder anderen kompliziert, aber nach dieser Präsentation sollten Sie einen groben Überblick haben, was wir genau machen.
+Und wir möchten heute ein bisschen darauf eingehen wie man Softwarepakete, in unserem Fall von der AUR, sicherer machen kann.
+Am Anfang werden wir auf die AUR und ihre Probleme eingehen und später zeigen wir dann, wie wir Teilprobleme mithilfe einer Blockchain lösen wollen. Zum Schluss schauen wir uns dann noch unser Zeitmanagement und unsere Verantwortlichkeiten an.
 
 ## Inhalt
 
@@ -30,7 +31,6 @@ Klingt vielleicht für den ein oder anderen kompliziert, aber nach dieser Präse
     AUR = Arch User Repository
     __TODO:__ Add Info to AUR
 
-Die AUR ist die User-Repository von Arch Linux. Auf diese können alle Paketbuilts stellen. Das heißt jeder kann Programme zur Verfügung stellen. Dies vereinfacht die Installation von vielen Programmen enorm. Zum Beispiel sind alle Programme von JetBrain (IntelliJ, PyCharm, ...) in dieser Repo. Allerdings gibt es bei dieser Art von Repo auch Sicherheitsprobleme
 
 ## Sicherheitsprobleme der AUR
 
