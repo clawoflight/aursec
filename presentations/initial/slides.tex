@@ -13,6 +13,7 @@
 \usepackage{graphicx} % images
 \DeclareGraphicsExtensions{.eps,.pdf,.png,.jpg,.gif}
 \graphicspath{{./img/}}
+\usepackage[export]{adjustbox}
 
 \title{aursec - A blockchain approach to securing software packages}
 \author{Lukas Krismer \& Bennett Piater}
@@ -28,9 +29,9 @@
 	\frametitle{Outline}
 	\tableofcontents
 	\note{1 min L | }
-	%ich werde nie auf die Notes schauen (nur zum Üben) - L 
+	%ich werde nie auf die Notes schauen (nur zum Üben) - L
 	\note{Liebe Anwesende,
-		Mein Name ist Lukas, und Bennett und ich werden euch heute unser Bachelorarbeitsthema näherbringen. Da oben steht so eine schöne große Überschrift ... 
+		Mein Name ist Lukas, und Bennett und ich werden euch heute unser Bachelorarbeitsthema näherbringen. Da oben steht so eine schöne große Überschrift ...
 
 	    Aursec - A blockchain approach to securing software packages
 
@@ -53,8 +54,11 @@
 	\note{Kommen wir zur AUR, also der Arch Linux User Repo. Sie ist eine inoffizielle Repo von Arch Nutzern für Arch Nutzer. Sie beinhaltet Skripte (sog. PKGBUILDs) die für die Erstellung von Paketen benötigt werde . Weiters kann man für Pakete abstimmen um damit eine Aufnahme in die offizielle Community Repo zu fördern. Durch die AUR-helper ist die AUR sehr einfach zu bedienen. So sind yaourt, aurutils und co sehr ähnlich zu bedienen wie Packetmanager. Ein wichtiger Punkt der AUR ist weiters, dass jeder PKGBUILDs hochladen kann. Dies ist sowohl ein sehr großer Vorteil, da es dadurch für fast jedes Problem ein passendes Paket in der AUR gibt,  als auch Nachteil, da die PKGBUILDs fast ausschließlich von Ihren Nutzern validiert werden. So können sich bei unbekannten PKGBUILDs sehr leicht schwarze Schafe einschleichen, die Schadecode enthalten. Der letzte wichte Punkt ist, dass nichtverwaltete Pakete von jedem übernommen werden können, dies wiederum ist ein zweischneidiges Schwert, da dadurch auch böswillige Nutzer Zugriff erhalten können.}
 \end{frame}
 
-\begin{frame}{Threat Assessment}
-	\includegraphics[width=\textwidth]{threat.png}
+\begin{frame}[t]{Threat Assessment}
+	\begin{columns}
+		\column{\dimexpr\paperwidth}
+		\includegraphics[width=\paperwidth,height=0.7\paperheight,left]{threat.png}
+	\end{columns}
 	\note{2 min B | Besonderes Augenmerk auf:
 
 	\begin{itemize}
@@ -68,8 +72,11 @@
 \section{Our Project}
 
 \begin{frame}{Covered Threats}
-	\includegraphics<1>[width=\textwidth]{threat.png}
-	\includegraphics<2>[width=\textwidth]{threat2.png} 
+	\begin{columns}
+		\column{\dimexpr\paperwidth}
+		\includegraphics<1>[width=\paperwidth,height=0.7\paperheight,left]{threat.png}
+		\includegraphics<2>[width=\paperwidth,height=0.7\paperheight,left]{threat2.png}
+	\end{columns}
 	\note{1 min L | }
 	\note{ Kommen wir zu unserem Projekt. Wenn wir uns wieder unsere Threatanalyse anschauen, sehen wir hier "zeig" , dass die validierung der Version große Probleme beheben könnte. Und genau dies wollen wir tun. Mithilfe einer Blockchain sollte es uns Möglich sein dieses Problem zu beseitigen und somit auch die Urprobleme, wie Modifikationen eines Releases oder ein teil des man-in-the-middle Agriffs zu beheben}
 	\end{frame}
@@ -83,7 +90,7 @@
 		0) Wir generieren lokal einen Hash des PKGBUILDs des Paketes
 		2) Wir fragen für das Paket den Hash aus der Blockchain ab
 		3) Wir bekommen die Anzahl des Hashes + Hash für dieses Paket
-		4) 3 Möglichkeiten 
+		4) 3 Möglichkeiten
 			1) kein Hash vorhanden
 				Warnung Manuelles akzeptieren oder ablehnen
 			2) unterhalb des Treshold. Der Treshold ist eine Grenze bei der unser Programm automatisch den Hash als aussagekräftig und glaubhaft sieht.
@@ -91,7 +98,7 @@
 				Manuelles akzeptieren oder ablehnen
 			3) über dem Treshold
 				1) falsche Hash
-					beide Hashes werden angezeigt 
+					beide Hashes werden angezeigt
 					Manuelles akzeptieren oder ablehnen
 				2) richtiger Hash (gewollte Fall)
 					automatisches akzepieren --> automatisch in die Blockchain schreiben
@@ -170,7 +177,7 @@
 \end{frame}
 
 \begin{frame}[standout]
-	Questions? 
+	Questions?
 \end{frame}
 
 
