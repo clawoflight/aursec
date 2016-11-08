@@ -15,8 +15,24 @@ source /usr/share/makepkg/util.sh
 colorize
 
 function usage() {
-	plain "usage: $0 [-h] [--] [BUILD_DIR]" >&2
-	exit 1
+	plain "Usage: $0 [-h|--help] [BUILD_DIR ...]" >&2
+}
+
+function help() {
+	usage
+	cat >&2 <<EOF
+Compute identifiers and hashes for given package sources.
+If BUILD_DIR is not set, or -, read from STDIN.
+Output pairs of ID, HASH for each package on STDOUT.
+
+Options:
+  -h, --help         Show this help message.
+
+Copying:
+  This is free software licensed under the Mozilla Public License, v. 2.0.
+  If a copy of the MPL was not distributed with this file,
+  You can obtain one at http://mozilla.org/MPL/2.0/
+EOF
 }
 
 # Output the recursive hashes of a VCS dir
@@ -73,13 +89,22 @@ function hash_pkg() {
 # Parse the arguments
 while true; do
     case "$1" in
-        --|-) shift
+        -)
+			explicit_stdin=1
+			shift
             break ;;
         -h|--help)
-            usage ;;
+            help
+            exit 0 ;;
         *) break ;;
     esac
 done
+
+# Don't wait for input on stdin if stdin is a tty and the user didn't add a -
+if (( $# == 0 )) && { (( explicit_stdin != 1 )) && tty -s; }; then
+    usage
+    exit 1
+fi
 
 # Either use all remaining arguments, or read from stdin
 if (($#)); then

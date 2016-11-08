@@ -8,22 +8,36 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 readonly BASEDIR="$PWD"
-declare -ri EINIT=64 ENOHASH=65 ECHAIN=66 ENOMATCH=67
+declare -ri EINIT=64 ECHAIN=65 ENOHASH=66 ENOMATCH=67
 set -o pipefail # Receive error codes from _within_ pipes
 
 function usage() {
-    plain "usage: $0 [-h|--help] [-cvs] [--] [BUILD_DIR]" >&2
+    plain "Usage: $0 [-h|--help] [-cvs] [BUILD_DIR ...]" >&2
 }
 
 function help() {
     usage
     cat >&2 <<EOF
-TODO TODO TODO
-TODO TODO TODO
-TODO TODO TODO
-TODO TODO TODO
-TODO TODO TODO
-TODO TODO TODO
+Verify package sources by checking their hashes against a blockchain.
+If BUILD_DIR is not set, or -, read from STDIN.
+
+Options:
+  -h, --help         Show this help message.
+  -v, --verbose      Enable additional output.
+  -c, --check-only   Never submit hashes to the blockchain.
+  -s, --status-only  Only output critical errors and never prompt the user.
+
+Exit status:
+  0  if OK,
+  64 if the initialization failed,
+  65 if there was a problem contacting the chain,
+  66 if no hash was found,
+  67 if the hash didn't match.
+
+Copying:
+  This is free software licensed under the Mozilla Public License, v. 2.0.
+  If a copy of the MPL was not distributed with this file,
+  You can obtain one at http://mozilla.org/MPL/2.0/
 EOF
 }
 
@@ -42,8 +56,14 @@ function manual_override() {
         return 0
     elif [[ "$REPLY" == "w" ]]; then
         return 0
+
+    # User said no, or status_only was set
     else
-        exit $ENOMATCH
+        if [[ $cons_c -eq 0 ]]; then
+            exit $ENOHASH;
+        else
+            exit $ENOMATCH
+        fi
     fi
 }
 
@@ -82,12 +102,10 @@ function state_machine() {
 source /usr/share/makepkg/util.sh
 colorize
 
-# Parse the arguments TODO: use getopts instead
+# Parse the arguments TODO: use getopt to verify them first
 declare -i verbose check_only
 while true; do
     case "$1" in
-        --) shift
-            break ;;
         -) shift
            explicit_stdin=1
            break ;;
@@ -110,7 +128,7 @@ done
 # Don't wait for input on stdin if stdin is a tty and the user didn't add a -
 if (( $# == 0 )) && { (( explicit_stdin != 1 )) && tty -s; }; then
     usage
-    exit 1
+    exit $EINIT
 fi
 
 ###############################################
@@ -119,7 +137,7 @@ fi
 while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
     if [[ -z "$pkg_id" || -z "$pkg_hash" || -z "$cons_h" || -z "$cons_c" || -z "$match" ]]; then
         error "Received invalid data from aursec-verify!"
-        exit 1
+        exit $ECHAIN
     fi
 
     state_machine
