@@ -1,0 +1,25 @@
+#compdef aursec
+
+typeset -A opt_args
+
+_aursec_opts=(
+	{-h,--help}'[Show help.]'
+    {-v,--verbose}'[Enable additional output.]'
+    {-c,--check-only}'[Never submit hashes to the blockchain.]'
+    {-s,--status-only}'[Only output critical errors and never prompt the user.]'
+)
+
+_aursec_action_none() {
+    _arguments -s : \
+        "$_aursec_opts[@]" \
+        '*::build directory :_directories' \
+}
+
+# main dispatcher
+_aursec() {
+    case $words[2] in
+        *) _aursec_action_none ;;
+    esac
+}
+
+_aursec "$@"

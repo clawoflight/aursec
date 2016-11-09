@@ -1,0 +1,22 @@
+#compdef aursec-hash
+
+typeset -A opt_args
+
+_aursec_hash_opts=(
+	{-h,--help}'[Show help.]'
+)
+
+_aursec_hash_action_none() {
+    _arguments -s : \
+        "$_aursec_hash_opts[@]" \
+        '*::build directory :_directories' \
+}
+
+# main dispatcher
+_aursec-hash() {
+    case $words[2] in
+        *) _aursec_hash_action_none ;;
+    esac
+}
+
+_aursec-hash "$@"
