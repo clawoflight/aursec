@@ -7,7 +7,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 set -e -o pipefail
-declare -i vcs_enabled=0
 readonly BASEDIR="$PWD"
 
 # Makepkg ships lots of useful stuff!

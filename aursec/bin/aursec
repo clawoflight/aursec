@@ -9,7 +9,7 @@
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 readonly BASEDIR="$PWD"
 declare -ri EINIT=64 ECHAIN=65 ENOHASH=66 ENOMATCH=67
-set -o pipefail # Receive error codes from _within_ pipes
+set -e -o pipefail # Receive error codes from _within_ pipes
 
 function usage() {
     plain "Usage: $0 [-h|--help] [-cvs] [BUILD_DIR ...]" >&2
