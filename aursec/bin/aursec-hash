@@ -27,6 +27,9 @@ Output pairs of ID, HASH for each package on STDOUT.
 
 Options:
   -h, --help         Show this help message.
+  -v, --verbose      Show additional output.
+  -d, --debug        Show all individual hashes on stderr.
+  -n, --novcs        Do not download VCS sources.
 
 Copying:
   This is free software licensed under the Mozilla Public License, v. 2.0.
@@ -36,16 +39,17 @@ EOF
 }
 
 # Output the recursive hashes of a VCS dir
-# $1: vcs dir
+# $@: vcs dirs
 function vcs_hash() {
 	# TODO: ignore the .folders of all VCS supported by makepkg
-	cd_safe "$1"
 
-	find . \( -path \*.git\* -o -path \*.hg\* \) -prune \
-	 -o -type f -readable \
+	find "$@" -not -path '*/.git*' \
+	 -not -path '*/.svn*' \
+	 -not -path '*/.hg*' \
+	 -not -path '*/.bzr*' \
+	 -type f -readable \
 	 -exec sha256sum "{}" \;
 
-	cd_safe "$BASEDIR"
 }
 
 # Output the hashes of build files
@@ -54,14 +58,12 @@ function basic_hash() {
 	cd_safe "$1"
 
 	# Patches and install scripts
-	find . \( -name .SRCINFO \
+	find . -maxdepth 1 \( -name .SRCINFO \
 	 -o -name \*.patch -o -name \*.install \) \
 	 -exec sha256sum "{}" +
 
 	# PKGBUILD without comments TODO: what else could be improved here? Maybe sorting?
 	sed "s/#.*//" PKGBUILD | sha256sum -
-
-	cd_safe "$BASEDIR"
 }
 
 # $1: build dir
@@ -71,15 +73,28 @@ function hash_pkg() {
 		error "$1 is not a valid build directory!" >&2
 		exit 1
 	fi
-	local build_dir="$1"
-	cd_safe "$build_dir"
+
+	# Get the package id
+	cd_safe "$1"
 	PKGID=$(firejail --quiet --read-only=/ --nogroups --seccomp --caps.drop=all bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel')
 
-	# Calculate the hash
-	if ((vcs_enabled)); then # TODO: actually handle VCS packages. That requires detecting them and the cloned source folder, and that they were cloned... :/
-		HASH=$({ basic_hash .; vcs_hash "$vcs_dir"; } | sort | sha256sum | cut -d " " -f 1)
+	# Check if it's a vcs package
+	vcs_dirs=( $(aursec-parse-srcinfo .SRCINFO) )
+
+	if (( ${#vcs_dirs[@]} )); then
+		((no_vcs)) && error "VCS dir found, but --novcs was specified!" && exit 1
+
+		if ((verbose)); then
+			echo "Downloading VCS sources with makepkg..." >&2
+			makepkg -od --noprepare 2>/dev/null # TODO: use firejail for this step
+		else
+			makepkg -od --noprepare >/dev/null 2>&1 # TODO: use firejail for this step
+		fi
+
+		#                                Prepend 'src/' to every vcs dir
+		HASH=$({ basic_hash .; vcs_hash "${vcs_dirs[@]/#/src/}"; } | sort | $debug_cmd | sha256sum | cut -d " " -f 1)
 	else
-		HASH=$(basic_hash . | sort | sha256sum | cut -d " " -f 1)
+		HASH=$(basic_hash . | sort | $debug_cmd | sha256sum | cut -d " " -f 1)
 	fi
 
 	cd_safe "$BASEDIR"
@@ -93,6 +108,18 @@ while true; do
 			explicit_stdin=1
 			shift
             break ;;
+        -v|--verbose)
+			verbose=1
+			shift
+			;;
+		-d|--debug)
+			debug=1
+			shift
+			;;
+		-n|--novcs)
+			no_vcs=1
+			shift
+			;;
         -h|--help)
             help
             exit 0 ;;
@@ -106,15 +133,29 @@ if (( $# == 0 )) && { (( explicit_stdin != 1 )) && tty -s; }; then
     exit 1
 fi
 
+if ((debug)); then
+	debug_cmd="tee /dev/stderr"
+else
+	debug_cmd="cat"
+fi
+
 # Either use all remaining arguments, or read from stdin
 if (($#)); then
-	for pkg in "$@"; do
-		hash_pkg "$pkg";
+	for pkg_dir in "$@"; do
+		hash_pkg "$pkg_dir";
 	done
 else
-	while IFS=$'\n' read -r pkg; do
-		hash_pkg "$pkg"
+	while IFS=$'\n' read -r pkg_dir; do
+		hash_pkg "$pkg_dir"
 	done
 fi
 
 exit 0
+
+# Useful packages to test this script:
+# ecwolf-hg
+# 2bwm-git
+# alan-bzr
+# caff-svn
+# cloc-svn
+# pidgin-hg

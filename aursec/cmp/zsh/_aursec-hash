@@ -4,6 +4,9 @@ typeset -A opt_args
 
 _aursec_hash_opts=(
 	{-h,--help}'[Show help.]'
+	{-v,--verbose}'[Show additional output.]'
+	{-d,--debug}'[Show all individual hashes on stderr.]'
+	{-n,--novcs}'[Do not download VCS sources.]'
 )
 
 _aursec_hash_action_none() {
