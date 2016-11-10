@@ -1,6 +1,6 @@
 #!/bin/bash
-# Small demo that parses a .SRCINFO file
-# and outputs the pkgbase, version and release of all packages
+# Small script that parses a .SRCINFO file
+# and outputs any vcs download folders that were found.
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,14 +14,25 @@ fi
 
 readonly SRCINFO="$1"
 
+# If a vcs source url was found, output its download folder
 while IFS=' =' read -r key val; do
-	[[ $key == *pkgbase ]] && echo pkgbase: $val
-	[[ $key == *pkgver ]] && echo version: $val
-	[[ $key == *pkgrel ]] && echo release: $val
-	[[ $key == *src ]] && [[ "$val" =~ (.*git+http.*|.*svn://.*|.*bzr://.*|.*hg://.*) ]] && echo VCS package!
+	# Only look at values for which the key is "source"
+	[[ $key != *source ]] && continue
+
+	# Manual name for the downloaded repo folder
+	if [[ "$val" =~ .*::(.*git(@|\+http).*|.*svn(\+http|://).*|.*bzr\+http.*|.*hg\+http.*) ]]; then
+		echo "${val%%::*}"  # Strip the url
+
+	# Automatic git naming
+	elif [[ "$val" =~ .*/.*\.git ]]; then
+		git_repo="${val##*/}"  # Strip the url
+		echo "${git_repo%.git}"  # Strip the trailing .git
+
+	# Automatic {bzr,svn,hg} naming
+	elif [[ "$val" =~ (bzr|svn|hg)(\+http|://).* ]]; then
+		vcs_url="${val%/}"  # Strip the trailing slash
+		echo "${vcs_url##*/}"  # Strip the url
+	fi
 done < "$SRCINFO"
 
-# NOTE: We may need the architecture in the key as well (uname -m) because of arch-specific sources...
-# NOTE: VCS pkgver: firejail --quiet --read-only=/home --nogroups --seccomp --caps.drop=all bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel'
-
-return 0
+exit 0
