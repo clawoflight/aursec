@@ -8,6 +8,7 @@
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 set -e -o pipefail
 readonly BASEDIR="$PWD"
+readonly firejail_opts=(--quiet --noprofile --read-only=/ --nogroups --seccomp --shell=none --caps.drop=all)
 
 # Makepkg ships lots of useful stuff!
 source /usr/share/makepkg/util.sh
@@ -61,7 +62,7 @@ function basic_hash() {
 	 -o -name \*.patch -o -name \*.install \) \
 	 -exec sha256sum "{}" +
 
-	# PKGBUILD without comments TODO: what else could be improved here? Maybe sorting?
+	# PKGBUILD without comments TODO: what else could be improved here? Maybe sorting - but how to make that work with scripts?
 	sed "s/#.*//" PKGBUILD | sha256sum -
 }
 
@@ -75,7 +76,7 @@ function hash_pkg() {
 
 	# Get the package id
 	cd_safe "$1"
-	PKGID=$(firejail --quiet --read-only=/ --nogroups --seccomp --caps.drop=all bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel')
+	PKGID=$(firejail "${firejail_opts[@]}" --whitelist="$(pwd)" bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel')
 
 	# Check if it's a vcs package
 	vcs_dirs=( $(aursec-parse-srcinfo .SRCINFO) )
@@ -85,9 +86,9 @@ function hash_pkg() {
 
 		if ((verbose)); then
 			echo "Downloading VCS sources with makepkg..." >&2
-			makepkg -od --noprepare 2>/dev/null # TODO: use firejail for this step
+			firejail "${firejail_opts[@]}" --whitelist="$(pwd)" --read-write="$(pwd)" bash -c 'makepkg -od --noprepare --nosign 2>/dev/null'
 		else
-			makepkg -od --noprepare >/dev/null 2>&1 # TODO: use firejail for this step
+			firejail "${firejail_opts[@]}" --whitelist="$(pwd)" --read-write="$(pwd)" bash -c 'makepkg -od --noprepare --nosign >/dev/null 2>&1'
 		fi
 
 		#                                Prepend 'src/' to every vcs dir
