@@ -1,4 +1,5 @@
 #!/bin/bash
+# for mining ensure that the rpcapi miner is enabled
 
 BLOCKCHAIN_PATH="/home/lifree/.aursec/"
 CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
