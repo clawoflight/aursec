@@ -1,0 +1,77 @@
+#!/bin/bash
+
+BLOCKCHAIN_PATH="/home/lifree/.aursec/"
+CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
+PORT="8545"
+re='^[0-9]+$' # regular expression?
+
+# Makepkg ships lots of useful stuff!
+source /usr/share/makepkg/util.sh
+colorize
+
+function usage() {
+	plain "TODO: ADD HELP" >&2
+	exit 1
+}
+
+function mine_usage() {
+	plain "TODO: ADD HELP" >&2
+	exit 1
+}
+
+function start_mining() {
+	curl localhost:8545 -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}' 
+}
+
+function stop_mining() {
+	curl localhost:8545 -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}'
+}
+
+function get_current_block() {
+	local block_hexnum=$(curl --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+') 
+	printf "%d\n" $block_hexnum
+	
+}
+
+function mining_blocks() {
+	if ! [[ $1 =~ $re ]] ; then
+		echo "error: 3rd argument ($1) no number"
+		exit 1
+	fi
+	start_block=$(get_current_block)
+	start_mining
+	while [[ $(get_current_block) < $(($start_block + $1)) ]]; do
+		sleep 1
+	done
+	stop_mining
+	}
+
+
+case "$1" in
+    mine)
+		case "$2" in
+			start)
+				start_mining ;;
+			stop)
+				stop_mining ;;
+			blocks)
+				mining_blocks $3;;
+			*) mine_usage;;
+		esac ;;
+    commitHash) 
+		echo "commit Hash";;
+	getHash) 
+		echo "get Hash";;
+    -h|--help)
+        usage ;;
+    *) usage ;;
+esac
+
+
+
+
+#COINBASE=$(curl --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
+#echo $COINBASE
+
+# Calculate DEC to HEXDEC
+#echo "obase=16; 13" | bc
