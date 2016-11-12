@@ -3,6 +3,10 @@
 
 BLOCKCHAIN_PATH="/home/lifree/.aursec/"
 CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
+GET_HASH_ADDR_HEX="0xcd79f86d"
+COMMIT_HASH_ADDR_HEX="0xac336f7b"
+GAS_PRICE="0xba43b7400" 
+
 PORT="8545"
 re='^[0-9]+$' # regular expression?
 
@@ -47,6 +51,39 @@ function mining_blocks() {
 	stop_mining
 	}
 
+function commit_hash() {
+	local offset1=$(hex_to_pre_hex32 40)
+	local string1=$(string_to_hex $1)
+	local string2=$(string_to_hex $2)
+	local offset2_dec=$(echo $((${#string1}/2+64)))
+	local offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
+	local offset2=$(hex_to_pre_hex32 $offset2_hex)
+	local coinbase=$(curl --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
+	curl localhost:8545 -X POST --data '{"jsonrpc":"2.0","id":"1","method":"eth_sendTransaction","params":[{"data":"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2","from":"$coinbase","gasPrice":"$GAS_PRICE","to":"$CONTRACT_ADDR_HEX"}]}'
+	mining_blocks 10
+}
+
+function string_to_hex() {
+	local hexstring=$(echo "$1" | od -t x1 -A n | tr -d '\040\011\012\015\0x0a')
+	local size=${#hexstring} 
+	local bytes=$(echo $(($size/2)))
+	local bytes_hex32=$(hex_to_pre_hex32 $bytes)
+	local string_hex32=$(hex_to_post_hex32 $hexstring)
+	echo "$bytes_hex32$string_hex32"
+
+}
+
+function hex_to_pre_hex32() {
+	local prefix_size=$(echo $((64-${#1}%64)))
+	local prefix=$(printf %${prefix_size}s | tr " " "0")
+	echo "$prefix$1"
+}
+
+function hex_to_post_hex32() {
+	local postfix_size=$(echo $((64-${#1}%64)))
+	local postfix=$(printf %${postfix_size}s | tr " " "0")
+	echo "$1$postfix"
+}
 
 case "$1" in
     mine)
@@ -60,9 +97,10 @@ case "$1" in
 			*) mine_usage;;
 		esac ;;
     commitHash) 
-		echo "commit Hash";;
-	getHash) 
-		echo "get Hash";;
+		commit_hash $2 $3;;
+	getHash)
+		get_hash $2;;
+		
     -h|--help)
         usage ;;
     *) usage ;;
