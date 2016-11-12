@@ -3,9 +3,10 @@
 
 BLOCKCHAIN_PATH="/home/lifree/.aursec/"
 CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
-GET_HASH_ADDR_HEX="0xcd79f86d"
-COMMIT_HASH_ADDR_HEX="0xac336f7b"
+COMMIT_HASH_ADDR_HEX="0xcd79f86d"
+GET_HASH_ADDR_HEX="0xac336f7b"
 GAS_PRICE="0xba43b7400" 
+GAS="0x4e381"
 
 PORT="8545"
 re='^[0-9]+$' # regular expression?
@@ -25,11 +26,11 @@ function mine_usage() {
 }
 
 function start_mining() {
-	curl localhost:8545 -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}' 
+	curl localhost:$PORT -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}' 
 }
 
 function stop_mining() {
-	curl localhost:8545 -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}'
+	curl localhost:$PORT -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}'
 }
 
 function get_current_block() {
@@ -58,9 +59,27 @@ function commit_hash() {
 	local offset2_dec=$(echo $((${#string1}/2+64)))
 	local offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
 	local offset2=$(hex_to_pre_hex32 $offset2_hex)
+	local coinbase=$(curl localhost:$PORT --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
+	#curl localhost:$PORT -X POST --data '{"jsonrpc":"2.0","id":"1","method":"eth_sendTransaction","params":[{"data":"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2","from":"$coinbase","gasPrice":"$GAS_PRICE","to":"$CONTRACT_ADDR_HEX"}]}'
+	curl localhost:$PORT -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}"
+	mining_blocks 3
+}
+
+function get_hash() {
+	local offset=$(hex_to_pre_hex32 20)
+	local string=$(string_to_hex $1)
 	local coinbase=$(curl --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
-	curl localhost:8545 -X POST --data '{"jsonrpc":"2.0","id":"1","method":"eth_sendTransaction","params":[{"data":"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2","from":"$coinbase","gasPrice":"$GAS_PRICE","to":"$CONTRACT_ADDR_HEX"}]}'
-	mining_blocks 10
+	local hex_result=$(curl localhost:$PORT -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
+	local num_of_commits_hex=$(echo "$hex_result" | cut -c65-128)
+	local num_of_commits_dec=$(printf "%d\n" "$num_of_commits_hex")
+	local hash_halfsize_hex=$(echo "$hex_result" |cut -c129-192)
+	local hash_halfsize_dec=$(echo $((16#$hash_halfsize_hex)))
+	local hash_size_dec=$((hash_halfsize_dec*2))
+	echo $hash_size_hex "hex -> dec" $hash_size_dec
+	local hash_hex=$(echo "$hex_result" |cut -c193-$((193+$hash_size_dec-1)))
+	local hash_printable=$(echo "$hash_hex" | sed 's/.\{2\}/\\x&/g')
+	local hash=$(printf "$hash_printable")
+	echo "Hash: $hash TimesSubmitted: $num_of_commits_dec"
 }
 
 function string_to_hex() {
@@ -96,9 +115,9 @@ case "$1" in
 				mining_blocks $3;;
 			*) mine_usage;;
 		esac ;;
-    commitHash) 
+    commit-hash) 
 		commit_hash $2 $3;;
-	getHash)
+	get-hash)
 		get_hash $2;;
 		
     -h|--help)
