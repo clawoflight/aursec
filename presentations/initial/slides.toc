@@ -1,4 +1,0 @@
-\beamer@endinputifotherversion {3.36pt}
-\select@language {english}
-\beamer@sectionintoc {1}{AUR}{3}{0}{1}
-\beamer@sectionintoc {2}{Our Project}{6}{0}{2}

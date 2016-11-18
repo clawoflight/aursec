@@ -1,0 +1,42 @@
+#!/bin/bash
+# Initialize the blockchain
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+# 
+# TODO: add verbose + usage + better comments
+
+BLOCKCHAIN_PATH="/var/aursectest"
+JSON_FILE="/home/lifree/Downloads/demo_genesis_block.json"
+
+function init(){
+	mkdir $BLOCKCHAIN_PATH
+	# init blockchain
+	geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE >/dev/null 2>/dev/null
+	# generate password
+	date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
+	# new blockchain account
+	geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new >/dev/null 2>/dev/null
+}
+
+if [ "$EUID" -ne 0 ]; then
+	echo "Please run this script as root."
+	exit 1
+fi
+if [ -d $BLOCKCHAIN_PATH ]; then 
+	read -p "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
+	case $yn in 
+		[Yy]* )
+			rm -rf $BLOCKCHAIN_PATH
+			init;;
+		* )
+			echo "Canceled the blockchain initialization."
+			exit 1
+	esac
+			
+else
+	init
+fi
+echo "Initialization of the blockchain was successful. Please start the systemd service."
+exit 0
