@@ -31,32 +31,24 @@ EOF
 
 # Creates blockchain and account
 function init(){
-	if [ $verbose ]; then
-		echo "Create directory."
-		mkdir $BLOCKCHAIN_PATH
-		# init blockchain
-		echo "Create Blockchain."
-		geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE >/dev/null 
-		# generate password
-		echo "Generate random password."
-		date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
-		# new blockchain account
-		echo "Create new account."
-		geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new >/dev/null
-	else
-		mkdir $BLOCKCHAIN_PATH
-		# init blockchain
-		geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE >/dev/null 2>/dev/null
-		# generate password
-		date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
-		# new blockchain account
-		geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new >/dev/null 2>/dev/null
-	fi
+	((verbose)) && echo "Create directory."
+	mkdir $BLOCKCHAIN_PATH
+	# init blockchain
+	((verbose)) && echo "Create Blockchain."
+	geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE |(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )
+	# generate password
+	((verbose)) && echo "Generate random password."
+	date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
+	# new blockchain account
+	((verbose)) && echo "Create new account."
+	geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new | ( ((verbose)) && >${std_out} || >${std_out} 2>${err_out})
 }
 
 
 
 # Parse the arguments
+std_out="/dev/null"
+err_out="/dev/null"
 while true; do
     case "$1" in
         -v|--verbose)
@@ -75,9 +67,8 @@ if [ "$EUID" -ne 0 ]; then
 	exit 1
 fi
 
-if [ $verbose ]; then
-	echo "Check if $BLOCKCHAIN_PATH already exists."
-fi
+((verbose)) && echo "Check if $BLOCKCHAIN_PATH already exists."
+
 if [ -d $BLOCKCHAIN_PATH ]; then 
 	read -p "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
 	case $yn in 
