@@ -1,28 +1,82 @@
 #!/bin/bash
-# Initialize the blockchain
+# Initialize a ethereum blockchain and creates account
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
-# 
-# TODO: add verbose + usage + better comments
+
 
 BLOCKCHAIN_PATH="/var/aursectest"
 JSON_FILE="/home/lifree/Downloads/demo_genesis_block.json"
 
-function init(){
-	mkdir $BLOCKCHAIN_PATH
-	# init blockchain
-	geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE >/dev/null 2>/dev/null
-	# generate password
-	date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
-	# new blockchain account
-	geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new >/dev/null 2>/dev/null
+function usage() {
+	plain "Usage: $0 [-h|--help]" >&2
 }
+
+function help() {
+	usage
+	cat >&2 <<EOF
+Initialize a Ethereum Blockchain and generates a new account.
+
+Options:
+  -h, --help         Show this help message.
+  -v, --verbose      Show additional output.
+
+Copying:
+  This is free software licensed under the Mozilla Public License, v. 2.0.
+  If a copy of the MPL was not distributed with this file,
+  You can obtain one at http://mozilla.org/MPL/2.0/
+EOF
+}
+
+# Creates blockchain and account
+function init(){
+	if [ $verbose ]; then
+		echo "Create directory."
+		mkdir $BLOCKCHAIN_PATH
+		# init blockchain
+		echo "Create Blockchain."
+		geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE >/dev/null 
+		# generate password
+		echo "Generate random password."
+		date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
+		# new blockchain account
+		echo "Create new account."
+		geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new >/dev/null
+	else
+		mkdir $BLOCKCHAIN_PATH
+		# init blockchain
+		geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE >/dev/null 2>/dev/null
+		# generate password
+		date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
+		# new blockchain account
+		geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new >/dev/null 2>/dev/null
+	fi
+}
+
+
+
+# Parse the arguments
+while true; do
+    case "$1" in
+        -v|--verbose)
+			verbose=1
+			shift
+			;;
+        -h|--help)
+            help
+            exit 0 ;;
+        *) break ;;
+    esac
+done
 
 if [ "$EUID" -ne 0 ]; then
 	echo "Please run this script as root."
 	exit 1
+fi
+
+if [ $verbose ]; then
+	echo "Check if $BLOCKCHAIN_PATH already exists."
 fi
 if [ -d $BLOCKCHAIN_PATH ]; then 
 	read -p "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
