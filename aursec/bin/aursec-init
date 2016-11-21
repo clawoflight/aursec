@@ -6,7 +6,7 @@
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 
 
-BLOCKCHAIN_PATH="/var/aursectest"
+BLOCKCHAIN_PATH="/var/aursec"
 JSON_FILE="/home/lifree/Downloads/demo_genesis_block.json"
 
 function usage() {
@@ -32,16 +32,16 @@ EOF
 # Creates blockchain and account
 function init(){
 	((verbose)) && echo "Create directory."
-	mkdir $BLOCKCHAIN_PATH
+	mkdir -p $BLOCKCHAIN_PATH
 	# init blockchain
 	((verbose)) && echo "Create Blockchain."
-	geth --datadir $BLOCKCHAIN_PATH init $JSON_FILE |(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )
+	geth --datadir $BLOCKCHAIN_PATH/chain init $JSON_FILE |(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )
 	# generate password
 	((verbose)) && echo "Generate random password."
-	date +%s | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
+	dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
 	# new blockchain account
 	((verbose)) && echo "Create new account."
-	geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH account new | ( ((verbose)) && >${std_out} || >${std_out} 2>${err_out})
+	geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new | ( ((verbose)) && >${std_out} || >${std_out} 2>${err_out})
 }
 
 
@@ -69,9 +69,9 @@ fi
 
 ((verbose)) && echo "Check if $BLOCKCHAIN_PATH already exists."
 
-if [ -d $BLOCKCHAIN_PATH ]; then 
+if [ -d $BLOCKCHAIN_PATH ]; then
 	read -p "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
-	case $yn in 
+	case $yn in
 		[Yy]* )
 			rm -rf $BLOCKCHAIN_PATH
 			init;;
@@ -79,7 +79,7 @@ if [ -d $BLOCKCHAIN_PATH ]; then
 			echo "Canceled the blockchain initialization."
 			exit 1
 	esac
-			
+
 else
 	init
 fi
