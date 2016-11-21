@@ -33,15 +33,16 @@ EOF
 function init(){
 	((verbose)) && echo "Create directory."
 	mkdir -p $BLOCKCHAIN_PATH
+	chown -R aursec:aursec $BLOCKCHAIN_PATH
 	# init blockchain
 	((verbose)) && echo "Create Blockchain."
-	geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK |/usr/share/aursec/(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )
+	su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK |/usr/share/aursec/(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )"
 	# generate password
 	((verbose)) && echo "Generate random password."
-	dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
+	su aursec -c "dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password"
 	# new blockchain account
 	((verbose)) && echo "Create new account."
-	geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new | ( ((verbose)) && >${std_out} || >${std_out} 2>${err_out})
+	su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new | ( ((verbose)) && >${std_out} || >${std_out} 2>${err_out})"
 }
 
 
@@ -72,7 +73,7 @@ fi
 if [ -d $BLOCKCHAIN_PATH ]; then
 	read -p "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
 	case $yn in
-		[Yy]* )
+		y|Y )
 			rm -rf $BLOCKCHAIN_PATH
 			init;;
 		* )
