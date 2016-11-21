@@ -7,7 +7,7 @@
 
 
 BLOCKCHAIN_PATH="/var/aursec"
-JSON_FILE="/home/lifree/Downloads/demo_genesis_block.json"
+GENESIS_BLOCK="/usr/share/aursec/genesis_block.json"
 
 function usage() {
 	plain "Usage: $0 [-h|--help]" >&2
@@ -35,7 +35,7 @@ function init(){
 	mkdir -p $BLOCKCHAIN_PATH
 	# init blockchain
 	((verbose)) && echo "Create Blockchain."
-	geth --datadir $BLOCKCHAIN_PATH/chain init $JSON_FILE |(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )
+	geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK |/usr/share/aursec/(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )
 	# generate password
 	((verbose)) && echo "Generate random password."
 	dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password
