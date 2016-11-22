@@ -6,7 +6,7 @@ SHRDIR ?= $(DESTDIR)$(PREFIX)/share
 BINDIR ?= $(DESTDIR)$(PREFIX)/bin
 LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
 
-all: man
+all: man/aursec.1 man/aursec-hash.1 man/aursec-chain.1 man/aursec.7
 
 .PHONY: check install clean
 
@@ -24,11 +24,11 @@ install: all
 	@install -Dm644 ../LICENSE	   -t $(SHRDIR)/licenses/$(PROGNM)
 #	@install -Dm644 ../THANKS ../README -t $(SHRDIR)/doc/$(PROGNM)
 
-man: man/aursec.1.md man/aursec-hash.1.md man/aursec-chain.1.md man/aursec.7.md
-	pandoc -s -t man man/aursec.1.md -o man/aursec.1
-	pandoc -s -t man man/aursec-hash.1.md -o man/aursec-hash.1
-	pandoc -s -t man man/aursec-chain.1.md -o man/aursec-chain.1
-	pandoc -s -t man man/aursec.7.md -o man/aursec.7
+man/%.1: man/%.1.md
+	pandoc -s -t man $< > $@
+
+man/%.7: man/%.7.md
+	pandoc -s -t man $< > $@
 
 clean:
 	$(RM) man/*.1 man/*.7
