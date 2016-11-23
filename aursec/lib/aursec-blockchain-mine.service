@@ -1,0 +1,8 @@
+[Unit]
+Description=Mine a few blocks in the aursec blockchain
+
+[Service]
+Type=simple
+ExecStart=aursec-chain mine blocks 5
+User=aursec
+Group=aursec

@@ -19,6 +19,7 @@ install: all
 	@install -Dm644 man/*.1	       -t $(SHRDIR)/man/man1
 	@install -Dm644 man/*.7	       -t $(SHRDIR)/man/man7
 	@install -Dm644 lib/*.service  -t $(LIBDIR)/systemd/system
+	@install -Dm644 lib/*.timer    -t $(LIBDIR)/systemd/system
 	@install -Dm644 share/*        -t $(SHRDIR)/$(PROGNM)
 
 	@install -Dm644 ../LICENSE	   -t $(SHRDIR)/licenses/$(PROGNM)

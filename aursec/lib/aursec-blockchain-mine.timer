@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodically mine a few blocks in the aursec blockchain
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=5000
+AccuracySec=1us
+Persistent=true
+
+[Install]
+WantedBy=timers.target
