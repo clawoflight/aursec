@@ -1,11 +1,50 @@
 # AURSEC
 
-> A blockchain approach to securing software dependencies
+![AUR Version](https://img.shields.io/aur/version/aursec.svg)
+![MPL 2.0](https://img.shields.io/github/license/clawoflight/aursec.svg)
+![Downloads](https://img.shields.io/github/downloads/clawoflight/aursec/total.svg)
 
-TODO: make a proper readme!
+> A blockchain approach to securing software packages
 
-## Dependencies
+This is the repository of our Bachelor's thesis.
+It's goal is to alleviate some of the AUR's security issues by building a hash database in a private Ethereum blockchain.
 
-- `vim`: for `xxd`, required in `aursec-blockchain`
-- `firejail`: required in `aursec-hash`
-...
+This repository contains several components:
+
+- The primary program, `aursec`
+- The Solidity code for the blockchain, in `Ethereum`
+- The paper 
+- Our presentations
+
+## Building
+
+We manage and test the solidity code using [Populus](https://github.com/pipermerriam/populus), but end users don't need to install that.
+
+The main program is available in the [AUR](https://aur.archlinux.org/aursec).
+To install it by hand, simply call `make install` in the `aursec` folder.
+
+You will need the following dependencies:
+
+- `firejail`: required in `aursec-hash`.
+- `geth`: to run the local blockchain.
+- `pandoc`: to compile the man-pages.
+- `vim`: for `xxd`, required in `aursec-blockchain`.
+
+## Using
+
+Aursec can be used to verify sources by hand.
+However, our hope is that the major AUR helpers will catch on and make themselves extensible, or integrate aursec directly.
+
+In the mean time, you can use one like `bauerbill`, which supports custom hooks, and make one that calls aursec. We hope to provide example hooks for various AUR helpers in the future.
+
+Before using the program, ensure that `aursec-blockchain.service` is running and `aursec-blockchain-mine.timer` is enabled.
+
+The basic usage is as follows:
+
+- `aursec-hash` prints a package ID and hash to stdout, which can be piped to
+- `aursec-verify-hashes`, which verifies packages against the blockchain using
+- `aursec-chain`, which is a bash API for the blockchain component.
+- `aursec` is a powerful convenience wrapper around these.
+
+For more precise information, please read the man pages; their markdown sources are included in this repository.
+Aursec(7) contains a thorough introduction.
