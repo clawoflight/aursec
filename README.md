@@ -11,8 +11,8 @@ It's goal is to alleviate some of the AUR's security issues by building a hash d
 
 This repository contains several components:
 
-- The primary program, `aursec`
-- The Solidity code for the blockchain, in `Ethereum`
+- The primary program, [aursec](https://github.com/clawoflight/aursec/tree/master/aursec/)
+- The Solidity code for the blockchain, in [Ethereum](https://github.com/clawoflight/aursec/tree/master/Ethereum)
 - The paper 
 - Our presentations
 
@@ -35,7 +35,7 @@ You will need the following dependencies:
 Aursec can be used to verify sources by hand.
 However, our hope is that the major AUR helpers will catch on and make themselves extensible, or integrate aursec directly.
 
-In the mean time, you can use one like `bauerbill`, which supports custom hooks, and make one that calls aursec. We hope to provide example hooks for various AUR helpers in the future.
+In the mean time, you can use one like `bauerbill`, which supports custom hooks, and create one that calls aursec. We hope to provide example hooks for various AUR helpers in the future.
 
 Before using the program, ensure that `aursec-blockchain.service` is running and `aursec-blockchain-mine.timer` is enabled.
 
@@ -46,5 +46,5 @@ The basic usage is as follows:
 - `aursec-chain`, which is a bash API for the blockchain component.
 - `aursec` is a powerful convenience wrapper around these.
 
-For more precise information, please read the man pages; their markdown sources are included in this repository.
-Aursec(7) contains a thorough introduction.
+For more precise information, please read the man pages; their markdown sources are included [in this repository](https://github.com/clawoflight/aursec/tree/master/aursec/man).
+Aursec(7) will contain a thorough introduction into the use and design of this project.
