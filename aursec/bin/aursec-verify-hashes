@@ -24,7 +24,7 @@ while read -r PKG_ID HASH; do
 	fi
 
 	# Contact the blockchain TODO: use the correct command.
-	read -r REMOTE_HASH REMOTE_COUNT < <(aursec-blockchain --get "$PKG_ID")
+	read -r REMOTE_HASH REMOTE_COUNT < <(aursec-chain get-hash "$PKG_ID")
 	if [[ -z "$REMOTE_HASH" || -z "$REMOTE_COUNT" ]]; then
 		error There was a problem when contacting the blockchain!
 		exit 1

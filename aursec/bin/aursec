@@ -48,11 +48,12 @@ function show_hashes() {
     ((match)) && plain "The hashes match."
 }
 
+# Requires $pkg_id, $pkg_hash
 function manual_override() {
     ((status_only)) || read -rp $'Continue anyway? [y]es, [w]ithout submitting, [N]o\n> ' </dev/tty
 
     if [[ "$REPLY" == "y" ]]; then
-        # TODO: submit hash
+        aursec-chain commit-hash "$pkg_id" "$pkg_hash"
         return 0
     elif [[ "$REPLY" == "w" ]]; then
         return 0
@@ -144,6 +145,7 @@ while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
 
 # This will automagically use all remaining arguments, or read from stdin
 # Our stdin attaches to aursec-hash, and the loop reads from the pipeline.
+# TODO: will this also work with long lists, or will manual_override clash with aursec-hash?
 done 4< <(aursec-hash "$@" | aursec-verify-hashes)
 
 exit 0

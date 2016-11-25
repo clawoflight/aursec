@@ -5,7 +5,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
 
-# ensure that a unlocked eth node is running
+# ensure that an unlocked eth node is running
 # for mining ensure that the rpcapi miner is enabled
 
 
@@ -15,10 +15,10 @@ BLOCKCHAIN_PATH="/home/lifree/.aursec/"
 CONTRACT_ADDR_HEX="0x5df735760b7ceb4eb37e2db37999766a477277b6"
 COMMIT_HASH_ADDR_HEX="0xcd79f86d"
 GET_HASH_ADDR_HEX="0xac336f7b"
-GAS_PRICE="0xba43b7400" 
+GAS_PRICE="0xba43b7400"
 GAS="0x4e381"
 
-# open rpc port 
+# open rpc port
 PORT="8545"
 
 # Makepkg ships lots of useful stuff!
@@ -43,9 +43,9 @@ Options:
   -v, --verbose      Show additional output
   mine 	start 		 Starts mining with the coinbase account
   		stop 		 Stops mining with the coinbase account
-  		blocks N 	 mines min. N Blocks with the coinbase account 
+  		blocks N 	 mines min. N Blocks with the coinbase account
   get-hash 	ID 		 Gets corrent consens-hash of package ID
-  commit-hash ID HA  Commit new hash HA of package ID in the blockchain		
+  commit-hash ID HA  Commit new hash HA of package ID in the blockchain
 
 Copying:
   This is free software licensed under the Mozilla Public License, v. 2.0.
@@ -168,10 +168,10 @@ function get_hash() {
 }
 
 # convert String to hex-string (Ethereum ABI-style)
-# $1 = String 
+# $1 = String
 function string_to_hex() {
 	local hexstring=$(xxd -pu <<< "$1" | sed ':a;N;$!ba;s/[[:space:]]//g')
-	local size=${#hexstring} 
+	local size=${#hexstring}
 	local bytes=$(($size/2))
 	local bytes_hex32=$(hex_to_pre_hex32 $bytes)
 	local string_hex32=$(hex_to_post_hex32 $hexstring)
@@ -215,7 +215,7 @@ while true; do
     esac
 done
 
-# main 
+# main
 case "$1" in
     mine)
 		case "$2" in
@@ -227,7 +227,7 @@ case "$1" in
 				mine_n_blocks $3;;
 			*) usage;;
 		esac ;;
-    commit-hash) 
+    commit-hash)
 		commit_hash $2 $3;;
 	get-hash)
 		get_hash $2;;
