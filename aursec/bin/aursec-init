@@ -36,13 +36,13 @@ function init(){
 	chown -R aursec:aursec $BLOCKCHAIN_PATH
 	# init blockchain
 	((verbose)) && echo "Create Blockchain."
-	su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK |/usr/share/aursec/(((verbose))&&>${std_out} ||2>${err_out} >${std_out} )"
+	su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}"
 	# generate password
 	((verbose)) && echo "Generate random password."
 	su aursec -c "dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password"
 	# new blockchain account
 	((verbose)) && echo "Create new account."
-	su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new | ( ((verbose)) && >${std_out} || >${std_out} 2>${err_out})"
+	su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}"
 }
 
 
