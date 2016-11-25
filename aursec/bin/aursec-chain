@@ -1,0 +1,203 @@
+#!/bin/bash
+# Bash API for the Ethereum-Blockchain of aursec
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+
+# ensure that a unlocked eth node is running
+# for mining ensure that the rpcapi miner is enabled
+
+
+BLOCKCHAIN_PATH="/home/lifree/.aursec/"
+# Smart Contract values
+CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
+COMMIT_HASH_ADDR_HEX="0xcd79f86d"
+GET_HASH_ADDR_HEX="0xac336f7b"
+GAS_PRICE="0xba43b7400" 
+GAS="0x4e381"
+
+# open rpc port 
+PORT="8545"
+
+# Makepkg ships lots of useful stuff!
+source /usr/share/makepkg/util.sh
+colorize
+
+
+
+# shows usage
+function usage() {
+	plain "Usage: $0 [-h|--help] [-v|--verbose] ..." >&2
+}
+
+#shows help
+function help() {
+	usage
+	cat >&2 <<EOF
+Bash API for the Ethereum-Blockchain of aursec
+
+Options:
+  -h, --help         Show this help message
+  -v, --verbose      Show additional output
+  mine 	start 		 Starts mining with the coinbase account
+  		stop 		 Stops mining with the coinbase account
+  		blocks N 	 mines min. N Blocks with the coinbase account 
+  get-hash 	ID 		 Gets corrent consens-hash of package ID
+  commit-hash ID HA  Commit new hash HA of package ID in the blockchain		
+
+Copying:
+  This is free software licensed under the Mozilla Public License, v. 2.0.
+  If a copy of the MPL was not distributed with this file,
+  You can obtain one at http://mozilla.org/MPL/2.0/
+EOF
+}
+
+# Starts mining via RPC
+function start_mining() {
+	((verbose))&& echo "start mining"
+	curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}' | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}
+}
+
+# Stops mining via RPC
+function stop_mining() {
+	((verbose))&& echo "stop mining"
+	curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}' | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}
+}
+
+# Returns Dec number of current block
+function get_current_block() {
+	((verbose))&& echo "get current block"
+	local block_hexnum=$(curl $silence --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+') 
+	printf "%d\n" $block_hexnum
+	
+}
+
+# Mines min. N blocks 
+# $1 = N
+function mine_n_blocks() {
+	((verbose))&& echo "start mining $1 blocks"
+	if ! [[ $1 =~ '^[0-9]+$' ]] ; then
+		echo "error: 3rd argument ($1) no number"
+		exit 1
+	fi
+	start_block=$(get_current_block)
+	start_mining
+	# waiting till N blocks were mined
+	while [[ $(get_current_block) < $(($start_block + $1)) ]]; do
+		sleep 1
+	done
+	stop_mining
+	}
+
+# Commits Hash into the blockchain
+# $1 = ID
+# $2 = HASH
+function commit_hash() {
+	((verbose))&& echo "Commit Hash $2 of Package $1"
+	((verbose))&& echo "parse input to json"
+	local offset1=$(hex_to_pre_hex32 40)
+	local string1=$(string_to_hex $1)
+	local string2=$(string_to_hex $2)
+	local offset2_dec=$(echo $((${#string1}/2+64)))
+	local offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
+	local offset2=$(hex_to_pre_hex32 $offset2_hex)
+	((verbose))&& echo "get coinbase"
+	local coinbase=$(curl localhost:$PORT $silence --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
+	((verbose))&& echo "send Transaction"
+	curl localhost:$PORT $silence -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}" | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}
+	((verbose))&& echo "mine blocks to verify transaction"
+	mine_n_blocks 3
+}
+
+# Get Hash (+times submitted) for an ID
+# $1 = ID
+function get_hash() {
+	((verbose))&& echo "Get hash of package $ID"
+	((verbose))&& echo "parse input to json"
+	local offset=$(hex_to_pre_hex32 20) 
+	local string=$(string_to_hex $1)
+	((verbose))&& echo "get coinbase"
+	local coinbase=$(curl $silence --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
+	((verbose))&& echo "send call"
+	local hex_result=$(curl localhost:$PORT $silence -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
+	if [ ${#hex_result} -le 192 ]; then
+		echo 0
+	else
+		((verbose))&& echo "parse result to strings"
+		local num_of_commits_hex=$(echo "$hex_result" | cut -c65-128)
+		local num_of_commits_dec=$(printf "%d\n" "$num_of_commits_hex")
+		local hash_halfsize_dec=$(echo "$hex_result" |cut -c129-192 | sed 's/^0*//')
+		local hash_size_dec=$(((hash_halfsize_dec-1)*2))
+		local hash_hex=$(echo "$hex_result" |cut -c193-$((193+$hash_size_dec-1)))
+		local hash_printable=$(echo "$hash_hex" | sed 's/.\{2\}/\\x&/g')
+		local hash=$(printf "$hash_printable")
+		echo "$hash $num_of_commits_dec"
+	fi
+}
+
+# convert String to hex-string (Ethereum ABI-style)
+# $1 = String 
+function string_to_hex() {
+	local hexstring=$(xxd -pu <<< "$1")
+	local size=${#hexstring} 
+	local bytes=$(($size/2))
+	local bytes_hex32=$(hex_to_pre_hex32 $bytes)
+	local string_hex32=$(hex_to_post_hex32 $hexstring)
+	echo "$bytes_hex32$string_hex32"
+
+}
+
+# converts hex-String to hexstring with length%32byte==0 the prestring is filled with 0s
+# $1 = input hexstring
+function hex_to_pre_hex32() {
+	local prefix_size=$((64-${#1}%64)) #64 cause 2 digits are 1 byte
+	local prefix=$(printf %${prefix_size}s | tr " " "0")
+	echo "$prefix$1"
+}
+
+# converts hex-String to hexstring with length%32byte==0 the poststring is filled with 0s
+# $1 = input hexstring
+function hex_to_post_hex32() {
+	local postfix_size=$(echo $((64-${#1}%64)))
+	local postfix=$(printf %${postfix_size}s | tr " " "0")
+	echo "$1$postfix"
+}
+
+# Parse the arguments
+verbose=0
+silence='-s'
+std_out="/dev/null"
+err_out="/dev/null"
+while true; do
+    case "$1" in
+        -v|--verbose)
+			verbose=1
+			silence=''
+			shift
+			;;
+        -h|--help)
+            help
+            exit 0 ;;
+        *) break ;;
+    esac
+done
+
+# main 
+case "$1" in
+    mine)
+		case "$2" in
+			start)
+				start_mining ;;
+			stop)
+				stop_mining ;;
+			blocks)
+				mine_n_blocks $3;;
+			*) usage;;
+		esac ;;
+    commit-hash) 
+		commit_hash $2 $3;;
+	get-hash)
+		get_hash $2;;
+    *) usage ;;
+esac
