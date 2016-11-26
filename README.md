@@ -28,7 +28,8 @@ You will need the following dependencies:
 - `firejail`: required in `aursec-hash`.
 - `geth`: to run the local blockchain.
 - `pandoc`: to compile the man-pages.
-- `vim`: for `xxd`, required in `aursec-blockchain`.
+- `vim`: for `xxd`, required in `aursec-chain`.
+- `acpi`: to check charging status in `aursec-chain`
 
 ## Using
 

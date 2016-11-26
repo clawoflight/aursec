@@ -53,31 +53,59 @@ Copying:
 EOF
 }
 
-# Starts mining via RPC
+function is_mining(){
+	((verbose))&& echo "Checking if already mining" >&2
+	if curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
+		((verbose))&& echo "is mining" >&2
+		echo 1
+	else
+		((verbose))&& echo "is not mining" >&2
+		echo 0
+	fi
+
+}
+
+# Starts mining via RPC if not already mining
+# TODO: Issue 4 Laptop Battery 
 function start_mining() {
-	((verbose))&& echo "start mining"
-	curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}' | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}
+	local tmp
+	#local cpu_level
+	#if acpi -a | grep -q 'on-line'; then
+	#	cpu_level=5
+	#else
+	#	cpu_level=+15
+	#fi
+	if [[ "$(is_mining)" -eq "0" ]]; then
+		((verbose))&& echo "start mining" >&2
+		tmp=$(curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
+		((verbose))&& echo $tmp >&2
+	fi
+	#for pid in `pgrep -f "geth.*--datadir $BLOCKCHAIN_PATH"`; do 
+	#	renice -n ${cpu_level} -p $pid & 
+	#done
 }
 
 # Stops mining via RPC
 function stop_mining() {
-	((verbose))&& echo "stop mining"
-	curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}' | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}
+	local tmp
+	((verbose))&& echo "stop mining" >&2
+	tmp=$(curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
+	((verbose))&& echo $tmp >&2 
 }
 
 # Returns Dec number of current block
 function get_current_block() {
-	((verbose))&& echo "get current block"
+	((verbose)) && echo "get current block" >&2
 	local block_hexnum=$(curl $silence --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+') 
 	printf "%d\n" $block_hexnum
-	
 }
 
 # Mines min. N blocks 
 # $1 = N
 function mine_n_blocks() {
-	((verbose))&& echo "start mining $1 blocks"
-	if ! [[ $1 =~ '^[0-9]+$' ]] ; then
+	((verbose))&& echo "start mining $1 blocks" >&2
+	local re='^[0-9]+$'
+	if ! [[ $1 =~ $re ]] ; then
 		echo "error: 3rd argument ($1) no number"
 		exit 1
 	fi
@@ -94,37 +122,39 @@ function mine_n_blocks() {
 # $1 = ID
 # $2 = HASH
 function commit_hash() {
-	((verbose))&& echo "Commit Hash $2 of Package $1"
-	((verbose))&& echo "parse input to json"
+	local tmp
+	((verbose))&& echo "Commit Hash $2 of Package $1" >&2
+	((verbose))&& echo "parse input to json" >&2
 	local offset1=$(hex_to_pre_hex32 40)
 	local string1=$(string_to_hex $1)
 	local string2=$(string_to_hex $2)
 	local offset2_dec=$(echo $((${#string1}/2+64)))
 	local offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
 	local offset2=$(hex_to_pre_hex32 $offset2_hex)
-	((verbose))&& echo "get coinbase"
+	((verbose))&& echo "get coinbase" >&2
 	local coinbase=$(curl localhost:$PORT $silence --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
-	((verbose))&& echo "send Transaction"
-	curl localhost:$PORT $silence -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}" | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}
-	((verbose))&& echo "mine blocks to verify transaction"
+	((verbose))&& echo "send Transaction" >&2
+	tmp=$(curl localhost:$PORT $silence -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
+	((verbose))&& echo $tmp >&2
+	((verbose))&& echo "mine blocks to verify transaction" >&2
 	mine_n_blocks 3
 }
 
 # Get Hash (+times submitted) for an ID
 # $1 = ID
 function get_hash() {
-	((verbose))&& echo "Get hash of package $ID"
-	((verbose))&& echo "parse input to json"
+	((verbose))&& echo "Get hash of package $ID" >&2
+	((verbose))&& echo "parse input to json" >&2
 	local offset=$(hex_to_pre_hex32 20) 
 	local string=$(string_to_hex $1)
-	((verbose))&& echo "get coinbase"
+	((verbose))&& echo "get coinbase" >&2
 	local coinbase=$(curl $silence --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
-	((verbose))&& echo "send call"
+	((verbose))&& echo "send call" >&2
 	local hex_result=$(curl localhost:$PORT $silence -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
 	if [ ${#hex_result} -le 192 ]; then
 		echo 0
 	else
-		((verbose))&& echo "parse result to strings"
+		((verbose))&& echo "parse result to strings" >&2
 		local num_of_commits_hex=$(echo "$hex_result" | cut -c65-128)
 		local num_of_commits_dec=$(printf "%d\n" "$num_of_commits_hex")
 		local hash_halfsize_dec=$(echo "$hex_result" |cut -c129-192 | sed 's/^0*//')
