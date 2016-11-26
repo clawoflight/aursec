@@ -1,0 +1,14 @@
+dependencies:
+  cache_directories:
+    - "~/.cabal"
+    - "~/shellcheck"
+
+  pre:
+    - sudo apt-get install cabal-install
+    - cabal update
+    - git clone https://github.com/koalaman/shellcheck && cd shellcheck && cabal install
+
+test:
+  override:
+    - ~/.cabal/bin/shellcheck -e SC1091 -x aursec/bin/*
+
