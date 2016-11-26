@@ -82,7 +82,7 @@ function hash_pkg() {
 	vcs_dirs=( $(aursec-parse-srcinfo .SRCINFO) )
 
 	if (( ${#vcs_dirs[@]} )); then
-		((no_vcs)) && error "VCS dir found, but --novcs was specified!" && exit 1
+		((no_vcs)) && error "VCS dir found, but --novcs was specified!" >&2 && exit 1
 
 		if ((verbose)); then
 			echo "Downloading VCS sources with makepkg..." >&2
