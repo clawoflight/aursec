@@ -31,18 +31,21 @@ EOF
 
 # Creates blockchain and account
 function init(){
-	((verbose)) && echo "Create directory."
+	local tmp
+	((verbose)) && echo "Create directory." >&2
 	mkdir -p $BLOCKCHAIN_PATH
 	chown -R aursec:aursec $BLOCKCHAIN_PATH
 	# init blockchain
 	((verbose)) && echo "Create Blockchain."
-	su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}"
+	tmp=$(su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK")
+	((verbose))&& echo $tmp >&2
 	# generate password
-	((verbose)) && echo "Generate random password."
+	((verbose)) && echo "Generate random password." >&2
 	su aursec -c "dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password"
 	# new blockchain account
-	((verbose)) && echo "Create new account."
-	su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new | {((verbose)) && >${std_out};} || >${std_out} 2>${err_out}"
+	((verbose)) && echo "Create new account." >&2
+	tmp=$(su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new ")
+	((verbose))&& echo $tmp >&2
 }
 
 
