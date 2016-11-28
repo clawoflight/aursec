@@ -10,5 +10,7 @@ dependencies:
 
 test:
   override:
+    - mkdir -p $CIRCLE_TEST_REPORTS/shellcheck
     - ~/.cabal/bin/shellcheck -e SC1091 -x aursec/bin/*
+    - ~/.cabal/bin/shellcheck -e SC1091 -xf checkstyle aursec/bin/* > $CIRCLE_TEST_REPORTS/shellcheck/check.xml
 
