@@ -50,7 +50,7 @@ function show_hashes() {
 
 # Requires $pkg_id, $pkg_hash
 function manual_override() {
-    ((status_only)) || read -rp $'Continue anyway? [y]es, [w]ithout submitting, [N]o\n> ' </dev/tty
+    ((status_only)) || (check_only) || read -rp $'Continue anyway? [y]es, [w]ithout submitting, [N]o\n> ' </dev/tty
 
     if [[ "$REPLY" == "y" ]]; then
         aursec-chain commit-hash "$pkg_id" "$pkg_hash"
@@ -70,7 +70,7 @@ function manual_override() {
 
 # Requires $pkg_id, $pkg_hash, $thresh, $cons_h, $cons_c, $match
 function state_machine() {
-    thresh=${thresh:-42} # TODO: load this from config file
+    thresh=${thresh:-42} # TODO: load this from config file? See #14
     if [[ $cons_c -eq 0 ]]; then
         # No hash in the blockchain
         ((status_only)) || warning "No hash for $pkg_id was found in the blockchain."
@@ -87,7 +87,7 @@ function state_machine() {
         if [[ "$cons_h" == "$pkg_hash" ]]; then
             # Matching hashes
             ((verbose)) && msg "Hash for $pkg_id matches the consensus."
-            # TODO: submit hash
+            ((check_only)) || aursec-chain commit-hash "$pkg_id" "$pkg_hash"
             return 0
 
         else
@@ -103,7 +103,7 @@ function state_machine() {
 source /usr/share/makepkg/util.sh
 colorize
 
-# Parse the arguments TODO: use getopt to verify them first
+# Parse the arguments TODO: use getopt to verify them first?
 declare -i verbose check_only
 while true; do
     case "$1" in
@@ -127,7 +127,7 @@ while true; do
 done
 
 # Don't wait for input on stdin if stdin is a tty and the user didn't add a -
-if (( $# == 0 )) && { (( explicit_stdin != 1 )) && tty -s; }; then
+if (( $# == 0 )) && (( explicit_stdin != 1 )) && tty -s; then
     usage
     exit $EINIT
 fi
@@ -143,9 +143,9 @@ while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
 
     state_machine
 
-# This will automagically use all remaining arguments, or read from stdin
+# This will automagically use all remaining arguments, or read from stdin.
 # Our stdin attaches to aursec-hash, and the loop reads from the pipeline.
-# TODO: will this also work with long lists, or will manual_override clash with aursec-hash?
+# This works because manual_override reads directly from /dev/tty.
 done 4< <(aursec-hash "$@" | aursec-verify-hashes)
 
 exit 0
