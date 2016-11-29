@@ -11,7 +11,8 @@
 
 BLOCKCHAIN_PATH="/home/lifree/.aursec/"
 # Smart Contract values
-CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
+#CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
+CONTRACT_ADDR_HEX="0x5df735760b7ceb4eb37e2db37999766a477277b6"
 COMMIT_HASH_ADDR_HEX="0xcd79f86d"
 GET_HASH_ADDR_HEX="0xac336f7b"
 GAS_PRICE="0xba43b7400" 
@@ -169,11 +170,12 @@ function get_hash() {
 # convert String to hex-string (Ethereum ABI-style)
 # $1 = String 
 function string_to_hex() {
-	local hexstring=$(xxd -pu <<< "$1")
+	local hexstring=$(xxd -pu <<< "$1" | sed ':a;N;$!ba;s/[[:space:]]//g')
 	local size=${#hexstring} 
 	local bytes=$(($size/2))
 	local bytes_hex32=$(hex_to_pre_hex32 $bytes)
 	local string_hex32=$(hex_to_post_hex32 $hexstring)
+	
 	echo "$bytes_hex32$string_hex32"
 
 }
