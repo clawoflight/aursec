@@ -55,7 +55,7 @@ EOF
 
 function is_mining(){
 	((verbose))&& echo "Checking if already mining" >&2
-	if curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
+	if curl localhost:$PORT ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
 		((verbose))&& echo "is mining" >&2
 		echo 1
 	else
@@ -68,7 +68,7 @@ function is_mining(){
 # Starts mining via RPC if not already mining
 # TODO: Issue 4 Laptop Battery
 function start_mining() {
-	local tmp
+	declare tmp
 	#local cpu_level
 	#if acpi -a | grep -q 'on-line'; then
 	#	cpu_level=5
@@ -78,7 +78,7 @@ function start_mining() {
 	if [[ "$(is_mining)" -eq "0" ]]; then
 		((verbose))&& echo "start mining" >&2
 		tmp=$(curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
-		((verbose))&& echo $tmp >&2
+		((verbose))&& echo ${tmp} >&2
 	fi
 	#for pid in `pgrep -f "geth.*--datadir $BLOCKCHAIN_PATH"`; do
 	#	renice -n ${cpu_level} -p $pid &
@@ -104,8 +104,7 @@ function get_current_block() {
 # $1 = N
 function mine_n_blocks() {
 	((verbose))&& echo "start mining $1 blocks" >&2
-	local re='^[0-9]+$'
-	if ! [[ $1 =~ $re ]] ; then
+	if ! [[ $1 =~ ^[0-9]+$ ]] ; then
 		echo "error: 3rd argument ($1) no number"
 		exit 1
 	fi
@@ -174,7 +173,6 @@ function string_to_hex() {
 	local bytes=$(($size/2))
 	local bytes_hex32=$(hex_to_pre_hex32 $bytes)
 	local string_hex32=$(hex_to_post_hex32 $hexstring)
-	
 	echo "$bytes_hex32$string_hex32"
 
 }
