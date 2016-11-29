@@ -12,21 +12,16 @@ set -e -o pipefail
 source /usr/share/makepkg/util.sh
 colorize
 
-# TODO: Dummy for testing.
-function aursec-blockchain() {
-	printf "asdasdas 0\n"
-}
-
 while read -r PKG_ID HASH; do
 	if [[ -z "$PKG_ID" || -z "$HASH" ]]; then
-		error The input stream must be formated as \"PKG_ID HASH\"!
+		error "The input stream must be formated as \"PKG_ID HASH\"!" >&2
 		exit 1
 	fi
 
 	# Contact the blockchain TODO: use the correct command.
-	read -r REMOTE_HASH REMOTE_COUNT < <(aursec-blockchain --get "$PKG_ID")
+	read -r REMOTE_HASH REMOTE_COUNT < <(aursec-chain get-hash "$PKG_ID")
 	if [[ -z "$REMOTE_HASH" || -z "$REMOTE_COUNT" ]]; then
-		error There was a problem when contacting the blockchain!
+		error "There was a problem contacting the blockchain!" >&2
 		exit 1
 	fi
 
@@ -39,5 +34,5 @@ while read -r PKG_ID HASH; do
 
 	# Print to output stream
 	printf "%s %s %s %d %s\n" "$PKG_ID" "$HASH" "$REMOTE_HASH" "$REMOTE_COUNT" "$MATCH"
-	unset PKG_ID HASH
+	unset PKG_ID HASH REMOTE_HASH REMOTE_COUNT
 done
