@@ -50,7 +50,7 @@ function show_hashes() {
 
 # Requires $pkg_id, $pkg_hash
 function manual_override() {
-    ((status_only)) || (check_only) || read -rp $'Continue anyway? [y]es, [w]ithout submitting, [N]o\n> ' </dev/tty
+    ((status_only)) || ((check_only)) || read -rp $'Continue anyway? [y]es, [w]ithout submitting, [N]o\n> ' </dev/tty
 
     if [[ "$REPLY" == "y" ]]; then
         aursec-chain commit-hash "$pkg_id" "$pkg_hash"
