@@ -1,9 +1,9 @@
 # AURSEC
 
-![AUR Version](https://img.shields.io/aur/version/aursec.svg)
-![MPL 2.0](https://img.shields.io/github/license/clawoflight/aursec.svg)
-![Downloads](https://img.shields.io/github/downloads/clawoflight/aursec/total.svg)
-![CircleCI](https://img.shields.io/circleci/project/github/clawoflight/aursec.svg)
+![MPL 2.0](https://img.shields.io/github/license/clawoflight/aursec.svg?link=https://github.com/clawoflight/aursec/blob/master/LICENSE)
+![CircleCI](https://img.shields.io/circleci/project/github/clawoflight/aursec.svg?)
+![Downloads](https://img.shields.io/github/downloads/clawoflight/aursec/total.svg?link=https://github.com/clawoflight/aursec/releases)
+![AUR Version](https://img.shields.io/aur/version/aursec.svg?link=https://aur.archlinux.org/aursec)
 
 > A blockchain approach to securing software packages
 
