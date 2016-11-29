@@ -32,19 +32,19 @@ EOF
 # Creates blockchain and account
 function init(){
 	declare tmp
-	((verbose)) && echo "Create directory." >&2
+	((verbose)) && echo "Creating directory." >&2
 	mkdir -p $BLOCKCHAIN_PATH
 	chown -R aursec:aursec $BLOCKCHAIN_PATH
 	# init blockchain
-	((verbose)) && echo "Create Blockchain."
+	((verbose)) && echo "Creating Blockchain."
 	tmp=$(su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK "  2>&1)
 	((verbose))&& echo "$tmp" >&2
 	# generate password
-	((verbose)) && echo "Generate random password." >&2
+	((verbose)) && echo "Generating random password." >&2
 	tmp=$(su aursec -c "dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password " 2>&1)
 	((verbose))&& echo "$tmp" >&2
 	# new blockchain account
-	((verbose)) && echo "Create new account." >&2
+	((verbose)) && echo "Creating new account." >&2
 	tmp=$(su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new " 2>&1)
 	((verbose))&& echo "$tmp" >&2
 }
@@ -70,7 +70,7 @@ if [ "$EUID" -ne 0 ]; then
 	exit 1
 fi
 
-((verbose)) && echo "Check if $BLOCKCHAIN_PATH already exists."
+((verbose)) && echo "Checking if $BLOCKCHAIN_PATH already exists."
 
 if [ -d $BLOCKCHAIN_PATH ]; then
 	read -rp "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
