@@ -35,6 +35,7 @@ function init(){
 	((verbose)) && echo "Creating directory." >&2
 	mkdir -p $BLOCKCHAIN_PATH
 	chown -R aursec:aursec $BLOCKCHAIN_PATH
+	chmod -R 700 $BLOCKCHAIN_PATH
 	# init blockchain
 	((verbose)) && echo "Creating Blockchain."
 	tmp=$(su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK "  2>&1)
