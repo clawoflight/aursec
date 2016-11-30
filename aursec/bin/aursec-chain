@@ -7,6 +7,7 @@
 
 # ensure that an unlocked eth node is running
 # for mining ensure that the rpcapi miner is enabled
+
 set -e -o pipefail
 
 # Smart Contract values
@@ -21,6 +22,7 @@ GAS="0x4e381"
 PORT="8545"
 
 # Makepkg ships lots of useful stuff!
+# shellcheck disable=SC1091
 source /usr/share/makepkg/util.sh
 colorize
 
@@ -55,7 +57,7 @@ EOF
 
 function is_mining(){
 	((verbose))&& echo "Checking if already mining" >&2
-	if curl localhost:$PORT ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
+	if curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
 		((verbose))&& echo "is mining" >&2
 		echo 1
 	else
@@ -66,7 +68,7 @@ function is_mining(){
 }
 
 # Starts mining via RPC if not already mining
-# TODO: Issue 4 Laptop Battery
+# TO DO: Issue 4 Laptop Battery
 function start_mining() {
 	declare tmp
 	#local cpu_level
@@ -77,8 +79,8 @@ function start_mining() {
 	#fi
 	if [[ "$(is_mining)" -eq "0" ]]; then
 		((verbose))&& echo "start mining" >&2
-		tmp=$(curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
-		((verbose))&& echo ${tmp} >&2
+		tmp=$(curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
+		((verbose))&& echo "$tmp" >&2
 	fi
 	#for pid in `pgrep -f "geth.*--datadir $BLOCKCHAIN_PATH"`; do
 	#	renice -n ${cpu_level} -p $pid &
@@ -87,22 +89,24 @@ function start_mining() {
 
 # Stops mining via RPC
 function stop_mining() {
-	local tmp
+	declare tmp
 	((verbose))&& echo "stop mining" >&2
-	tmp=$(curl localhost:$PORT $silence -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
-	((verbose))&& echo $tmp >&2
+	tmp=$(curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
+	((verbose))&& echo "$tmp" >&2
 }
 
 # Returns Dec number of current block
 function get_current_block() {
+	declare block_hexnum
 	((verbose)) && echo "get current block" >&2
-	local block_hexnum=$(curl $silence --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+') 
-	printf "%d\n" $block_hexnum
+	block_hexnum=$(curl "$silence" --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+') 
+	printf "%d\n" "$block_hexnum"
 }
 
 # Mines min. N blocks
 # $1 = N
 function mine_n_blocks() {
+	declare start_block 
 	((verbose))&& echo "start mining $1 blocks" >&2
 	if ! [[ $1 =~ ^[0-9]+$ ]] ; then
 		echo "error: 3rd argument ($1) no number"
@@ -111,7 +115,7 @@ function mine_n_blocks() {
 	start_block=$(get_current_block)
 	start_mining
 	# waiting till N blocks were mined
-	while [[ $(get_current_block) < $(($start_block + $1)) ]]; do
+	while [[ $(get_current_block) < $((start_block + $1)) ]]; do
 		sleep 1
 	done
 	stop_mining
@@ -121,20 +125,20 @@ function mine_n_blocks() {
 # $1 = ID
 # $2 = HASH
 function commit_hash() {
-	local tmp
+	declare tmp offset1 offset2 offset2_dec offset2_hex coinbase string1 string2 
 	((verbose))&& echo "Commit Hash $2 of Package $1" >&2
 	((verbose))&& echo "parse input to json" >&2
-	local offset1=$(hex_to_pre_hex32 40)
-	local string1=$(string_to_hex $1)
-	local string2=$(string_to_hex $2)
-	local offset2_dec=$(echo $((${#string1}/2+64)))
-	local offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
-	local offset2=$(hex_to_pre_hex32 $offset2_hex)
+	offset1=$(hex_to_pre_hex32 40)
+	string1=$(string_to_hex "$1")
+	string2=$(string_to_hex "$2")
+	offset2_dec=$((${#string1}/2+64))
+	offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
+	offset2=$(hex_to_pre_hex32 "$offset2_hex")
 	((verbose))&& echo "get coinbase" >&2
-	local coinbase=$(curl localhost:$PORT $silence --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
+	coinbase=$(curl localhost:$PORT "$silence" --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
 	((verbose))&& echo "send Transaction" >&2
-	tmp=$(curl localhost:$PORT $silence -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
-	((verbose))&& echo $tmp >&2
+	tmp=$(curl localhost:$PORT "$silence" -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
+	((verbose))&& echo "$tmp" >&2
 	((verbose))&& echo "mine blocks to verify transaction" >&2
 	mine_n_blocks 3
 }
@@ -142,25 +146,27 @@ function commit_hash() {
 # Get Hash (+times submitted) for an ID
 # $1 = ID
 function get_hash() {
+	declare offset string coinbase hex_result 
 	((verbose))&& echo "Get hash of package $ID" >&2
 	((verbose))&& echo "parse input to json" >&2
-	local offset=$(hex_to_pre_hex32 20)
-	local string=$(string_to_hex $1)
+	offset=$(hex_to_pre_hex32 20)
+	string=$(string_to_hex "$1")
 	((verbose))&& echo "get coinbase" >&2
-	local coinbase=$(curl $silence --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
+	coinbase=$(curl "$silence" --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
 	((verbose))&& echo "send call" >&2
-	local hex_result=$(curl localhost:$PORT $silence -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
+	hex_result=$(curl localhost:$PORT "$silence" -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
 	if [ ${#hex_result} -le 192 ]; then
 		echo null 0
 	else
+		declare num_of_commits_hex num_of_commits_dec hash_halfsize_dec hash_size_dec hash_hex hash_printable hash
 		((verbose))&& echo "parse result to strings" >&2
-		local num_of_commits_hex=$(echo "$hex_result" | cut -c65-128)
-		local num_of_commits_dec=$(printf "%d\n" "$num_of_commits_hex")
-		local hash_halfsize_dec=$(echo "$hex_result" |cut -c129-192 | sed 's/^0*//')
-		local hash_size_dec=$(((hash_halfsize_dec-1)*2))
-		local hash_hex=$(echo "$hex_result" |cut -c193-$((193+$hash_size_dec-1)))
-		local hash_printable=$(echo "$hash_hex" | sed 's/.\{2\}/\\x&/g')
-		local hash=$(printf "$hash_printable")
+		num_of_commits_hex=$(echo "$hex_result" | cut -c65-128)
+		num_of_commits_dec=$(printf "%d\n" "$num_of_commits_hex")
+		hash_halfsize_dec=$(echo "$hex_result" |cut -c129-192 | sed 's/^0*//')
+		hash_size_dec=$(((hash_halfsize_dec-1)*2))
+		hash_hex=$(echo "$hex_result" |cut -c193-$((193+hash_size_dec-1)))
+		hash_printable=$(sed 's/.\{2\}/\\x&/g' <<< "$hash_hex")
+		hash=$(printf "%s" "$hash_printable")
 		echo "$hash $num_of_commits_dec"
 	fi
 }
@@ -168,11 +174,12 @@ function get_hash() {
 # convert String to hex-string (Ethereum ABI-style)
 # $1 = String
 function string_to_hex() {
-	local hexstring=$(xxd -pu <<< "$1" | sed ':a;N;$!ba;s/[[:space:]]//g')
-	local size=${#hexstring}
-	local bytes=$(($size/2))
-	local bytes_hex32=$(hex_to_pre_hex32 $bytes)
-	local string_hex32=$(hex_to_post_hex32 $hexstring)
+	declare hexstring size bytes bytes_hex32 string_hex32
+	hexstring=$(xxd -pu <<< "$1" | sed ':a;N;$!ba;s/[[:space:]]//g')
+	size=${#hexstring}
+	bytes=$((size/2))
+	bytes_hex32=$(hex_to_pre_hex32 "$bytes")
+	string_hex32=$(hex_to_post_hex32 "$hexstring")
 	echo "$bytes_hex32$string_hex32"
 
 }
@@ -180,24 +187,24 @@ function string_to_hex() {
 # converts hex-String to hexstring with length%32byte==0 the prestring is filled with 0s
 # $1 = input hexstring
 function hex_to_pre_hex32() {
-	local prefix_size=$((64-${#1}%64)) #64 cause 2 digits are 1 byte
-	local prefix=$(printf %${prefix_size}s | tr " " "0")
+	declare prefix_size prefix
+	prefix_size=$((64-${#1}%64)) #64 cause 2 digits are 1 byte
+	prefix=$(printf %${prefix_size}s | tr " " "0")
 	echo "$prefix$1"
 }
 
 # converts hex-String to hexstring with length%32byte==0 the poststring is filled with 0s
 # $1 = input hexstring
 function hex_to_post_hex32() {
-	local postfix_size=$(echo $((64-${#1}%64)))
-	local postfix=$(printf %${postfix_size}s | tr " " "0")
+	declare postfix postfix
+	postfix_size=$((64-${#1}%64))
+	postfix=$(printf %${postfix_size}s | tr " " "0")
 	echo "$1$postfix"
 }
 
 # Parse the arguments
 verbose=0
 silence='-s'
-std_out="/dev/null"
-err_out="/dev/null"
 while true; do
     case "$1" in
         -v|--verbose)
@@ -221,12 +228,12 @@ case "$1" in
 			stop)
 				stop_mining ;;
 			blocks)
-				mine_n_blocks $3;;
+				mine_n_blocks "$3";;
 			*) usage;;
 		esac ;;
     commit-hash)
-		commit_hash $2 $3;;
+		commit_hash "$2" "$3";;
 	get-hash)
-		get_hash $2;;
+		get_hash "$2";;
     *) usage ;;
 esac
