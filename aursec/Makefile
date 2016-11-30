@@ -11,7 +11,8 @@ all: man/aursec.1 man/aursec-hash.1 man/aursec-chain.1 man/aursec.7
 .PHONY: check install clean
 
 check:
-	@shellcheck -x bin/*
+	# Shellcheck cannot handle UTF8 if the locale is unset --> chroot builds
+	LC_ALL=C shellcheck -x bin/*
 
 install: all
 	@install -Dm755 bin/*	       -t $(BINDIR)

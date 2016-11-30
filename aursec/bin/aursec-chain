@@ -3,7 +3,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-# Copyright © 2016-2017 Lukas Krismer and Bennett Piater.
+# Copyright (c) 2016-2017 Lukas Krismer and Bennett Piater.
 
 # ensure that an unlocked eth node is running
 # for mining ensure that the rpcapi miner is enabled
@@ -99,14 +99,14 @@ function stop_mining() {
 function get_current_block() {
 	declare block_hexnum
 	((verbose)) && echo "Getting current block" >&2
-	block_hexnum=$(curl "$silence" --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+') 
+	block_hexnum=$(curl "$silence" --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
 	printf "%d\n" "$block_hexnum"
 }
 
 # Mines min. N blocks
 # $1 = N
 function mine_n_blocks() {
-	declare start_block 
+	declare start_block
 	((verbose))&& echo "Starting mining $1 blocks" >&2
 	if ! [[ $1 =~ ^[0-9]+$ ]] ; then
 		echo "error: 3rd argument ($1) is no number"
@@ -125,7 +125,7 @@ function mine_n_blocks() {
 # $1 = ID
 # $2 = HASH
 function commit_hash() {
-	declare tmp offset1 offset2 offset2_dec offset2_hex coinbase string1 string2 
+	declare tmp offset1 offset2 offset2_dec offset2_hex coinbase string1 string2
 	((verbose))&& echo "Committing Hash $2 of Package $1" >&2
 	((verbose))&& echo "Parsing input to json" >&2
 	offset1=$(hex_to_pre_hex32 40)
@@ -146,7 +146,7 @@ function commit_hash() {
 # Get Hash (+times submitted) for an ID
 # $1 = ID
 function get_hash() {
-	declare offset string coinbase hex_result 
+	declare offset string coinbase hex_result
 	((verbose))&& echo "Getting hash of package $ID" >&2
 	((verbose))&& echo "Parsing input to json" >&2
 	offset=$(hex_to_pre_hex32 20)
