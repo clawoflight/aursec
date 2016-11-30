@@ -19,7 +19,7 @@ GAS_PRICE="0xba43b7400"
 GAS="0x4e381"
 
 # open rpc port
-PORT="8545"
+PORT="8105"
 
 # Makepkg ships lots of useful stuff!
 # shellcheck disable=SC1091
