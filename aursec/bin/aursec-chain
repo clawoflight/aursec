@@ -45,7 +45,7 @@ Options:
   mine 	start 		 Starts mining with the coinbase account
   		stop 		 Stops mining with the coinbase account
   		blocks N 	 mines min. N Blocks with the coinbase account
-  get-hash 	ID 		 Gets corrent consens-hash of package ID
+  get-hash 	ID 		 Gets current consensus-hash of package ID
   commit-hash ID HA  Commit new hash HA of package ID in the blockchain
 
 Copying:
@@ -237,3 +237,4 @@ case "$1" in
 		get_hash "$2";;
     *) usage ;;
 esac
+exit 0

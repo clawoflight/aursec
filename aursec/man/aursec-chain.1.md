@@ -6,14 +6,46 @@
 aursec-chain - api for the aursec blockchain
 
 # SYNOPSIS
-aursec-chain [*options*]
+aursec-chain [*options*] [*commands*]
 
 # Description
-TODO! see http://pandoc.org/demo/pandoc.1.md for syntax
+
+Aursec-chain is used to interact with the aursec-ethereum-blockchain. Therefore the json-rpc protocol is used. It provides services to mine blocks, or to get or commit hashes. 
 
 # OPTIONS
 
+-h, \--help
+:   Show usage message.
+
+-v, \--verbose      
+:   Show additional output
+
+
+# COMMANDS
+
+mine start        
+:   Starts mining with the coinbase account
+
+mine stop         
+:   Stops mining with the coinbase account
+
+mine blocks *NUMBER*     
+:   mines min. *NUMBER* Blocks with the coinbase account
+
+get-hash  *STRING*       
+:   Gets current consensus-hash and number of commits of package *STRING* 
+
+commit-hash *STRING1 STRING2*  
+:   Commit new hash *STRING2* of package *STRING1* in the blockchain
+
+
 # EXIT STATUS
+
+0
+: Success
+
+1
+: Failure 
 
 # ENVIRONMENT
 
@@ -24,6 +56,15 @@ TODO! see http://pandoc.org/demo/pandoc.1.md for syntax
 # BUGS
 
 # EXAMPLE
+
+To mine 5 blocks
+: $ aursec-chain mine blocks 5
+
+To commit hash "hash123" of package "pkg1"
+: $ aursec-chain commit-hash pkg1 hash123
+
+To get hash of "pkg1"
+: $ aursec-chain get-hash pkg1
 
 # SEE ALSO
 **aursec**(1), **aursec-hash**(1), **aursec**(7).
