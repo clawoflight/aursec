@@ -2,16 +2,22 @@ digraph states {
 	start [shape=rect];
 	fail [shape=rect, label="exit !=0"];
 	success [shape=rect, label="exit 0"];
+
 	manual [label="[interactive]\nshow hashes"];
 	auto [label="[automatic]"];
+	commit [label="submit hash"];
+
 	start -> hash -> "query blockchain" -> compare;
 	compare -> warn [label="No hash in chain"];
 	compare -> manual [label="Count below threshold"];
 	compare -> auto [label="Count above threshold"];
 	manual -> warn;
-	warn -> success [label="Manual accept and trust"];
+	warn -> commit [label="Manual accept and trust"];
 	warn -> success [label="Manual accept once"];
 	warn -> fail [label="Manual reject"];
-	auto -> success [label="Match"];
+	auto -> commit [label="Match"];
 	auto -> manual [label="No Match"];
+	commit -> success;
+
+	// TODO: add a node for the cases where data is written to the blockchain
 }
