@@ -30,7 +30,8 @@ You will need the following dependencies:
 - `geth`: to run the local blockchain.
 - `pandoc`: to compile the man-pages.
 - `vim`: for `xxd`, required in `aursec-chain`.
-- `acpi`: to check charging status in `aursec-chain`
+- `acpi`: to check charging status in `aursec-chain`.
+- `bc`: required in `aursec-chain`.
 
 ## Using
 
