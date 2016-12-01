@@ -45,7 +45,10 @@ EOF
 function show_hashes() {
     msg2 "Local hash: $pkg_hash"
     msg2 "Consensus:  $cons_h with $cons_c submissions"
-    ((match)) && plain "The hashes match."
+
+    if ((match)); then
+        plain "The hashes match."
+    fi
 }
 
 # Requires $pkg_id, $pkg_hash
@@ -61,7 +64,7 @@ function manual_override() {
     # User said no, or status_only was set
     else
         if [[ $cons_c -eq 0 ]]; then
-            exit $ENOHASH;
+            exit $ENOHASH
         else
             exit $ENOMATCH
         fi
