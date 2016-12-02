@@ -18,6 +18,4 @@ digraph states {
 	auto -> commit [label="Match"];
 	auto -> manual [label="No Match"];
 	commit -> success;
-
-	// TODO: add a node for the cases where data is written to the blockchain
 }

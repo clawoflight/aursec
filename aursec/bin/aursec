@@ -140,7 +140,7 @@ fi
 ###############################################
 while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
     if [[ -z "$pkg_id" || -z "$pkg_hash" || -z "$cons_h" || -z "$cons_c" || -z "$match" ]]; then
-        error "Received invalid data from aursec-verify!"
+        error "Received invalid data from aursec-verify-hashes!"
         exit $ECHAIN
     fi
 
