@@ -167,15 +167,14 @@ function get_hash() {
 	if [ ${#hex_result} -le 192 ]; then
 		echo null 0
 	else
-		declare num_of_commits_hex num_of_commits_dec hash_halfsize_dec hash_size_dec hash_hex hash_printable hash
+		declare num_of_commits_dec hash_size_dec hash_printable hash
 		((verbose))&& echo "Parsing result to strings" >&2
-		num_of_commits_hex=$(echo "$hex_result" | cut -c65-128)
-		num_of_commits_dec=$(printf "%d\n" "$num_of_commits_hex")
-		hash_halfsize_dec=$(echo "$hex_result" |cut -c129-192 | sed 's/^0*//')
-		hash_size_dec=$(((hash_halfsize_dec-1)*2))
-		hash_hex=$(echo "$hex_result" |cut -c193-$((193+hash_size_dec-1)))
-		hash_printable=$(sed 's/.\{2\}/\\x&/g' <<< "$hash_hex")
+		
+		num_of_commits_dec=$(printf "%d\n" "$(cut -c65-128 <<< "$hex_result")")
+		hash_size_dec=$((($(cut -c129-192 <<< "$hex_result" | sed 's/^0*//')-1)*2))
+		hash_printable=$(sed 's/.\{2\}/\\x&/g' <<< "$(cut -c193-$((193+hash_size_dec-1)) <<< "$hex_result")")
 		hash=$(printf "%s" "$hash_printable")
+		
 		echo "$hash $num_of_commits_dec"
 	fi
 	echo "$tmp" >/dev/null
@@ -184,32 +183,21 @@ function get_hash() {
 # convert String to hex-string (Ethereum ABI-style)
 # $1 = String
 function string_to_hex() {
-	declare hexstring size bytes bytes_hex32 string_hex32
+	declare hexstring
 	hexstring=$(xxd -pu <<< "$1" | sed ':a;N;$!ba;s/[[:space:]]//g')
-	size=${#hexstring}
-	bytes=$((size/2))
-	bytes_hex32=$(hex_to_pre_hex32 "$bytes")
-	string_hex32=$(hex_to_post_hex32 "$hexstring")
-	echo "$bytes_hex32$string_hex32"
-
+	echo "$(hex_to_pre_hex32 "$((${#hexstring}/2))")$(hex_to_post_hex32 "$hexstring")"
 }
 
 # converts hex-String to hexstring with length%32byte==0 the prestring is filled with 0s
 # $1 = input hexstring
 function hex_to_pre_hex32() {
-	declare prefix_size prefix
-	prefix_size=$((64-${#1}%64)) #64 cause 2 digits are 1 byte
-	prefix=$(printf %${prefix_size}s | tr " " "0")
-	echo "$prefix$1"
+	echo "$(printf "%$((64-${#1}%64))s" | tr " " "0")$1"
 }
 
 # converts hex-String to hexstring with length%32byte==0 the poststring is filled with 0s
 # $1 = input hexstring
 function hex_to_post_hex32() {
-	declare postfix postfix
-	postfix_size=$((64-${#1}%64))
-	postfix=$(printf %${postfix_size}s | tr " " "0")
-	echo "$1$postfix"
+	echo "$1$(printf "%$((64-${#1}%64))s" | tr " " "0")"
 }
 
 # Parse the arguments
