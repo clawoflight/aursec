@@ -91,7 +91,9 @@ function start_mining() {
 function stop_mining() {
 	declare tmp
 	((verbose))&& echo "Stopping mining" >&2
-	tmp=$(curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
+	while [[ "$(is_mining)" -eq "1" ]]; do
+		tmp=$(curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
+	done
 	((verbose))&& echo "$tmp" >&2
 }
 
@@ -155,6 +157,10 @@ function get_hash() {
 	coinbase=$(curl "$silence" --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
 	((verbose))&& echo "send call" >&2
 	hex_result=$(curl localhost:$PORT "$silence" -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
+	if [ ${#hex_result} -le 0 ]; then
+		echo "There was a problem connecting to the Contract" >&2
+		exit 1 
+	fi
 	if [ ${#hex_result} -le 192 ]; then
 		echo null 0
 	else
