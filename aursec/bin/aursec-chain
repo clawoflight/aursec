@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2086 
 # Bash API for the Ethereum-Blockchain of aursec
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,7 +26,6 @@ PORT="8105"
 # shellcheck disable=SC1091
 source /usr/share/makepkg/util.sh
 colorize
-
 
 
 # shows usage
@@ -57,14 +57,13 @@ EOF
 
 function is_mining(){
 	((verbose))&& echo "Checking if already mining" >&2
-	if curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
+	if curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
 		((verbose))&& echo "Is mining" >&2
 		echo 1
 	else
 		((verbose))&& echo "Is not mining" >&2
 		echo 0
 	fi
-
 }
 
 # Starts mining via RPC if not already mining
@@ -79,12 +78,14 @@ function start_mining() {
 	#fi
 	if [[ "$(is_mining)" -eq "0" ]]; then
 		((verbose))&& echo "Starting mining" >&2
-		tmp=$(curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
+		tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
 		((verbose))&& echo "$tmp" >&2
 	fi
 	#for pid in `pgrep -f "geth.*--datadir $BLOCKCHAIN_PATH"`; do
 	#	renice -n ${cpu_level} -p $pid &
 	#done
+	
+	echo "$tmp" >/dev/null
 }
 
 # Stops mining via RPC
@@ -92,16 +93,17 @@ function stop_mining() {
 	declare tmp
 	((verbose))&& echo "Stopping mining" >&2
 	while [[ "$(is_mining)" -eq "1" ]]; do
-		tmp=$(curl localhost:$PORT "$silence" -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
+		tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
 	done
 	((verbose))&& echo "$tmp" >&2
+	echo "$tmp" >/dev/null
 }
 
 # Returns Dec number of current block
 function get_current_block() {
 	declare block_hexnum
 	((verbose)) && echo "Getting current block" >&2
-	block_hexnum=$(curl "$silence" --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
+	block_hexnum=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' | grep -oP '(?<="result".")\w+')
 	printf "%d\n" "$block_hexnum"
 }
 
@@ -137,12 +139,13 @@ function commit_hash() {
 	offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
 	offset2=$(hex_to_pre_hex32 "$offset2_hex")
 	((verbose))&& echo "Getting coinbase" >&2
-	coinbase=$(curl localhost:$PORT "$silence" --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
+	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
 	((verbose))&& echo "Sending transaction" >&2
-	tmp=$(curl localhost:$PORT "$silence" -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
+	tmp=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
 	((verbose))&& echo "$tmp" >&2
 	((verbose))&& echo "Mining blocks to verify transaction" >&2
 	mine_n_blocks 3
+	echo "$tmp" >/dev/null
 }
 
 # Get Hash (+times submitted) for an ID
@@ -154,9 +157,9 @@ function get_hash() {
 	offset=$(hex_to_pre_hex32 20)
 	string=$(string_to_hex "$1")
 	((verbose))&& echo "get coinbase" >&2
-	coinbase=$(curl "$silence" --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' localhost:$PORT | grep -oP '(?<="result".")\w+')
+	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}'  | grep -oP '(?<="result".")\w+')
 	((verbose))&& echo "send call" >&2
-	hex_result=$(curl localhost:$PORT "$silence" -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
+	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
 	if [ ${#hex_result} -le 0 ]; then
 		echo "There was a problem connecting to the Contract" >&2
 		exit 1 
@@ -175,6 +178,7 @@ function get_hash() {
 		hash=$(printf "%s" "$hash_printable")
 		echo "$hash $num_of_commits_dec"
 	fi
+	echo "$tmp" >/dev/null
 }
 
 # convert String to hex-string (Ethereum ABI-style)
