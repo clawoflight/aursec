@@ -34,7 +34,7 @@ cleanups["$name"]="rm -f ~/evil_file"
 pkgbuilds["$name"]="touch ~/evil_file"
 
 #################
-# Execute tests #--read-only=/
+# Execute tests #
 #################
 TMP_DIR="$(mktemp -d)"
 cd_safe "$TMP_DIR"
