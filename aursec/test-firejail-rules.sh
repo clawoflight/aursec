@@ -46,7 +46,7 @@ for test_case in "${test_case_names[@]}"; do
 	# The printf comand takes care of the minimal requirements,
 	# so we need only add the minimum to the array.
 	printf "pkgname=test\npkgver=0.1\npkgrel=1\narch=(any)\n" > PKGBUILD
-	echo "${pkgbuilds[$test_case]}" > PKGBUILD
+	echo "${pkgbuilds[$test_case]}" >> PKGBUILD
 	mksrcinfo >/dev/null
 
 	# Run aursec-hash
