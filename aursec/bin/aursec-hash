@@ -73,10 +73,7 @@ function hash_pkg() {
 		error "$1 is not a valid build directory!" >&2
 		exit 1
 	fi
-
-	# Get the package id
 	cd_safe "$1"
-	PKGID=$(firejail "${firejail_opts[@]}" --whitelist="$(pwd)" bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel')
 
 	# Check if it's a vcs package
 	vcs_dirs=( $(aursec-parse-srcinfo .SRCINFO) )
@@ -96,6 +93,9 @@ function hash_pkg() {
 	else
 		HASH=$(basic_hash . | sort | $debug_cmd | sha256sum | cut -d " " -f 1)
 	fi
+
+	# Get the package id
+	PKGID=$(firejail "${firejail_opts[@]}" --whitelist="$(pwd)" bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel')
 
 	cd_safe "$BASEDIR"
 	echo "$PKGID" "$HASH"
