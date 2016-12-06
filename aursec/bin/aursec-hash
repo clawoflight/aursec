@@ -8,7 +8,7 @@
 # Copyright (c) 2016-2017 Lukas Krismer and Bennett Piater.
 set -e -o pipefail
 readonly BASEDIR="$PWD"
-readonly firejail_opts=(--quiet --noprofile --read-only=/ --nogroups --seccomp --shell=none --caps.drop=all)
+readonly firejail_opts=(--quiet --noprofile --nogroups --seccomp --shell=none --caps.drop=all)
 
 # Makepkg ships lots of useful stuff!
 source /usr/share/makepkg/util.sh
@@ -83,9 +83,9 @@ function hash_pkg() {
 
 		if ((verbose)); then
 			echo "Downloading VCS sources with makepkg..." >&2
-			firejail "${firejail_opts[@]}" --whitelist="$(pwd)" --read-write="$(pwd)" bash -c 'makepkg -od --noprepare --nosign 2>/dev/null'
+			firejail "${firejail_opts[@]}" --whitelist="$(pwd)" bash -c 'makepkg -od --noprepare --nosign 2>/dev/null'
 		else
-			firejail "${firejail_opts[@]}" --whitelist="$(pwd)" --read-write="$(pwd)" bash -c 'makepkg -od --noprepare --nosign >/dev/null 2>&1'
+			firejail "${firejail_opts[@]}" --whitelist="$(pwd)" bash -c 'makepkg -od --noprepare --nosign >/dev/null 2>&1'
 		fi
 
 		#                                Prepend 'src/' to every vcs dir
