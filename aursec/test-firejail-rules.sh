@@ -66,7 +66,7 @@ for test_case in "${test_case_names[@]}"; do
 	eval "${cleanup_funcs[$test_case]}" >/dev/null
 
 	# Run aursec-hash
-	aursec-hash . >/dev/null
+	aursec-hash . >/dev/null 2>&1
 	# Check whether this test failed
 	eval "${test_conditions[$test_case]}" >/dev/null 2>&1 || failed_tests+=("$test_case")
 	# Clean up
