@@ -9,7 +9,7 @@
 # ensure that an unlocked eth node is running
 # for mining ensure that the rpcapi miner is enabled
 
-set -e -o pipefail
+set -o pipefail
 
 # Smart Contract values
 #CONTRACT_ADDR_HEX="0x57a76a9a5add8de2bd690609a4d2b989b74cf8cc"
@@ -56,6 +56,7 @@ EOF
 }
 
 function is_mining(){
+	trap 'error ${LINENO}' ERR
 	((verbose))&& echo "Checking if already mining" >&2
 	if curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
 		((verbose))&& echo "Is mining" >&2
@@ -66,9 +67,24 @@ function is_mining(){
 	fi
 }
 
+error() {
+  local parent_lineno="$1"
+  local message="$2"
+  local code="${3:-1}"
+  if [[ -n "$message" ]] ; then
+    echo "aursec-chain: Error on or near line ${parent_lineno}: ${message}; use verbose to get more details; exiting with status ${code}"
+  else
+    echo "aursec-chain: Error on or near line ${parent_lineno}; use verbose to get more details; Be sure that the blockchain is running; exiting with status ${code}"
+  fi
+  exit "${code}"
+}
+
+
+
 # Starts mining via RPC if not already mining
 # TO DO: Issue 4 Laptop Battery
 function start_mining() {
+	trap 'error ${LINENO}' ERR
 	declare tmp
 	#local cpu_level
 	#if acpi -a | grep -q 'on-line'; then
@@ -90,6 +106,7 @@ function start_mining() {
 
 # Stops mining via RPC
 function stop_mining() {
+	trap 'error ${LINENO}' ERR
 	declare tmp
 	((verbose))&& echo "Stopping mining" >&2
 	while [[ "$(is_mining)" -eq "1" ]]; do
@@ -101,6 +118,7 @@ function stop_mining() {
 
 # Returns Dec number of current block
 function get_current_block() {
+	trap 'error ${LINENO}' ERR
 	declare block_hexnum
 	((verbose)) && echo "Getting current block" >&2
 	block_hexnum=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' | grep -oP '(?<="result".")\w+')
@@ -110,6 +128,7 @@ function get_current_block() {
 # Mines min. N blocks
 # $1 = N
 function mine_n_blocks() {
+	trap 'error ${LINENO}' ERR
 	declare start_block
 	((verbose))&& echo "Starting mining $1 blocks" >&2
 	if ! [[ $1 =~ ^[0-9]+$ ]] ; then
@@ -129,6 +148,7 @@ function mine_n_blocks() {
 # $1 = ID
 # $2 = HASH
 function commit_hash() {
+	trap 'error ${LINENO}' ERR
 	declare tmp offset1 offset2 offset2_dec offset2_hex coinbase string1 string2
 	((verbose))&& echo "Committing Hash $2 of Package $1" >&2
 	((verbose))&& echo "Parsing input to json" >&2
@@ -151,6 +171,7 @@ function commit_hash() {
 # Get Hash (+times submitted) for an ID
 # $1 = ID
 function get_hash() {
+	trap 'error ${LINENO}' ERR
 	declare offset string coinbase hex_result
 	((verbose))&& echo "Getting hash of package $ID" >&2
 	((verbose))&& echo "Parsing input to json" >&2
@@ -161,7 +182,7 @@ function get_hash() {
 	((verbose))&& echo "send call" >&2
 	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
 	if [ ${#hex_result} -le 0 ]; then
-		echo "There was a problem connecting to the Contract" >&2
+		echo "Error: Connection Failed" >&2
 		exit 1 
 	fi
 	if [ ${#hex_result} -le 192 ]; then
