@@ -41,6 +41,13 @@ test_conditions["$name"]="stat good_file"
 cleanup_funcs["$name"]="rm -f good_file"
 pkgbuilds["$name"]="touch good_file"
 
+# VCS package cloning
+name="auto-clone VCS sources"
+test_case_names+=("$name")
+test_conditions["$name"]="stat life"
+cleanup_funcs["$name"]="rm -rf life"
+pkgbuilds["$name"]="source=(git+https://github.com/clawoflight/life.git)"
+
 #################
 # Execute tests #
 #################
