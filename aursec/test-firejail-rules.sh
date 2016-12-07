@@ -56,6 +56,7 @@ for test_case in "${test_case_names[@]}"; do
 	printf "pkgname=test\npkgver=0.1\npkgrel=1\narch=(any)\n" > PKGBUILD
 	echo "${pkgbuilds[$test_case]}" >> PKGBUILD
 	mksrcinfo >/dev/null
+	eval "${cleanup_funcs[$test_case]}" >/dev/null
 
 	# Run aursec-hash
 	aursec-hash . >/dev/null
