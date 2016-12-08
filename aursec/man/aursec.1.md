@@ -6,14 +6,51 @@
 aursec - verify AUR package sources against hashes stored in a blockchain
 
 # SYNOPSIS
-aursec [*options*] [*build-path*]...
+aursec [*options*] [*BUILD_DIR* ...]
 
 # Description
-TODO! see http://pandoc.org/demo/pandoc.1.md for syntax
+Verify package sources by checking their hashes against versions stored in a blockchain. Whichever hash was submitted by the most people wins.
+
+If *BUILD_DIR* is not set, or -, read from STDIN.
+
+This is just convenience glue for a pipeline of **aursec-hash**(1), **aursec-verify-hashes**(1) and **aursec-chain**(1) with fancy output and user interaction.
 
 # OPTIONS
+-h, \--help
+: Show this help message.
+
+-v, \--verbose
+: Enable additional output.
+
+-c, \--check-only
+: Never submit hashes to the blockchain.
+
+-s, \--status-only
+: Only output critical errors and never prompt the user.
+
+# STATES
+- no hash in the blockchain: prompt
+- hash below threshold: prompt
+- hash above threshold and match: exit 0
+- hash above threshold and on match: exit != 0
 
 # EXIT STATUS
+0
+: if OK,
+
+64
+: if the initialization failed,
+
+65
+: if there was a problem contacting the chain,
+
+66
+: if no hash was found,
+
+67
+: if a hash was found, but it doesn't match the consensus.
+
+In some cases, the exit status of the last program to fail is used.
 
 # ENVIRONMENT
 
@@ -23,7 +60,17 @@ TODO! see http://pandoc.org/demo/pandoc.1.md for syntax
 
 # BUGS
 
-# EXAMPLE
+# EXAMPLES
+
+Verify sources against the blockchain:
+
+    $ git clone aur@archlinux.org/some-package.git
+    $ aursec some-package
+
+Verify lots of sources at once:
+
+    $ ls ~/ABS/aur-packages | aursec
+
 
 # SEE ALSO
 **aursec-hash**(1), **aursec-chain**(1), **aursec**(7).
