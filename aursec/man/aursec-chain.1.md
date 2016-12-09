@@ -20,6 +20,9 @@ Aursec-chain is used to interact with the aursec-ethereum-blockchain. Therefore 
 -v, \--verbose      
 :   Show additional output
 
+-d, \--debug      
+:   Show debug output like the line number where the script failed.
+
 
 # COMMANDS
 
