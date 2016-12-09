@@ -32,7 +32,7 @@ Exit status:
   64 if the initialization failed,
   65 if there was a problem contacting the chain,
   66 if no hash was found,
-  67 if the hash didn't match.
+  67 if a hash was found, but it doesn't match the consensus.
 
 Copying:
   This is free software licensed under the Mozilla Public License, v. 2.0.

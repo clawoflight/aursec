@@ -9,8 +9,10 @@ aursec-chain - api for the aursec blockchain
 aursec-chain [*options*] [*commands*]
 
 # Description
+Aursec-chain is the bash API for aursec's private Ethereum blockchain.
+It can be used to get or commit hashes for specific package IDs and to control mining.
 
-Aursec-chain is used to interact with the aursec-ethereum-blockchain. Therefore the json-rpc protocol is used. It provides services to mine blocks, or to get or commit hashes. 
+It interfaces with the JSON-RPC.
 
 # OPTIONS
 
@@ -58,7 +60,7 @@ commit-hash *STRING1 STRING2*
 
 # BUGS
 
-# EXAMPLE
+# EXAMPLES
 
 To mine 5 blocks
 : $ aursec-chain mine blocks 5

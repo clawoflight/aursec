@@ -64,12 +64,12 @@ In some cases, the exit status of the last program to fail is used.
 
 Verify sources against the blockchain:
 
-    $ git clone aur@archlinux.org/some-package.git
-    $ aursec some-package
+    $ git clone aur@archlinux.org/foo.git
+    $ aursec foo
 
 Verify lots of sources at once:
 
-    $ ls ~/ABS/aur-packages | aursec
+    $ find ~/ABS/aur-packages -type d | aursec
 
 
 # SEE ALSO
