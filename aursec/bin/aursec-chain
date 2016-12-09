@@ -40,13 +40,14 @@ function help() {
 Bash API for the Ethereum-Blockchain of aursec
 
 Options:
-  -h, --help         Show this help message
-  -v, --verbose      Show additional output
+  -h, --help         Shows this help message
+  -v, --verbose      Shows additional output
+  -d, --debug		 Shows debug output
   mine 	start 		 Starts mining with the coinbase account
   		stop 		 Stops mining with the coinbase account
   		blocks N 	 mines min. N Blocks with the coinbase account
   get-hash 	ID 		 Gets current consensus-hash of package ID
-  commit-hash ID HA  Commit new hash HA of package ID in the blockchain
+  commit-hash ID HA  Commits new hash HA of package ID in the blockchain
 
 Copying:
   This is free software licensed under the Mozilla Public License, v. 2.0.
@@ -55,6 +56,24 @@ Copying:
 EOF
 }
 
+# trap ... for errorhandling
+error() {
+  	local parent_lineno="$1"
+  	local message="$2"
+  	local code="${3:-1}"
+  	if ((debug));then
+  		if [[ -n "$message" ]] ; then
+	    	echo "aursec-chain: Error on or near line ${parent_lineno}: ${message}; use verbose to get more details; exiting with status ${code}" >&2
+	  	else
+	    	echo "aursec-chain: Error on or near line ${parent_lineno}; use verbose to get more details; exiting with status ${code}" >&2
+	  	fi
+  	else
+		echo "aursec-chain: error. For further details activate verbose and debug" >&2
+	fi
+  exit "${code}"
+}
+
+# Checks if the 
 function is_mining(){
 	trap 'error ${LINENO}' ERR
 	((verbose))&& echo "Checking if already mining" >&2
@@ -66,20 +85,6 @@ function is_mining(){
 		echo 0
 	fi
 }
-
-error() {
-  local parent_lineno="$1"
-  local message="$2"
-  local code="${3:-1}"
-  if [[ -n "$message" ]] ; then
-    echo "aursec-chain: Error on or near line ${parent_lineno}: ${message}; use verbose to get more details; exiting with status ${code}"
-  else
-    echo "aursec-chain: Error on or near line ${parent_lineno}; use verbose to get more details; Be sure that the blockchain is running; exiting with status ${code}"
-  fi
-  exit "${code}"
-}
-
-
 
 # Starts mining via RPC if not already mining
 # TO DO: Issue 4 Laptop Battery
@@ -223,12 +228,17 @@ function hex_to_post_hex32() {
 
 # Parse the arguments
 verbose=0
+debug=0
 silence='-s'
 while true; do
     case "$1" in
         -v|--verbose)
 			verbose=1
 			silence=''
+			shift
+			;;
+		-d|--debug)
+			debug=1
 			shift
 			;;
         -h|--help)
