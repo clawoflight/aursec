@@ -10,6 +10,7 @@ aursec [*options*] [*BUILD_DIR* ...]
 
 # Description
 Verify package sources by checking their hashes against versions stored in a blockchain. Whichever hash was submitted by the most people wins.
+A hash is submitted if it matches the current consensus or the user manually trusts it.
 
 If *BUILD_DIR* is not set, or -, read from STDIN.
 

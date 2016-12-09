@@ -6,17 +6,39 @@
 aursec - verify AUR package sources against hashes stored in a blockchain
 
 # PROGRAMS
-TODO! see http://pandoc.org/demo/pandoc.1.md for syntax
+The following is just an overview, see the respective documentation for details.
 
-# ENVIRONMENT
+aursec(1)
+: Hash source folders and verify them against the blockchain.
 
-# FILES
+aursec-chain(1)
+: API for the blockchain.
+
+aursec-hash(1)
+: Ouput an ID and a hash for source folders.
+
+aursec-parse-srcinfo(1)
+: Extract helpful information from a *.SRCINFO*.
+
+aursec-verify-hashes(1):
+: Take IDs and hashes and compare them against the ones on the blockchain.
+
+# PURPOSE
+The open and insecure nature of the AUR makes a variety of attacks very easy to pull off. Aursec reduces the risks by creating a secure, distributed repository of hashes with package name, version and release as key.
+
+Comparing the buid files (*PKGBUILD*, *.SRCINFO*, *\*.patch*, *\*.install*) against those of other users makes targeted attacks much less feasible.
+
+We also hash VCS sources, which is a huge security improvement since vcs packages don't have hashes in the *PKGBUILD*.
 
 # NOTES
+Most features of this toolkit require the blockchain to be running and periodical mining to be enabled. Please start and enable
+
+    aursec-blockchain.service
+    aursec-blockchain-mine.timer
+
+before using them.
 
 # BUGS
-
-# EXAMPLE
 
 # SEE ALSO
 **aursec**(1), **aursec-hash**(1), **aursec-chain**(1).
