@@ -1,0 +1,32 @@
+#compdef aursec-chain
+
+typeset -A opt_args
+
+_aursec_chain_opts=(
+	{-h,--help}'[Show help.]'
+	{-v,--verbose}'[Show additional output.]'
+	{-d,--debug}'[Show debug output.]'
+)
+
+_aursec_chain_action_all() {
+    _arguments -s : \
+        "$_aursec_chain_opts[@]" \
+        "1::options:((mine\:'' get-hash\:'ID (string)' commit-hash\:'ID HASH (string string)'))" \
+}
+
+_aursec_chain_action_mine() {
+	_arguments -s :\
+		"*::mine options:((start\:'' stop\:' ' blocks\:'N (int)'))" \
+}
+
+
+# main dispatcher
+_aursec-chain() {
+    case $words[CURRENT-1] in
+    	get-hash | commit-hash | start | stop | blocks) ;;
+    	mine) _aursec_chain_action_mine ;;
+        *) _aursec_chain_action_all ;;
+    esac
+}
+
+_aursec-chain "$@"
