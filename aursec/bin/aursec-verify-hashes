@@ -12,27 +12,27 @@ set -e -o pipefail
 source /usr/share/makepkg/util.sh
 colorize
 
-while read -r PKG_ID HASH; do
-	if [[ -z "$PKG_ID" || -z "$HASH" ]]; then
+while read -r pkg_id hash; do
+	if [[ -z "$pkg_id" || -z "$hash" ]]; then
 		error "The input stream must be formated as \"PKG_ID HASH\"!" >&2
 		exit 1
 	fi
 
 	# Contact the blockchain TODO: use the correct command.
-	read -r REMOTE_HASH REMOTE_COUNT <<< $(aursec-chain get-hash "$PKG_ID")
-	if [[ -z "$REMOTE_HASH" || -z "$REMOTE_COUNT" ]]; then
+	read -r remote_hash remote_count <<< $(aursec-chain get-hash "$pkg_id")
+	if [[ -z "$remote_hash" || -z "$remote_count" ]]; then
 		error "There was a problem contacting the blockchain!" >&2
 		exit 1
 	fi
 
 	# Compare
-	if [[ "$REMOTE_HASH" == "$HASH" ]]; then
-		MATCH=1
+	if [[ "$remote_hash" == "$hash" ]]; then
+		match=1
 	else
-		MATCH=0
+		match=0
 	fi
 
 	# Print to output stream
-	printf "%s %s %s %d %s\n" "$PKG_ID" "$HASH" "$REMOTE_HASH" "$REMOTE_COUNT" "$MATCH"
-	unset PKG_ID HASH REMOTE_HASH REMOTE_COUNT
+	printf "%s %s %s %d %d\n" "$pkg_id" "$hash" "$remote_hash" "$remote_count" "$match"
+	unset pkg_id hash remote_hash remote_count
 done
