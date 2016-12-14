@@ -3,6 +3,6 @@ Description=Mine a few blocks in the aursec blockchain
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/aursec-chain -v mine blocks 5
+ExecStart=/usr/bin/aursec-chain -v mine auto
 User=aursec
 Group=aursec

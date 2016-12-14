@@ -18,6 +18,7 @@ COMMIT_HASH_ADDR_HEX="0xcd79f86d"
 GET_HASH_ADDR_HEX="0xac336f7b"
 GAS_PRICE="0xba43b7400"
 GAS="0x4e381"
+MARKER_FOLDER="/var/aursec/markers"
 
 # open rpc port
 PORT="8105"
@@ -45,6 +46,7 @@ Options:
   -d, --debug		 Shows debug output
   mine 	start 		 Starts mining with the coinbase account
   		stop 		 Stops mining with the coinbase account
+  		auto         Auto-mine. This exists for the systemd timer
   		blocks N 	 mines min. N Blocks with the coinbase account
   get-hash 	ID 		 Gets current consensus-hash of package ID
   commit-hash ID HA  Commits new hash HA of package ID in the blockchain
@@ -101,6 +103,7 @@ function start_mining() {
 		((verbose)) && echo "Starting mining" >&2
 		tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
 		((verbose)) && echo "$tmp" >&2
+		touch $MARKER_FOLDER/last-mine.marker
 	fi
 	#for pid in `pgrep -f "geth.*--datadir $BLOCKCHAIN_PATH"`; do
 	#	renice -n ${cpu_level} -p $pid &
@@ -144,10 +147,26 @@ function mine_n_blocks() {
 	start_mining
 	# waiting till N blocks were mined
 	while [[ $(get_current_block) < $((start_block + $1)) ]]; do
-		sleep 1
+		sleep 0.2
 	done
 	stop_mining
-	}
+}
+
+function mine_auto() {
+	if [[ $(whoami) != aursec ]]; then
+		echo "Auto-mining must be done as 'aursec'!" >&2
+		exit 1
+	fi
+
+	# if the last commit was after the last mine
+	if [[ $MARKER_FOLDER/last-commit.marker -nt $MARKER_FOLDER/last-mine.marker ]]; then
+		((verbose)) && echo "Committed since the last mine, mining more." >&2
+		mine_n_blocks 4
+	else
+		((verbose)) && echo "No commits since the last mine, mining one block only." >&2
+		mine_n_blocks 1
+	fi
+}
 
 # Commits Hash into the blockchain
 # $1 = ID
@@ -168,9 +187,8 @@ function commit_hash() {
 	((verbose)) && echo "Sending transaction" >&2
 	tmp=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
 	((verbose)) && echo "$tmp" >&2
-	((verbose)) && echo "Mining blocks to verify transaction" >&2
-	mine_n_blocks 3
 	echo "$tmp" >/dev/null
+	touch $MARKER_FOLDER/last-commit.marker
 }
 
 # Get Hash (+times submitted) for an ID
@@ -256,6 +274,8 @@ case "$1" in
 				start_mining ;;
 			stop)
 				stop_mining ;;
+			auto)
+				mine_auto ;;
 			blocks)
 				mine_n_blocks "$3";;
 			*) usage;;
