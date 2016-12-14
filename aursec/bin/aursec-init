@@ -34,8 +34,14 @@ function init(){
 	declare tmp
 	((verbose)) && echo "Creating directory." >&2
 	mkdir -p $BLOCKCHAIN_PATH
+	chmod -R 755 $BLOCKCHAIN_PATH
+
+	mkdir $BLOCKCHAIN_PATH/markers
+	touch $BLOCKCHAIN_PATH/markers/{last-commit.marker,last-mine.marker}
+	chmod 600 $BLOCKCHAIN_PATH/markers/last-commit.marker
+	chmod 666 $BLOCKCHAIN_PATH/markers/last-mine.marker
 	chown -R aursec:aursec $BLOCKCHAIN_PATH
-	chmod -R 700 $BLOCKCHAIN_PATH
+
 	# init blockchain
 	((verbose)) && echo "Creating Blockchain."
 	tmp=$(su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK "  2>&1)
@@ -48,6 +54,9 @@ function init(){
 	((verbose)) && echo "Creating new account." >&2
 	tmp=$(su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new " 2>&1)
 	((verbose))&& echo "$tmp" >&2
+
+	# Give everything except for the markers folder mode 700
+	find $BLOCKCHAIN_PATH -maxdepth 1 -mindepth 1 -not -name '*markers*' -not -name '.' -exec chmod -R 700 '{}' \;
 }
 
 
