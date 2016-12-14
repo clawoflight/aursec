@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2086 
+# shellcheck disable=SC2086
 # Bash API for the Ethereum-Blockchain of aursec
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -61,7 +61,7 @@ error() {
   	local parent_lineno="$1"
   	local message="$2"
   	local code="${3:-1}"
-  	if ((debug));then
+  	if ((debug)); then
   		if [[ -n "$message" ]] ; then
 	    	echo "aursec-chain: Error on or near line ${parent_lineno}: ${message}; use verbose to get more details; exiting with status ${code}" >&2
 	  	else
@@ -73,15 +73,15 @@ error() {
   exit "${code}"
 }
 
-# Checks if the 
+# Checks if the
 function is_mining(){
 	trap 'error ${LINENO}' ERR
-	((verbose))&& echo "Checking if already mining" >&2
+	((verbose)) && echo "Checking if already mining" >&2
 	if curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_mining", "params":[], "id":1}' | grep -q 'true'; then
-		((verbose))&& echo "Is mining" >&2
+		((verbose)) && echo "Is mining" >&2
 		echo 1
 	else
-		((verbose))&& echo "Is not mining" >&2
+		((verbose)) && echo "Is not mining" >&2
 		echo 0
 	fi
 }
@@ -98,14 +98,14 @@ function start_mining() {
 	#	cpu_level=+15
 	#fi
 	if [[ "$(is_mining)" -eq "0" ]]; then
-		((verbose))&& echo "Starting mining" >&2
+		((verbose)) && echo "Starting mining" >&2
 		tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
-		((verbose))&& echo "$tmp" >&2
+		((verbose)) && echo "$tmp" >&2
 	fi
 	#for pid in `pgrep -f "geth.*--datadir $BLOCKCHAIN_PATH"`; do
 	#	renice -n ${cpu_level} -p $pid &
 	#done
-	
+
 	echo "$tmp" >/dev/null
 }
 
@@ -113,11 +113,11 @@ function start_mining() {
 function stop_mining() {
 	trap 'error ${LINENO}' ERR
 	declare tmp
-	((verbose))&& echo "Stopping mining" >&2
+	((verbose)) && echo "Stopping mining" >&2
 	while [[ "$(is_mining)" -eq "1" ]]; do
 		tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"miner_stop", "params":[], "id":1}')
 	done
-	((verbose))&& echo "$tmp" >&2
+	((verbose)) && echo "$tmp" >&2
 	echo "$tmp" >/dev/null
 }
 
@@ -135,7 +135,7 @@ function get_current_block() {
 function mine_n_blocks() {
 	trap 'error ${LINENO}' ERR
 	declare start_block
-	((verbose))&& echo "Starting mining $1 blocks" >&2
+	((verbose)) && echo "Starting mining $1 blocks" >&2
 	if ! [[ $1 =~ ^[0-9]+$ ]] ; then
 		echo "error: 3rd argument ($1) is no number"
 		exit 1
@@ -155,20 +155,20 @@ function mine_n_blocks() {
 function commit_hash() {
 	trap 'error ${LINENO}' ERR
 	declare tmp offset1 offset2 offset2_dec offset2_hex coinbase string1 string2
-	((verbose))&& echo "Committing Hash $2 of Package $1" >&2
-	((verbose))&& echo "Parsing input to json" >&2
+	((verbose)) && echo "Committing Hash $2 of Package $1" >&2
+	((verbose)) && echo "Parsing input to json" >&2
 	offset1=$(hex_to_pre_hex32 40)
 	string1=$(string_to_hex "$1")
 	string2=$(string_to_hex "$2")
 	offset2_dec=$((${#string1}/2+64))
 	offset2_hex=$(echo "obase=16; $offset2_dec" | bc)
 	offset2=$(hex_to_pre_hex32 "$offset2_hex")
-	((verbose))&& echo "Getting coinbase" >&2
+	((verbose)) && echo "Getting coinbase" >&2
 	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
-	((verbose))&& echo "Sending transaction" >&2
+	((verbose)) && echo "Sending transaction" >&2
 	tmp=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
-	((verbose))&& echo "$tmp" >&2
-	((verbose))&& echo "Mining blocks to verify transaction" >&2
+	((verbose)) && echo "$tmp" >&2
+	((verbose)) && echo "Mining blocks to verify transaction" >&2
 	mine_n_blocks 3
 	echo "$tmp" >/dev/null
 }
@@ -178,29 +178,29 @@ function commit_hash() {
 function get_hash() {
 	trap 'error ${LINENO}' ERR
 	declare offset string coinbase hex_result
-	((verbose))&& echo "Getting hash of package $ID" >&2
-	((verbose))&& echo "Parsing input to json" >&2
+	((verbose)) && echo "Getting hash of package $ID" >&2
+	((verbose)) && echo "Parsing input to json" >&2
 	offset=$(hex_to_pre_hex32 20)
 	string=$(string_to_hex "$1")
-	((verbose))&& echo "get coinbase" >&2
+	((verbose)) && echo "get coinbase" >&2
 	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}'  | grep -oP '(?<="result".")\w+')
-	((verbose))&& echo "send call" >&2
+	((verbose)) && echo "send call" >&2
 	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
 	if [ ${#hex_result} -le 0 ]; then
 		echo "Error: Connection Failed" >&2
-		exit 1 
+		exit 1
 	fi
 	if [ ${#hex_result} -le 192 ]; then
 		echo null 0
 	else
 		declare num_of_commits_dec hash_size_dec hash_printable hash
-		((verbose))&& echo "Parsing result to strings" >&2
-		
+		((verbose)) && echo "Parsing result to strings" >&2
+
 		num_of_commits_dec=$(printf "%d\n" "$(cut -c65-128 <<< "$hex_result")")
 		hash_size_dec=$((($(cut -c129-192 <<< "$hex_result" | sed 's/^0*//')-1)*2))
 		hash_printable=$(sed 's/.\{2\}/\\x&/g' <<< "$(cut -c193-$((193+hash_size_dec-1)) <<< "$hex_result")")
 		hash=$(printf "%s" "$hash_printable")
-		
+
 		echo "$hash $num_of_commits_dec"
 	fi
 	echo "$tmp" >/dev/null
