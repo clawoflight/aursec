@@ -147,6 +147,10 @@ function mine_n_blocks() {
 	start_mining
 	# waiting till N blocks were mined
 	while [[ $(get_current_block) < $((start_block + $1)) ]]; do
+		if [[ "$(is_mining)" -eq "0" ]]; then
+			echo "Something stoped mining" >&2
+			exit 1
+		fi
 		sleep 0.2
 	done
 	stop_mining
