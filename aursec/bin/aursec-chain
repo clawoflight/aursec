@@ -8,7 +8,7 @@
 
 # ensure that an unlocked eth node is running
 # for mining ensure that the rpcapi miner is enabled
-
+PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 set -o pipefail
 
 # Smart Contract values

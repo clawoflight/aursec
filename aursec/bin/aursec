@@ -7,6 +7,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # Copyright (c) 2016-2017 Lukas Krismer and Bennett Piater.
+PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 readonly BASEDIR="$PWD"
 declare -ri EINIT=64 ECHAIN=65 ENOHASH=66 ENOMATCH=67
 set -e -o pipefail # Receive error codes from _within_ pipes
