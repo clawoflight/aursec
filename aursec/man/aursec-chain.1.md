@@ -35,7 +35,10 @@ mine stop
 :   Stops mining with the coinbase account
 
 mine blocks *NUMBER*     
-:   mines min. *NUMBER* Blocks with the coinbase account
+:   Mines min. *NUMBER* Blocks with the coinbase account
+
+mine auto      
+:   Needed for automining. Has to be used as "aursec"-user. Mines more if there where commits since the last mining.
 
 get-hash  *STRING*       
 :   Gets current consensus-hash and number of commits of package *STRING* 
