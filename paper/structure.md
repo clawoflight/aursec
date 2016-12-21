@@ -1,4 +1,6 @@
 # The problem
+- Introduction 
+- Threat analysis
 
 # The solution
 
@@ -14,10 +16,17 @@
 - unit tests for firejail
 - packaging for the AUR
 
-## Time management
+## Additional stuff
+- zsh-completion
+- TUI
+
+## Project management
+- Time management
+- Communication (Slack, Git)
 
 # What we learned
-- Learning Ethereum development
-- Learning Bash development
-- Our experience with contributing to FOSS
+- Learning Ethereum development (basic blockchain, solidity)
+- Learning Bash development (inc zsh-completion)
+- Learning Python development (TUI)
+- Our experience with contributing to FOSS (inc interaction with the Arch-Community)
 - and ???
