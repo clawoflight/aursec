@@ -1,5 +1,7 @@
+# Introduction
+- AUR
+
 # The problem
-- Introduction 
 - Threat analysis
 
 # The solution
@@ -29,3 +31,5 @@
 - Learning Bash development (inc zsh-completion)
 - Learning Python development (TUI)
 - Our experience with contributing to FOSS (inc interaction with the Arch-Community)
+
+# Evaluation
