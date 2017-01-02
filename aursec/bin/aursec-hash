@@ -9,7 +9,7 @@
 PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 set -e -o pipefail
 readonly BASEDIR="$PWD"
-readonly firejail_opts=(--quiet --read-only=/tmp --read-only=$HOME --noroot --nogroups --seccomp --shell=none --caps.drop=all)
+readonly firejail_opts=(--quiet "--read-only=/tmp" "--read-only=$HOME" --noroot --nogroups --seccomp "--shell=none" "--caps.drop=all")
 declare -r EINVALIDPATH=70 EVCS=71
 
 # Makepkg ships lots of useful stuff!
