@@ -51,6 +51,9 @@ This is just convenience glue for a pipeline of **aursec-hash**(1), **aursec-ver
 67
 : if a hash was found, but it doesn't match the consensus.
 
+68
+: if aursec-hash or aursec-verify-hashes failed.
+
 In some cases, the exit status of the last program to fail is used.
 
 # ENVIRONMENT

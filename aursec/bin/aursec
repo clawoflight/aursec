@@ -9,7 +9,7 @@
 # Copyright (c) 2016-2017 Lukas Krismer and Bennett Piater.
 PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 readonly BASEDIR="$PWD"
-declare -ri EINIT=64 ECHAIN=65 ENOHASH=66 ENOMATCH=67
+declare -ri EINIT=64 ECHAIN=65 ENOHASH=66 ENOMATCH=67 EHASH=68
 set -e -o pipefail # Receive error codes from _within_ pipes
 
 function usage() {
@@ -34,6 +34,7 @@ Exit status:
   65 if there was a problem contacting the chain,
   66 if no hash was found,
   67 if a hash was found, but it doesn't match the consensus.
+  68 if aursec-hash or aursec-verify-hashes failed.
 
 Copying:
   This is free software licensed under the Mozilla Public License, v. 2.0.
@@ -140,6 +141,9 @@ fi
 # Read the result of the processing pipeline. #
 ###############################################
 while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
+    if [[ x"$pkg_id" = x"ERROR" ]]; then
+        exit $EHASH
+    fi
     if [[ -z "$pkg_id" || -z "$pkg_hash" || -z "$cons_h" || -z "$cons_c" || -z "$match" ]]; then
         error "Received invalid data from aursec-verify-hashes!"
         exit $ECHAIN
@@ -150,6 +154,6 @@ while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
 # This will automagically use all remaining arguments, or read from stdin.
 # Our stdin attaches to aursec-hash, and the loop reads from the pipeline.
 # This works because manual_override reads directly from /dev/tty.
-done 4< <(aursec-hash "$@" | aursec-verify-hashes)
+done 4< <(aursec-hash "$@" | aursec-verify-hashes || echo ERROR)
 
 exit 0
