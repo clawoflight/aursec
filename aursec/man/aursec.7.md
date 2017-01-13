@@ -23,10 +23,13 @@ aursec-parse-srcinfo(1)
 aursec-verify-hashes(1):
 : Take IDs and hashes and compare them against the ones on the blockchain.
 
+aursec-aurbuild-wrapper
+: Use this instead of **aurbuild**(1) to integrate **aursec** with **aurutils**(7)
+
 # PURPOSE
 The open and insecure nature of the AUR makes a variety of attacks very easy to pull off. Aursec reduces the risks by creating a secure, distributed repository of hashes with package name, version and release as key.
 
-Comparing the buid files (*PKGBUILD*, *.SRCINFO*, *\*.patch*, *\*.install*) against those of other users makes targeted attacks much less feasible.
+Comparing the build files (*PKGBUILD*, *.SRCINFO*, *\*.patch*, *\*.install*) against those of other users makes targeted attacks much less feasible.
 
 We also hash VCS sources, which is a huge security improvement since vcs packages don't have hashes in the *PKGBUILD*.
 
@@ -37,6 +40,19 @@ Most features of this toolkit require the blockchain to be running and periodica
     aursec-blockchain-mine.timer
 
 before using them.
+
+To use **aursec-aurbuild-wrapper** instead of **aurbuild**(1), add
+
+    hash -p "$(which aursec-aurbuild-wrapper)" aurbuild
+    alias -g aurbuild="$(which aursec-aurbuild-wrapper)"
+
+to your *.zshrc*
+
+To your *.bashrc*, or
+
+    alias -g aurbuild="$(which aursec-aurbuild-wrapper)"
+
+to your *.zshrc*. The former should also work when using **aursync**(1) because that's a bash script.
 
 # BUGS
 

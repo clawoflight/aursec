@@ -50,4 +50,4 @@ The basic usage is as follows:
 - `aursec` is a powerful convenience wrapper around these.
 
 For more precise information, please read the man pages; their markdown sources are included [in this repository](https://github.com/clawoflight/aursec/tree/master/aursec/man).
-Aursec(7) will contain a thorough introduction into the use and design of this project.
+Aursec(7) contains a thorough introduction into the use and design of this project.
