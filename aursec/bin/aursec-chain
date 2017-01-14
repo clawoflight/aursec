@@ -143,6 +143,11 @@ function mine_n_blocks() {
 		echo "error: 3rd argument ($1) is no number"
 		exit 1
 	fi
+
+	((verbose)) && echo "Waiting till no other job is mining" >&2
+	while [[ "$(is_mining)" -eq "1" ]]; do
+		sleep 0.5
+	done
 	start_block=$(get_current_block)
 	start_mining
 	# waiting till N blocks were mined
