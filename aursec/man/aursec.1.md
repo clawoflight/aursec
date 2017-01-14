@@ -57,6 +57,8 @@ This is just convenience glue for a pipeline of **aursec-hash**(1), **aursec-ver
 In some cases, the exit status of the last program to fail is used.
 
 # ENVIRONMENT
+AURSEC_THRESHOLD
+: Set your own trust threshold. Hashes are blindly trusted when they were submitted at least this many times.
 
 # FILES
 
