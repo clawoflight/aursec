@@ -42,8 +42,14 @@ function init(){
 	chmod 666 $BLOCKCHAIN_PATH/markers/last-mine.marker
 	chown -R aursec:aursec $BLOCKCHAIN_PATH
 
+	# check if genesis block exists
+	((verbose)) && echo "Looking for genesis block" >&2
+	if [ ! -e "$GENESIS_BLOCK" ]; then
+		echo "The genesis block does not exist" >&2
+		exit 3
+	fi
 	# init blockchain
-	((verbose)) && echo "Creating Blockchain."
+	((verbose)) && echo "Creating Blockchain." >&2
 	tmp=$(su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK "  2>&1)
 	((verbose))&& echo "$tmp" >&2
 	# generate password
@@ -77,7 +83,7 @@ done
 
 if [ "$EUID" -ne 0 ]; then
 	echo "Please run this script as root."
-	exit 1
+	exit 2
 fi
 
 ((verbose)) && echo "Checking if $BLOCKCHAIN_PATH already exists."
