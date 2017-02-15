@@ -194,7 +194,7 @@ function commit_hash() {
 	((verbose)) && echo "Getting coinbase" >&2
 	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}' | grep -oP '(?<="result".")\w+')
 	((verbose)) && echo "Sending transaction" >&2
-	tmp=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"eth_sendTransaction\",\"params\":[{\"data\":\"$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2\",\"from\":\"$coinbase\",\"gasPrice\":\"$GAS_PRICE\",\"to\":\"$CONTRACT_ADDR_HEX\", \"gas\":\"$GAS\"}]}")
+	tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","id":"1","method":"eth_sendTransaction","params":[{"data": "'$COMMIT_HASH_ADDR_HEX$offset1$offset2$string1$string2'","from":"'$coinbase'","gasPrice":"'$GAS_PRICE'","to":"'$CONTRACT_ADDR_HEX'", "gas":"'$GAS'"}]}')
 	((verbose)) && echo "$tmp" >&2
 	echo "$tmp" >/dev/null
 	touch $MARKER_FOLDER/last-commit.marker
@@ -212,7 +212,8 @@ function get_hash() {
 	((verbose)) && echo "get coinbase" >&2
 	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}'  | grep -oP '(?<="result".")\w+')
 	((verbose)) && echo "send call" >&2
-	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data "{\"jsonrpc\":\"2.0\", \"method\":\"eth_call\", \"params\":[{\"from\": \"$coinbase\", \"to\": \"$CONTRACT_ADDR_HEX\", \"data\": \"$GET_HASH_ADDR_HEX$offset$string\"},\"latest\"], \"id\":1}" | grep -oP '(?<="result"."0x)\w+' )
+	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_call", "params":[{"from": "'$coinbase'", "to": "'$CONTRACT_ADDR_HEX'", "data": "'$GET_HASH_ADDR_HEX$offset$string'"},"latest"], "id":1}' |grep -oP '(?<="result".")\w+')
+	echo $hex_result
 	if [ ${#hex_result} -le 0 ]; then
 		echo "Error: Connection Failed" >&2
 		exit 1
@@ -220,6 +221,7 @@ function get_hash() {
 	if [ ${#hex_result} -le 192 ]; then
 		echo null 0
 	else
+		hex_result=$(grep -oP '(?<="result"."0x)\w+' <<<$hex_result)
 		declare num_of_commits_dec hash_size_dec hash_printable hash
 		((verbose)) && echo "Parsing result to strings" >&2
 
