@@ -31,7 +31,7 @@ class OuterContainer:
         self.settings = Settings(self)
         #delete this after body implementation
         self.test = 0
-        self.col_desc = urwid.AttrWrap(urwid.Columns([urwid.Text("Nr"),urwid.Text("Miner"),urwid.Text("Sender"),urwid.Text("Transaction")]),'bold')
+        self.col_desc = urwid.AttrWrap(urwid.Columns([urwid.Text("Nr"),urwid.Text("Miner"),urwid.Text("Time"),urwid.Text("Transaction")]),'bold')
         # TODO ListBox
         # seperate name from List 
         # create Object which covers all 4 lines
@@ -87,11 +87,11 @@ class items(urwid.SimpleListWalker):
     def __init__(self):
         super().__init__([])
 
-    def add(self,nr,miner,sender,transaction):
+    def add(self,nr,miner,time,transaction):
         self.contents.append(urwid.Columns([
             urwid.Text(str(nr)),
             urwid.Text(str(miner)),
-            urwid.Text(str(sender)),
+            urwid.Text(str(time)),
             urwid.Text(str(transaction)),
             ]))
 
