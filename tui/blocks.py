@@ -2,7 +2,7 @@ import json
 import datetime
 from pprint import pprint
 
-class Transaction
+class Block
 	def __init__(self, nr, miner, sender, transaction)
 		self.nr = nr
 		self.miner = miner 
@@ -10,7 +10,7 @@ class Transaction
 		self.transaction = transaction
 
 
-class Transactions
+class Blocks
  	def __init__ (self)
  	 	self.all_blocks = []
  	 	self.mine_blocks = []
@@ -43,6 +43,10 @@ class Transactions
 	    miner = response["result"]["miner"]
 	    time = datetime.datetime.fromtimestamp(int(response["result"]["timestamp"],16)).strftime('%Y-%m-%d %H:%M:%S')
 	    number_transactions = len(response["result"]["transactions"])
+	    transactions = ""
+	    for i in xrange(0,number_transactions):
+	    	transaction += json_result_to_string(["result"]["transactions"][i])
+	    self.all_blocks.append(Block(number,miner,sender,transactions))
 
 
 
