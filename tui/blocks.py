@@ -67,17 +67,20 @@ class Blocks:
         return "ID: " + id + " hash: " + hash
 
     def get_older_blocks(self, number, mine, transaction):
-        # eprint(str(number), str(mine), str(transaction), sep="--")
         blocks = all_blocks
         if mine and transaction:
-            blocks = [x for x in blocks if x.miner == self.user and x.transactions != "" and x.nr < number]
+            eprint("1")
+            return [x for x in blocks if x.miner == self.user and x.transactions != "" and x.nr < number]
         elif mine:
-            blocks = [x for x in blocks if x.miner == self.user and x.nr < number]
+            eprint("2")
+            return [x for x in blocks if x.miner == self.user and x.nr < number]
         elif transaction:
-            blocks = [x for x in blocks if x.transactions != "" and x.nr < number]
+            eprint("3")
+            return [x for x in blocks if x.transactions != "" and x.nr < number and x.nr%2 != 1]
         else:
-            blocks = [x for x in blocks if x.nr < number]
-        return blocks
+            eprint("4")
+            return [x for x in blocks if x.nr < number]
+
 
     def run(self, n):
         for x in range(n, 0, -1):
