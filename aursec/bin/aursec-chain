@@ -213,7 +213,6 @@ function get_hash() {
 	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}'  | grep -oP '(?<="result".")\w+')
 	((verbose)) && echo "send call" >&2
 	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_call", "params":[{"from": "'$coinbase'", "to": "'$CONTRACT_ADDR_HEX'", "data": "'$GET_HASH_ADDR_HEX$offset$string'"},"latest"], "id":1}' |grep -oP '(?<="result".")\w+')
-	echo $hex_result
 	if [ ${#hex_result} -le 0 ]; then
 		echo "Error: Connection Failed" >&2
 		exit 1
