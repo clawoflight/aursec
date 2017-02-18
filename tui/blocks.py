@@ -69,16 +69,12 @@ class Blocks:
     def get_older_blocks(self, number, mine, transaction):
         blocks = all_blocks
         if mine and transaction:
-            eprint("1")
             return [x for x in blocks if x.miner == self.user and x.transactions != "" and x.nr < number]
         elif mine:
-            eprint("2")
             return [x for x in blocks if x.miner == self.user and x.nr < number]
         elif transaction:
-            eprint("3")
             return [x for x in blocks if x.transactions != "" and x.nr < number and x.nr%2 != 1]
         else:
-            eprint("4")
             return [x for x in blocks if x.nr < number]
 
 

@@ -38,7 +38,7 @@ class OuterContainer:
             self.col_desc,
             self.body
         ])
-        self.old_showAll = self.settings.showAll.state
+        self.old_show_all = self.settings.show_all.state
         self.old_transactions = self.settings.transactions.state
 
         self.view = urwid.Frame(urwid.AttrWrap(urwid.Filler(self.layout, valign='top'), 'body'),
@@ -61,14 +61,14 @@ class OuterContainer:
             raise urwid.ExitMainLoop()
 
     def refresh(self):
-        showAll = self.settings.showAll.state
+        show_all = self.settings.show_all.state
         transactions = self.settings.transactions.state
-        if self.old_showAll != showAll or self.old_transactions != transactions:
+        if self.old_show_all != show_all or self.old_transactions != transactions:
             self.curr_block = self.blocks.get_curr_block()
             self.old_transactions = transactions
-            self.old_showAll = showAll
-            self.list = items()
-        for x in self.blocks.get_older_blocks(self.curr_block, showAll, transactions):
+            self.old_show_all = show_all
+            self.list.contents.clear()
+        for x in self.blocks.get_older_blocks(self.curr_block, show_all, transactions):
             self.list.add(x.nr, x.miner, x.time, x.transactions)
             self.curr_block = x.nr
 
@@ -77,17 +77,17 @@ class Settings(urwid.Columns):
     def __init__(self, container):
         pick = []
         self.container = container
-        self.blocks = urwid.RadioButton(pick, "blocks", on_state_change=self.refresh)
-        self.transactions = urwid.RadioButton(pick, "transactions", on_state_change=self.refresh)
-        self.showAll = urwid.CheckBox("show just mine:", on_state_change=self.refresh)
+        self.transactions = urwid.CheckBox("just transactions")
+        self.show_all = urwid.CheckBox("just mine:")
+        self.refresh_b = urwid.Button("refresh", on_press=self.refresh)
         string = "Settings :"
         self.text = urwid.Text(string)
         self.body = [
-            self.text, self.blocks, self.transactions, self.showAll
+            self.text, self.transactions, self.show_all, self.refresh_b
         ]
         super().__init__(self.body)
 
-    def refresh(self, button, state):
+    def refresh(self, button):
         self.container.refresh()
 
 

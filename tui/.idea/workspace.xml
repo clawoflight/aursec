@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5e430887-6d03-45e0-875f-5cd20c6d3058" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/blocks.py" afterPath="$PROJECT_DIR$/blocks.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tui.py" afterPath="$PROJECT_DIR$/tui.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -31,23 +32,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="tui.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="tui.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tui.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="550">
-              <caret line="79" column="55" lean-forward="false" selection-start-line="79" selection-start-column="55" selection-end-line="79" selection-end-column="55" />
+            <state relative-caret-position="208">
+              <caret line="69" column="37" lean-forward="false" selection-start-line="69" selection-start-column="37" selection-end-line="69" selection-end-column="37" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="blocks.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="blocks.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/blocks.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
-              <caret line="81" column="39" lean-forward="false" selection-start-line="81" selection-start-column="39" selection-end-line="81" selection-end-column="39" />
+            <state relative-caret-position="496">
+              <caret line="77" column="39" lean-forward="false" selection-start-line="77" selection-start-column="39" selection-end-line="77" selection-end-column="39" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
+                <marker date="1487419920670" expanded="true" signature="2419:2432" ph="..." />
               </folding>
             </state>
           </provider>
@@ -61,8 +63,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/tui.py" />
         <option value="$PROJECT_DIR$/blocks.py" />
+        <option value="$PROJECT_DIR$/tui.py" />
       </list>
     </option>
   </component>
@@ -415,21 +417,22 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tui.py">
+    <entry file="file://$PROJECT_DIR$/blocks.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
-          <caret line="79" column="55" lean-forward="false" selection-start-line="79" selection-start-column="55" selection-end-line="79" selection-end-column="55" />
-          <folding />
+        <state relative-caret-position="496">
+          <caret line="77" column="39" lean-forward="false" selection-start-line="77" selection-start-column="39" selection-end-line="77" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+            <marker date="1487419920670" expanded="true" signature="2419:2432" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/blocks.py">
+    <entry file="file://$PROJECT_DIR$/tui.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="81" column="39" lean-forward="false" selection-start-line="81" selection-start-column="39" selection-end-line="81" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="208">
+          <caret line="69" column="37" lean-forward="false" selection-start-line="69" selection-start-column="37" selection-end-line="69" selection-end-column="37" />
+          <folding />
         </state>
       </provider>
     </entry>
