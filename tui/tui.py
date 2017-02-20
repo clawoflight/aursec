@@ -29,7 +29,12 @@ class OuterContainer:
         self.header = urwid.Text("Aursec - TUI")
         self.settings = Settings(self)
         self.col_desc = urwid.AttrWrap(
-            urwid.Columns([urwid.Text("Nr"), urwid.Text("Miner"), urwid.Text("Time"), urwid.Text("Transactions")]),
+            urwid.Columns([
+                ('fixed', 10, urwid.Text("Nr")),
+                ('fixed', 46, urwid.Text("Miner")),
+                ('fixed', 25, urwid.Text("Time")),
+                urwid.Text("Transactions")
+            ]),
             'bold')
         self.list = items()
         self.body = urwid.BoxAdapter(urwid.ListBox(self.list), height=self.screen.get_cols_rows()[True] - 4)
@@ -99,10 +104,10 @@ class items(urwid.SimpleListWalker):
 
     def add(self, nr, miner, time, transactions):
         self.contents.append(urwid.Columns([
-            urwid.Text(str(nr)),
-            urwid.Text(str(miner)),
-            urwid.Text(str(time)),
-            urwid.Text(str(transactions)),
+            ('fixed', 10, urwid.Text(str(nr))),
+            ('fixed', 46, urwid.Text(str(miner))),
+            ('fixed', 25, urwid.Text(str(time))),
+            urwid.Text(str(transactions))
         ]))
 
 
