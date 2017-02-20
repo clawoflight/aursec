@@ -23,8 +23,8 @@ aursec-parse-srcinfo(1)
 aursec-verify-hashes(1):
 : Take IDs and hashes and compare them against the ones on the blockchain.
 
-aursec-aurbuild-wrapper
-: Use this instead of **aurbuild**(1) to integrate **aursec** with **aurutils**(7)
+aursec-aursync-wrapper
+: Use this instead of **aursync**(1) to integrate **aursec** with **aurutils**(7)
 
 # PURPOSE
 The open and insecure nature of the AUR makes a variety of attacks very easy to pull off. Aursec reduces the risks by creating a secure, distributed repository of hashes with package name, version and release as key.

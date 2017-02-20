@@ -35,7 +35,7 @@ You will need the following dependencies:
 
 ## Using
 
-Aursec can be used to verify sources by hand.
+Aursec can be used to verify sources by hand. We also provide a wrapper for `aursync` (from aurutils) which transparently calls `aursec`.
 However, our hope is that the major AUR helpers will catch on and make themselves extensible, or integrate aursec directly.
 
 In the mean time, you can use one like `bauerbill`, which supports custom hooks, and create one that calls aursec. We hope to provide example hooks for various AUR helpers in the future.
