@@ -4,3 +4,4 @@ Ethereum/build/contracts.json
 Ethereum/chains/development
 Ethereum/tests/__pycache__
 *__pycache__
+*.idea
