@@ -50,7 +50,7 @@ class Blocks:
         number_transactions = len(response["result"]["transactions"])
         transactions = ""
         for i in range(0, number_transactions):
-            transactions += self.json_result_to_string(["result"]["transactions"][i])
+            transactions += self.json_result_to_string(response["result"]["transactions"][i])
             if i != number_transactions - 1:
                 transactions += " | "
         block = Block(number, miner, time, transactions)
