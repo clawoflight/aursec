@@ -20,7 +20,7 @@ class OuterContainer:
 
     footer_text = [
         ('title', "Keys: "),
-        " QUIT ", ('key', "Q"),
+        ('key', "Q"), "uit ", ('key', "R"), "efresh ",
     ]
 
     def __init__(self):
@@ -65,6 +65,12 @@ class OuterContainer:
     def unhandled_input(self, k):
         if k in ('q', 'Q'):
             raise urwid.ExitMainLoop()
+        if k in ('r', 'R'):
+            self.refresh()
+        if k is 'j':
+            self.body.keypress((0,), 'down')
+        if k is 'k':
+            self.body.keypress((0,), 'up')
 
     def refresh(self):
         show_all = self.settings.show_all.state
