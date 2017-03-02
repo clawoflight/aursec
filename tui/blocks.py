@@ -11,8 +11,9 @@ def eprint(*args, **kwargs):
 
 
 class Block:
-    def __init__(self, nr, miner, time, transactions):
+    def __init__(self, nr, block_hash, miner, time, transactions):
         self.nr = nr
+        self.hash = block_hash
         self.miner = miner
         self.time = time
         self.transactions = transactions
@@ -46,14 +47,15 @@ class Blocks:
         response = requests.post(
             self.url, data=json.dumps(payload), headers=self.headers).json()
         miner = response["result"]["miner"]
+        block_hash = response["result"]["hash"]
         time = datetime.datetime.fromtimestamp(int(response["result"]["timestamp"], 16)).strftime('%Y-%m-%d %H:%M:%S')
         number_transactions = len(response["result"]["transactions"])
         transactions = ""
         for i in range(0, number_transactions):
             transactions += self.json_result_to_string(response["result"]["transactions"][i])
             if i != number_transactions - 1:
-                transactions += " | "
-        block = Block(number, miner, time, transactions)
+                transactions += "\n"
+        block = Block(number, block_hash, miner, time, transactions)
         all_blocks.append(block)
 
     def json_result_to_string(self, transaction):
@@ -64,7 +66,7 @@ class Blocks:
         id = bytearray.fromhex(code[(first * 2 + 64):(first * 2 + 64 + len_id * 2)]).decode().rstrip()
         len_hash = int(code[second * 2:second * 2 + 64])
         hash = bytearray.fromhex(code[(second * 2 + 64):(second * 2 + 64 + len_hash * 2)]).decode().rstrip()
-        return "ID: " + id + " hash: " + hash
+        return "ID: " + id + " | Hash: " + hash
 
     def get_older_blocks(self, number, mine, transaction):
         blocks = all_blocks

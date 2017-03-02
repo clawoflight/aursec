@@ -31,6 +31,7 @@ class OuterContainer:
         self.col_desc = urwid.AttrWrap(
             urwid.Columns([
                 ('fixed', 10, urwid.Text("Nr")),
+                ('fixed', 10, urwid.Text("Hash")),
                 ('fixed', 46, urwid.Text("Miner")),
                 ('fixed', 25, urwid.Text("Time")),
                 urwid.Text("Transactions")
@@ -74,7 +75,7 @@ class OuterContainer:
             self.old_show_all = show_all
             self.list.contents.clear()
         for x in self.blocks.get_older_blocks(self.curr_block, show_all, transactions):
-            self.list.add(x.nr, x.miner, x.time, x.transactions)
+            self.list.add(x.nr, x.hash, x.miner, x.time, x.transactions)
             self.curr_block = x.nr
 
 
@@ -102,9 +103,10 @@ class items(urwid.SimpleListWalker):
     def __init__(self):
         super().__init__([])
 
-    def add(self, nr, miner, time, transactions):
+    def add(self, nr, block_hash, miner, time, transactions):
         self.contents.append(urwid.Columns([
             ('fixed', 10, urwid.Text(str(nr))),
+            ('fixed', 10, urwid.Text(str(block_hash[2:10]))),
             ('fixed', 46, urwid.Text(str(miner))),
             ('fixed', 25, urwid.Text(str(time))),
             urwid.Text(str(transactions))
