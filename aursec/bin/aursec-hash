@@ -97,7 +97,7 @@ function hash_pkg() {
 	fi
 
 	# Get the package id
-	PKGID=$(firejail "${firejail_opts[@]}" --whitelist="$(pwd)" --read-write="$(pwd)" bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel')
+	PKGID=$(firejail "${firejail_opts[@]}" --whitelist="$(pwd)" --read-write="$(pwd)" bash -c 'source PKGBUILD && echo $pkgname-$pkgver-$pkgrel' >/dev/null 2>&1)
 
 	cd_safe "$BASEDIR"
 	echo "$PKGID" "$HASH"
