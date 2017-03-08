@@ -60,6 +60,8 @@ class Blocks:
 
     def json_result_to_string(self, transaction):
         code = str(transaction["input"])[10:]
+        if "0xcd79f86d" is not in code
+            return "Transaction is no hash-commit"
         first = int(code[1:64], 16)
         second = int(code[65:128], 16)
         len_id = int(code[first * 2:first * 2 + 64])
