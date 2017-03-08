@@ -211,7 +211,7 @@ function get_hash() {
 	((verbose)) && echo "get coinbase" >&2
 	coinbase=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0","method":"eth_coinbase", "id":1}'  | grep -oP '(?<="result".")\w+')
 	((verbose)) && echo "send call" >&2
-	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_call", "params":[{"from": "'$coinbase'", "to": "'$CONTRACT_ADDR_HEX'", "data": "'$GET_HASH_ADDR_HEX$offset$string'"},"latest"], "id":1}' |grep -oP '(?<="result".")\w+')
+	hex_result=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"eth_call", "params":[{"from": "'$coinbase'", "to": "'$CONTRACT_ADDR_HEX'", "data": "'$GET_HASH_ADDR_HEX$offset$string'"},"latest"], "id":1}' |grep -oP '(?<="result"."0x)\w+')
 	if [ ${#hex_result} -le 0 ]; then
 		echo "Error: Connection Failed" >&2
 		exit 1
@@ -219,14 +219,13 @@ function get_hash() {
 	if [ ${#hex_result} -le 192 ]; then
 		echo null 0
 	else
-		hex_result=$(grep -oP '(?<="result"."0x)\w+' <<<$hex_result)
 		declare num_of_commits_dec hash_size_dec hash_printable hash
 		((verbose)) && echo "Parsing result to strings" >&2
 
 		num_of_commits_dec=$(printf "%d\n" "$(cut -c65-128 <<< "$hex_result")")
 		hash_size_dec=$((($(cut -c129-192 <<< "$hex_result" | sed 's/^0*//')-1)*2))
 		hash_printable=$(sed 's/.\{2\}/\\x&/g' <<< "$(cut -c193-$((193+hash_size_dec-1)) <<< "$hex_result")")
-		hash=$(printf "%s" "$hash_printable")
+		hash=$(echo -e "$hash_printable")
 
 		echo "$hash $num_of_commits_dec"
 	fi
