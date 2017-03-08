@@ -78,7 +78,7 @@ class Blocks:
         elif mine:
             return [x for x in blocks if x.miner == self.user and x.nr < number]
         elif transaction:
-            return [x for x in blocks if x.transactions != "" and x.nr < number and x.nr%2 != 1]
+            return [x for x in blocks if x.transactions != "" and x.nr < number]
         else:
             return [x for x in blocks if x.nr < number]
 
