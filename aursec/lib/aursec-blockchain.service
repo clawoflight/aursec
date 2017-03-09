@@ -3,7 +3,7 @@ Description=Blockchain for aursec hash storage
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/geth --bootnodes enode://c8e04f21e91790f185d8b2651c928a9cb203a2255acc26f8d870b2306ba4c9c5089342d9498f24aa98263371233830f248fba3609b15d2eb936a395bfb2eb96c@139.59.130.248:30200 --fast --port 30200 --rpcport 8105 --ipcdisable --rpc --rpcapi "eth,web3,miner" --datadir /var/aursec/chain --cache 512 --networkid 42 --verbosity 4 --unlock 0 --password /var/aursec/password
+ExecStart=/usr/bin/geth --bootnodes enode://c8e04f21e91790f185d8b2651c928a9cb203a2255acc26f8d870b2306ba4c9c5089342d9498f24aa98263371233830f248fba3609b15d2eb936a395bfb2eb96c@139.59.130.248:30200 --minerthreads 1 --fast --port 30200 --rpcport 8105 --ipcdisable --rpc --rpcapi "eth,web3,miner" --datadir /var/aursec/chain --cache 512 --networkid 42 --verbosity 4 --unlock 0 --password /var/aursec/password
 User=aursec
 Group=aursec
 
