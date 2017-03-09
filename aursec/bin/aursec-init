@@ -63,6 +63,14 @@ function init(){
 
 	# Give everything except for the markers folder mode 700
 	find $BLOCKCHAIN_PATH -maxdepth 1 -mindepth 1 -not -name '*markers*' -not -name '.' -exec chmod -R 700 '{}' \;
+
+	# Generate DAG
+	((verbose)) && echo "Creating DAG." >&2
+	tmp=$(su aursec -c "mkdir ${BLOCKCHAIN_PATH}/.ethash")
+	((verbose))&& echo "$tmp" >&2
+	tmp=$(su aursec -c "geth mkdag 360000 ${BLOCKCHAIN_PATH}/.ethash")
+	((verbose))&& echo "$tmp" >&2
+
 }
 
 
