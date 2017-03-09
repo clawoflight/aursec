@@ -116,7 +116,7 @@ class items(urwid.SimpleListWalker):
         self.contents.append(urwid.Columns([
             ('fixed', 10, urwid.Text(str(nr))),
             ('fixed', 10, urwid.Text(str(block_hash[2:10]))),
-            ('fixed', 46, urwid.Text(str(miner))),
+            ('fixed', 46, urwid.Text(str(miner[2:]))),
             ('fixed', 25, urwid.Text(str(time))),
             urwid.Text(str(transactions))
         ]))
