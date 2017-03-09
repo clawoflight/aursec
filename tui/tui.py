@@ -95,7 +95,10 @@ class Settings(urwid.Columns):
         string = "Settings :"
         self.text = urwid.Text(string)
         self.body = [
-            self.text, self.transactions, self.show_all, self.refresh_b
+            ('fixed', 15,self.text), 
+            ('fixed', 25,self.transactions), 
+            ('fixed', 20,self.show_all), 
+            ('fixed', 11,self.refresh_b)
         ]
         super().__init__(self.body)
 
