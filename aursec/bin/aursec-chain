@@ -100,7 +100,7 @@ function start_mining() {
 	#fi
 	if [[ "$(is_mining)" -eq "0" ]]; then
 		((verbose)) && echo "Starting mining" >&2
-		tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":[], "id":1}')
+		tmp=$(curl localhost:${PORT} ${silence} -X POST --data '{"jsonrpc":"2.0", "method":"miner_start", "params":["0x01"], "id":1}')
 		((verbose)) && echo "$tmp" >&2
 		touch $MARKER_FOLDER/last-mine.marker
 	fi
