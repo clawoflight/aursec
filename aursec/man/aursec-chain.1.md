@@ -8,7 +8,7 @@ aursec-chain - api for the aursec blockchain
 # SYNOPSIS
 aursec-chain [*options*] [*commands*]
 
-# Description
+# DESCRIPTION
 Aursec-chain is the bash API for aursec's private Ethereum blockchain.
 It can be used to get or commit hashes for specific package IDs and to control mining.
 
@@ -54,14 +54,6 @@ commit-hash *STRING1 STRING2*
 
 1
 : Failure 
-
-# ENVIRONMENT
-
-# FILES
-
-# NOTES
-
-# BUGS
 
 # EXAMPLES
 
