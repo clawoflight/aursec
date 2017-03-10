@@ -3,52 +3,57 @@
 % March 10, 2017
 
 # NAME
-aursec-tui - interactive aursec-chain viewer
+aursec-tui - interactive aursec-blockchain viewer
 
 # SYNOPSIS
 aursec-tui
 
 # DESCRIPTION
-Aursec-tui is an interactive viewer for the blocks in the aursec blockchain.
+Aursec-tui is a free urwid-based interactive viewer for the blocks in the aursec blockchain.
 
 # INTERACTIVE COMMANDS
 
 Up, k        
-:   highlight 
+:   Highlight next block, if you highlighted the current block go back to settings
 
 Down, j
-:   select previous block
+:   Highlight previous block
 
+R, r
+:   Refresh the view with the current settings and/or load older blocks
 
-# EXIT STATUS
+Q, q
+:   Quit
 
-0
-: Success
+# INTERACTIVE SETTINGS:
 
-1
-: Failure 
+just transactions
+:   Shows just blocks with transactions after the next refresh 
 
-# ENVIRONMENT
+just mine
+:   Shows just blocks which where mined by you after the next refresh
 
-# FILES
+# BUTTON
 
-# NOTES
+refresh
+:   See R, r in interactive commands
 
-# BUGS
+# COLUMNS
 
-# EXAMPLES
+Nr
+:   Number of the block
 
-To mine 5 blocks
-: $ aursec-chain mine blocks 5
+Hash
+:   Hash of the block
 
-To commit hash "hash123" of package "pkg1"
-: $ aursec-chain commit-hash pkg1 hash123
+Miner
+:   User hash of the user who mined the block
 
-To get hash of "pkg1"
-: $ aursec-chain get-hash pkg1
+Time
+:   Time when the block was mined
 
-# SEE ALSO
-**aursec**(1), **aursec-hash**(1), **aursec**(7).
+Transactions
+:   Shows all Transactions of an block
 
 # COPYRIGHT
 This is free software licensed under the Mozilla Public License, v. 2.0.
