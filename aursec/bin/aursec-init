@@ -68,7 +68,7 @@ function init(){
 	((verbose)) && echo "Creating DAG." >&2
 	tmp=$(su aursec -c "mkdir ${BLOCKCHAIN_PATH}/.ethash")
 	((verbose))&& echo "$tmp" >&2
-	tmp=$(su aursec -c "geth mkdag 360000 ${BLOCKCHAIN_PATH}/.ethash")
+	tmp=$(su aursec -c "geth makedag 360000 ${BLOCKCHAIN_PATH}/.ethash" 2>&1)
 	((verbose))&& echo "$tmp" >&2
 
 }
