@@ -33,7 +33,7 @@ This is just convenience glue for a pipeline of **aursec-hash**(1), **aursec-ver
 - no hash in the blockchain: prompt
 - hash below threshold: prompt
 - hash above threshold and match: exit 0
-- hash above threshold and on match: exit != 0
+- hash above threshold and no match: exit != 0
 
 # EXIT STATUS
 0
