@@ -41,6 +41,7 @@ Most features of this toolkit require the blockchain to be running and periodica
 
 before using them.
 
+The first time, there will be a synchronisation before the blockchain can be used, which will take a few minutes.
 To use **aursec-aursync-wrapper** instead of **aursync**(1), add
 
     alias -g aursync="$(which aursec-aursync-wrapper)"
