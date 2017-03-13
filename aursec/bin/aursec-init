@@ -70,6 +70,12 @@ function init(){
 	((verbose))&& echo "$tmp" >&2
 	tmp=$(su aursec -c "geth makedag 360000 ${BLOCKCHAIN_PATH}/.ethash" 2>&1)
 	((verbose))&& echo "$tmp" >&2
+	tmp=$(systemctl start aursec-blockchain.service 2>&1)
+	((verbose))&& echo "$tmp" >&2
+	tmp=$(aursec-chain -v -d mine blocks 2 2>&1)
+	((verbose))&& echo "$tmp" >&2
+	tmp=$(systemctl stop aursec-blockchain.service 2>&1)
+	((verbose))&& echo "$tmp" >&2
 
 }
 
@@ -110,5 +116,5 @@ if [ -d $BLOCKCHAIN_PATH ]; then
 else
 	init
 fi
-echo "Initialization of the blockchain was successful. Please start the systemd service."
+echo "Initialization of the blockchain was successful. Please start the systemd service. The following synchronisation will take a while."
 exit 0
