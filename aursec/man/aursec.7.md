@@ -41,18 +41,11 @@ Most features of this toolkit require the blockchain to be running and periodica
 
 before using them.
 
-To use **aursec-aurbuild-wrapper** instead of **aurbuild**(1), add
+To use **aursec-aursync-wrapper** instead of **aursync**(1), add
 
-    hash -p "$(which aursec-aurbuild-wrapper)" aurbuild
-    alias -g aurbuild="$(which aursec-aurbuild-wrapper)"
+    alias -g aursync="$(which aursec-aursync-wrapper)"
 
-to your *.zshrc*
-
-To your *.bashrc*, or
-
-    alias -g aurbuild="$(which aursec-aurbuild-wrapper)"
-
-to your *.zshrc*. The former should also work when using **aursync**(1) because that's a bash script.
+To your *.bashrc*, or *.zshrc*.
 
 # BUGS
 
