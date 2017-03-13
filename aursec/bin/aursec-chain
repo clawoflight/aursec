@@ -219,15 +219,15 @@ function get_hash() {
 	if [ ${#hex_result} -le 192 ]; then
 		echo null 0
 	else
-		declare num_of_commits_dec hash_size_dec hash_printable hash
+		declare num_of_commits_dec hash_size_dec hash_printable hash_
 		((verbose)) && echo "Parsing result to strings" >&2
 
 		num_of_commits_dec=$(printf "%d\n" "$(cut -c65-128 <<< "$hex_result")")
 		hash_size_dec=$((($(cut -c129-192 <<< "$hex_result" | sed 's/^0*//')-1)*2))
 		hash_printable=$(sed 's/.\{2\}/\\x&/g' <<< "$(cut -c193-$((193+hash_size_dec-1)) <<< "$hex_result")")
-		hash=$(echo -e "$hash_printable")
+		hash_=$(echo -e "$hash_printable")
 
-		echo "$hash $num_of_commits_dec"
+		echo "$hash_ $num_of_commits_dec"
 	fi
 	echo "$tmp" >/dev/null
 }
