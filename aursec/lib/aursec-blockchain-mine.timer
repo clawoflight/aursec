@@ -3,7 +3,7 @@ Description=Periodically mine a few blocks in the aursec blockchain
 
 [Timer]
 OnCalendar=hourly
-RandomizedDelaySec=5000
+RandomizedDelaySec=500
 AccuracySec=1us
 Persistent=true
 

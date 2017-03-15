@@ -168,10 +168,10 @@ function mine_auto() {
 
 	# if the last commit was after the last mine
 	if [[ $MARKER_FOLDER/last-commit.marker -nt $MARKER_FOLDER/last-mine.marker ]]; then
-		((verbose)) && echo "Committed since the last mine, mining more." >&2
+		echo "Committed since the last mine, mining more." >&2
 		mine_n_blocks 4
 	else
-		((verbose)) && echo "No commits since the last mine, mining one block only." >&2
+		echo "No commits since the last mine, mining one block only." >&2
 		mine_n_blocks 1
 	fi
 }
