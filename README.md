@@ -40,7 +40,7 @@ However, our hope is that the major AUR helpers will catch on and make themselve
 
 In the mean time, you can use one like `bauerbill`, which supports custom hooks, and create one that calls aursec. We hope to provide example hooks for various AUR helpers in the future.
 
-Before using the program, ensure that `aursec-blockchain.service` is running and `aursec-blockchain-mine.timer` is enabled.
+Before using the program, run `aursec-init` and ensure that `aursec-blockchain.service` is running and `aursec-blockchain-mine.timer` is enabled.
 
 The basic usage is as follows:
 
