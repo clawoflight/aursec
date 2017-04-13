@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2046,SC2016
+# shellcheck disable=SC2046,SC2016,SC2030,SC2031
 # Calculate the canonical id and hash of given package directories.
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -8,6 +8,7 @@
 # Copyright (c) 2016-2017 Lukas Krismer and Bennett Piater.
 PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 set -e -o pipefail
+shopt -s lastpipe  # no subshell for last command in a pipeline
 readonly BASEDIR="$PWD"
 readonly firejail_opts=(--quiet "--read-only=/tmp" "--read-only=$HOME" --noroot --nogroups --seccomp "--shell=none" "--caps.drop=all")
 declare -r EINVALIDPATH=70 EVCS=71
@@ -78,7 +79,7 @@ function hash_pkg() {
 	cd_safe "$1"
 
 	# Check if it's a vcs package
-	vcs_dirs=( $(aursec-parse-srcinfo .SRCINFO) )
+	aursec-parse-srcinfo .SRCINFO | readarray -t vcs_dirs
 
 	if (( ${#vcs_dirs[@]} )); then
 		((no_vcs)) && error "VCS dir found, but --novcs was specified!" >&2 && exit $EVCS
