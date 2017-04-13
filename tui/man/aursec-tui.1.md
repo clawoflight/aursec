@@ -27,10 +27,10 @@ Q, q
 
 # INTERACTIVE SETTINGS:
 
-just transactions
+only transactions
 :   Shows just blocks with transactions after the next refresh 
 
-just mine
+only mine
 :   Shows just blocks which where mined by you after the next refresh
 
 # BUTTON

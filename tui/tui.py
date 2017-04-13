@@ -89,8 +89,8 @@ class Settings(urwid.Columns):
     def __init__(self, container):
         pick = []
         self.container = container
-        self.transactions = urwid.CheckBox("just transactions")
-        self.show_all = urwid.CheckBox("just mine:")
+        self.transactions = urwid.CheckBox("only transactions")
+        self.show_all = urwid.CheckBox("only mine:")
         self.refresh_b = urwid.Button("refresh", on_press=self.refresh)
         string = "Settings :"
         self.text = urwid.Text(string)
