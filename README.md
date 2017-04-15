@@ -22,7 +22,7 @@ This repository contains several components:
 We manage and test the solidity code using [Populus](https://github.com/pipermerriam/populus), but end users don't need to install that.
 
 The main program is available in the [AUR](https://aur.archlinux.org/aursec).
-To install it by hand, simply call `make install` in the `aursec` folder.
+To install it by hand, simply call `make install` in the `aursec` folder and create a system user and group named `aursec`.
 
 You will need the following dependencies:
 
