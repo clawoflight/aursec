@@ -37,10 +37,10 @@ function init(){
 
 	mkdir $BLOCKCHAIN_PATH/markers
 	touch $BLOCKCHAIN_PATH/markers/{last-commit.marker,last-mine.marker}
-	chmod 666 $BLOCKCHAIN_PATH/markers/last-commit.marker
-	chmod 666 $BLOCKCHAIN_PATH/markers/last-mine.marker
 
 	chmod -R 755 $BLOCKCHAIN_PATH
+	chmod 666 $BLOCKCHAIN_PATH/markers/last-commit.marker
+	chmod 666 $BLOCKCHAIN_PATH/markers/last-mine.marker
 	chown -R aursec:aursec $BLOCKCHAIN_PATH
 
 	# check if genesis block exists
