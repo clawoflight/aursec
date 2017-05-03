@@ -74,7 +74,7 @@ function init(){
 	((verbose))&& echo "$tmp" >&2
 	tmp=$(aursec-chain -v -d mine blocks 2 2>&1)
 	((verbose))&& echo "$tmp" >&2
-	if [[ $(aursec-chain get-hash "hello world") == "it works"* ]]; then
+	if [[ $(aursec-chain get-hash "hello world" 2>&1) != "it works"* ]]; then
 		echo "Error: couldn't synchronize with the network" >&2
 		tmp=$(systemctl stop aursec-blockchain.service 2>&1)
 		((verbose))&& echo "$tmp" >&2
