@@ -8,6 +8,7 @@ PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
 BLOCKCHAIN_PATH="/var/aursec"
 GENESIS_BLOCK="/usr/share/aursec/genesis_block.json"
+PORT="8105"
 
 function usage() {
 	plain "Usage: $0 [-h|--help]" >&2
@@ -72,7 +73,10 @@ function init(){
 	su aursec -c "geth makedag 360000 ${BLOCKCHAIN_PATH}/.ethash" 2>&1
 	tmp=$(systemctl start aursec-blockchain.service 2>&1)
 	((verbose))&& echo "$tmp" >&2
-	sleep 15 #to ensure that the service is started
+	sleep 15
+	while ! curl localhost:${PORT} "${silence}" -X POST --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' | grep -q false; do
+		sleep 1
+	done
 	tmp=$(aursec-chain -v -d mine blocks 2 2>&1)
 	((verbose))&& echo "$tmp" >&2
 	if [[ $(aursec-chain get-hash "hello world" 2>&1) != "it works"* ]]; then
@@ -89,10 +93,12 @@ function init(){
 
 
 # Parse the arguments
+silence='-s'
 while true; do
     case "$1" in
         -v|--verbose)
 			verbose=1
+			silence=''
 			shift
 			;;
         -h|--help)
