@@ -11,12 +11,12 @@ GENESIS_BLOCK="/usr/share/aursec/genesis_block.json"
 PORT="8105"
 
 function usage() {
-	plain "Usage: $0 [-h|--help]" >&2
+    plain "Usage: $0 [-h|--help]" >&2
 }
 
 function help() {
-	usage
-	cat >&2 <<EOF
+    usage
+    cat >&2 <<EOF
 Initialize a Ethereum Blockchain and generates a new account.
 
 Options:
@@ -30,63 +30,96 @@ Copying:
 EOF
 }
 
+# trap ... for errorhandling
+error() {
+    local parent_lineno="$1"
+    local message="$2"
+    local code="${3:-1}"
+    if ((debug)); then
+        if [[ -n "$message" ]] ; then
+        echo "aursec-chain: Error on or near line ${parent_lineno}: ${message}; use verbose to get more details; exiting with status ${code}" >&2
+        else
+        echo "aursec-chain: Error on or near line ${parent_lineno}; use verbose to get more details; exiting with status ${code}" >&2
+        fi
+    else
+        echo "aursec-chain: error. For further details activate verbose and debug" >&2
+    fi
+  exit "${code}"
+}
+
+# Returns Dec number of current block
+function get_current_block() {
+    trap 'error ${LINENO}' ERR
+    declare block_hexnum
+    ((verbose)) && echo "Getting current block" >&2
+    block_hexnum=$(curl localhost:${PORT} "${silence}" -m 30 -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' | grep -oP '(?<="result".")\w+')
+    printf "%d\n" "$block_hexnum"
+}
+
 # Creates blockchain and account
 function init(){
-	declare tmp
-	((verbose)) && echo "Creating directory." >&2
-	mkdir -p $BLOCKCHAIN_PATH
+    trap 'error ${LINENO}' ERR
+    declare tmp
+    ((verbose)) && echo "Creating directory." >&2
+    mkdir -p $BLOCKCHAIN_PATH
 
-	mkdir $BLOCKCHAIN_PATH/markers
-	touch $BLOCKCHAIN_PATH/markers/{last-commit.marker,last-mine.marker}
+    mkdir $BLOCKCHAIN_PATH/markers
+    touch $BLOCKCHAIN_PATH/markers/{last-commit.marker,last-mine.marker}
 
-	chmod -R 755 $BLOCKCHAIN_PATH
-	chmod 666 $BLOCKCHAIN_PATH/markers/last-commit.marker
-	chmod 666 $BLOCKCHAIN_PATH/markers/last-mine.marker
-	chown -R aursec:aursec $BLOCKCHAIN_PATH
+    chmod -R 755 $BLOCKCHAIN_PATH
+    chmod 666 $BLOCKCHAIN_PATH/markers/last-commit.marker
+    chmod 666 $BLOCKCHAIN_PATH/markers/last-mine.marker
+    chown -R aursec:aursec $BLOCKCHAIN_PATH
 
-	# check if genesis block exists
-	((verbose)) && echo "Looking for genesis block" >&2
-	if [ ! -e "$GENESIS_BLOCK" ]; then
-		echo "The genesis block does not exist" >&2
-		exit 3
-	fi
-	# init blockchain
-	((verbose)) && echo "Creating Blockchain." >&2
-	tmp=$(su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK "  2>&1)
-	((verbose))&& echo "$tmp" >&2
-	# generate password
-	((verbose)) && echo "Generating random password." >&2
-	tmp=$(su aursec -c "dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password " 2>&1)
-	((verbose))&& echo "$tmp" >&2
-	# new blockchain account
-	((verbose)) && echo "Creating new account." >&2
-	tmp=$(su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new " 2>&1)
-	((verbose))&& echo "$tmp" >&2
+    # check if genesis block exists
+    ((verbose)) && echo "Looking for genesis block" >&2
+    if [ ! -e "$GENESIS_BLOCK" ]; then
+        echo "The genesis block does not exist" >&2
+        exit 3
+    fi
+    # init blockchain
+    ((verbose)) && echo "Creating Blockchain." >&2
+    tmp=$(su aursec -c "geth --datadir $BLOCKCHAIN_PATH/chain init $GENESIS_BLOCK "  2>&1)
+    ((verbose))&& echo "$tmp" >&2
+    # generate password
+    ((verbose)) && echo "Generating random password." >&2
+    tmp=$(su aursec -c "dd if=/dev/urandom count=20 | sha256sum | base64 | head -c 32 > ${BLOCKCHAIN_PATH}/password " 2>&1)
+    ((verbose))&& echo "$tmp" >&2
+    # new blockchain account
+    ((verbose)) && echo "Creating new account." >&2
+    tmp=$(su aursec -c "geth --password ${BLOCKCHAIN_PATH}/password --datadir $BLOCKCHAIN_PATH/chain account new " 2>&1)
+    ((verbose))&& echo "$tmp" >&2
 
-	# Give everything except for the markers folder mode 700
-	find $BLOCKCHAIN_PATH -maxdepth 1 -mindepth 1 -not -name '*markers*' -not -name '.' -exec chmod -R 700 '{}' \;
+    # Give everything except for the markers folder mode 700
+    find $BLOCKCHAIN_PATH -maxdepth 1 -mindepth 1 -not -name '*markers*' -not -name '.' -exec chmod -R 700 '{}' \;
 
-	# Generate DAG
-	((verbose)) && echo "Creating DAG." >&2
-	tmp=$(su aursec -c "mkdir ${BLOCKCHAIN_PATH}/.ethash")
-	((verbose))&& echo "$tmp" >&2
-	su aursec -c "geth makedag 360000 ${BLOCKCHAIN_PATH}/.ethash" 2>&1
-	tmp=$(systemctl start aursec-blockchain.service 2>&1)
-	((verbose))&& echo "$tmp" >&2
-	sleep 15
-	while ! curl localhost:${PORT} "${silence}" -X POST --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' | grep -q false; do
-		sleep 1
-	done
-	tmp=$(aursec-chain -v -d mine blocks 2 2>&1)
-	((verbose))&& echo "$tmp" >&2
-	if [[ $(aursec-chain get-hash "hello world" 2>&1) != "it works"* ]]; then
-		echo "Error: couldn't synchronize with the network" >&2
-		tmp=$(systemctl stop aursec-blockchain.service 2>&1)
-		((verbose))&& echo "$tmp" >&2
-		exit 3
-	fi
-	tmp=$(systemctl stop aursec-blockchain.service 2>&1)
-	((verbose))&& echo "$tmp" >&2
+    # Generate DAG
+    ((verbose)) && echo "Creating DAG." >&2
+    tmp=$(su aursec -c "mkdir ${BLOCKCHAIN_PATH}/.ethash")
+    ((verbose))&& echo "$tmp" >&2
+    su aursec -c "geth makedag 360000 ${BLOCKCHAIN_PATH}/.ethash" 2>&1
+    tmp=$(systemctl start aursec-blockchain.service 2>&1)
+    ((verbose))&& echo "$tmp" >&2
+    sleep 15
+    ((verbose))&& echo "wait for first block" >&2
+    while [[ $(get_current_block) -le 5 ]]; do 
+    	sleep 15
+    done 
+    sleep 15
+    ((verbose))&& echo "synched" >&2
+    ((verbose))&& echo "$tmp" >&2
+    if [[ $(aursec-chain get-hash "hello world" 2>&1) != "it works"* ]]; then
+        echo "Error: couldn't synchronize with the network" >&2
+        tmp=$(systemctl stop aursec-blockchain.service 2>&1)
+        ((verbose))&& echo "$tmp" >&2
+        exit 3
+    fi
+    ((verbose))&& echo "got hash" >&2
+    tmp=$(aursec-chain -v -d mine blocks 2 2>&1)
+    ((verbose))&& echo "$tmp" >&2
+    ((verbose))&& echo "mined blocks" >&2
+    tmp=$(systemctl stop aursec-blockchain.service 2>&1)
+    ((verbose))&& echo "$tmp" >&2
 
 }
 
@@ -97,10 +130,11 @@ silence='-s'
 while true; do
     case "$1" in
         -v|--verbose)
-			verbose=1
-			silence=''
-			shift
-			;;
+            verbose=1
+            debug=1
+            silence=''
+            shift
+            ;;
         -h|--help)
             help
             exit 0 ;;
@@ -109,25 +143,25 @@ while true; do
 done
 
 if [ "$EUID" -ne 0 ]; then
-	echo "Please run this script as root."
-	exit 2
+    echo "Please run this script as root."
+    exit 2
 fi
 
 ((verbose)) && echo "Checking if $BLOCKCHAIN_PATH already exists."
 
 if [ -d $BLOCKCHAIN_PATH ]; then
-	read -rp "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
-	case $yn in
-		y|Y )
-			rm -rf $BLOCKCHAIN_PATH
-			init;;
-		* )
-			echo "Canceled the blockchain initialization."
-			exit 1
-	esac
+    read -rp "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
+    case $yn in
+        y|Y )
+	        rm -rf $BLOCKCHAIN_PATH
+    	    init;;
+        * )
+       	 	echo "Canceled the blockchain initialization."
+        	exit 1
+    esac
 
 else
-	init
+    init
 fi
 echo "Initialization of the blockchain was successful. Please start the systemd service. The following synchronisation will take a while."
 exit 0
