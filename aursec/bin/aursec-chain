@@ -260,7 +260,7 @@ while true; do
     case "$1" in
         -v|--verbose)
             verbose=1
-            silence=''
+            silence='-sS'
             shift
             ;;
         -d|--debug)
