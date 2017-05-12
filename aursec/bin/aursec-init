@@ -59,7 +59,7 @@ function get_current_block() {
 # Creates blockchain and account
 function init(){
     trap 'error ${LINENO}' ERR
-    declare tmp
+    declare tmp per
     ((verbose)) && echo "Creating directory." >&2
     mkdir -p $BLOCKCHAIN_PATH
 
@@ -94,32 +94,52 @@ function init(){
     find $BLOCKCHAIN_PATH -maxdepth 1 -mindepth 1 -not -name '*markers*' -not -name '.' -exec chmod -R 700 '{}' \;
 
     # Generate DAG
-    ((verbose)) && echo "Creating DAG." >&2
     tmp=$(su aursec -c "mkdir ${BLOCKCHAIN_PATH}/.ethash")
     ((verbose))&& echo "$tmp" >&2
-    su aursec -c "geth makedag 360000 ${BLOCKCHAIN_PATH}/.ethash" 2>&1
-    tmp=$(systemctl start aursec-blockchain.service 2>&1)
+    tmp=$(sudo systemctl start aursec-blockchain 2>&1)
     ((verbose))&& echo "$tmp" >&2
-    sleep 15
-    ((verbose))&& echo "wait for first block" >&2
+    ((verbose))&& echo "Generate backup DAG" >&2
+    su aursec -c "geth makedag 0 ${BLOCKCHAIN_PATH}/.ethash >${BLOCKCHAIN_PATH}/log.aursec-init 2>&1 &"
+    per="0"
+    sleep 10
+    while (("$per"!="100")) ;do
+        per=$(grep -oP '(?<=percentage=)\w+' ${BLOCKCHAIN_PATH}/log.aursec-init | tail -1)
+        if (("$per"=="99"));then
+            per="100"
+        fi
+        tmp="Generate DAG: $per% \r"
+        echo -ne "$tmp" >&2
+    done
+    echo "" >&2
+
+    echo "Wait for synchronisation" >&2
     while [[ $(get_current_block) -le 5 ]]; do 
-    	sleep 15
+        sleep 15
     done 
-    sleep 15
+    
     ((verbose))&& echo "synched" >&2
-    ((verbose))&& echo "$tmp" >&2
-    if [[ $(aursec-chain get-hash "hello world" 2>&1) != "it works"* ]]; then
-        echo "Error: couldn't synchronize with the network" >&2
-        tmp=$(systemctl stop aursec-blockchain.service 2>&1)
-        ((verbose))&& echo "$tmp" >&2
-        exit 3
-    fi
-    ((verbose))&& echo "got hash" >&2
-    tmp=$(aursec-chain -v -d mine blocks 2 2>&1)
-    ((verbose))&& echo "$tmp" >&2
+
+ 
+    echo "Ḿine 2 blocks (This will take a few minutes)" >&2
+    aursec-chain -v -d mine blocks 2 >${BLOCKCHAIN_PATH}/log.aursec-init 2>&1 &
+    per="0"
+    sleep 10
+    while (("$per"!="100")) ;do
+        per=$(sudo journalctl -eu aursec-blockchain | grep -oP '(?<=percentage=)\w+' | tail -1)
+        if (("$per"=="99"));then
+            per="100"
+        fi 
+        tmp="Generate DAG: $per% \r"
+        echo -ne "$tmp" >&2
+    done  
+    echo "" >&2
+
+    wait
+    ((verbose))&& cat ${BLOCKCHAIN_PATH}/log.aursec-init >&2
     ((verbose))&& echo "mined blocks" >&2
     tmp=$(systemctl stop aursec-blockchain.service 2>&1)
     ((verbose))&& echo "$tmp" >&2
+    sudo rm ${BLOCKCHAIN_PATH}/log.aursec-init
 
 }
 
@@ -132,7 +152,7 @@ while true; do
         -v|--verbose)
             verbose=1
             debug=1
-            silence=''
+            silence='-sS'
             shift
             ;;
         -h|--help)
@@ -153,15 +173,15 @@ if [ -d $BLOCKCHAIN_PATH ]; then
     read -rp "The Path $BLOCKCHAIN_PATH already exists. Do you want to delete all existing Files in this Folder? [y/N]" yn
     case $yn in
         y|Y )
-	        rm -rf $BLOCKCHAIN_PATH
-    	    init;;
+            rm -rf $BLOCKCHAIN_PATH
+            init;;
         * )
-       	 	echo "Canceled the blockchain initialization."
-        	exit 1
+            echo "Canceled the blockchain initialization."
+            exit 1
     esac
 
 else
     init
 fi
-echo "Initialization of the blockchain was successful. Please start the systemd service. The following synchronisation will take a while."
+echo "Initialization of the blockchain was successful."
 exit 0
