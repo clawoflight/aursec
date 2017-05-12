@@ -136,6 +136,7 @@ function get_current_block() {
 # $1 = N
 function mine_n_blocks() {
     trap 'error ${LINENO}' ERR
+    trap "stop_mining; exit 1" SIGHUP SIGINT SIGTERM
     declare start_block
     ((verbose)) && echo "Starting mining $1 blocks" >&2
     if ! [[ $1 =~ ^[0-9]+$ ]] ; then
