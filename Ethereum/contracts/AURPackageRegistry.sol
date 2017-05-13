@@ -15,6 +15,7 @@ contract AURPackageRegistry is Owned {
     // Struct that holds the consensus and the number of submissions for each hash for a package.
     struct PackageData {
         string currentConsensusPkgHash;
+        string secondBestPkgHash;
         mapping (string => uint) timesHashSubmitted;
     }
 
@@ -26,7 +27,8 @@ contract AURPackageRegistry is Owned {
     mapping (string => mapping (address => bool)) addressesThatSubmittedAHash;
 
     event PkgHashSubmitted(string indexed packageID, string pkgHash, uint submissionCount, address indexed submitter);
-    event ConsensusFormed(string indexed packageID, string pkgHash, uint submissionCount);
+    event ConsensusFormed(string indexed packageID, string pkgHash, uint submissionCount, uint secondBestSubmissionCount);
+    event SecondMostCommonHashChanged(string indexed packageID, string pkgHash, uint submissionCount);
 
     /**
      * @notice Get the current consensus and how many nodes submitted it for a given package,version,release combination.
@@ -36,9 +38,10 @@ contract AURPackageRegistry is Owned {
      * @return pkgHash The hash of the package, or the empty string if none is stored.
      * @return submissionCount The number of nodes that submitted this hash
      */
-    function getCurrentConsensus(string packageID) constant returns (string pkgHash, uint submissionCount) {
+    function getCurrentConsensus(string packageID) constant returns (string pkgHash, uint submissionCount, uint secondBestSubmissionCount) {
         string hash = packages[packageID].currentConsensusPkgHash;
-        return (hash, packages[packageID].timesHashSubmitted[hash]);
+        string secondBestHash = packages[packageID].secondBestPkgHash;
+        return (hash, packages[packageID].timesHashSubmitted[hash], packages[packageID].timesHashSubmitted[secondBestHash]);
     }
 
 
@@ -61,10 +64,16 @@ contract AURPackageRegistry is Owned {
 
         // If this hash has become the new consensus
         if (package.timesHashSubmitted[pkgHash] > package.timesHashSubmitted[package.currentConsensusPkgHash]) {
+            package.secondBestPkgHash = package.currentConsensusPkgHash; // Remember the previous consensus
             package.currentConsensusPkgHash = pkgHash;
             // Trigger notification
-            ConsensusFormed(packageID, pkgHash, package.timesHashSubmitted[pkgHash]); }
+            ConsensusFormed(packageID, pkgHash, package.timesHashSubmitted[pkgHash], package.timesHashSubmitted[package.secondBestPkgHash]);
 
+        // If this hash has become the new second-most often committed hash
+        } else if (package.timesHashSubmitted[pkgHash] > package.timesHashSubmitted[package.secondBestPkgHash]) {
+            package.secondBestPkgHash = pkgHash;
+            SecondMostCommonHashChanged(packageID, pkgHash, package.timesHashSubmitted[pkgHash]);
+        }
         return true;
     }
 }
