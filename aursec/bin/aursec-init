@@ -9,6 +9,7 @@ PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 BLOCKCHAIN_PATH="/var/aursec"
 GENESIS_BLOCK="/usr/share/aursec/genesis_block.json"
 PORT="8105"
+LOGFILE="aursec-init.log"
 
 function usage() {
     plain "Usage: $0 [-h|--help]" >&2
@@ -99,11 +100,11 @@ function init(){
     tmp=$(sudo systemctl start aursec-blockchain 2>&1)
     ((verbose))&& echo "$tmp" >&2
     ((verbose))&& echo "Generate backup DAG" >&2
-    su aursec -c "geth makedag 0 ${BLOCKCHAIN_PATH}/.ethash >${BLOCKCHAIN_PATH}/log.aursec-init 2>&1 &"
+    su aursec -c "geth makedag 0 ${BLOCKCHAIN_PATH}/.ethash >${BLOCKCHAIN_PATH}/${LOGFILE} 2>&1 &"
     per="0"
     sleep 10
     while (("$per"!="100")) ;do
-        per=$(grep -oP '(?<=percentage=)\w+' ${BLOCKCHAIN_PATH}/log.aursec-init | tail -1)
+        per=$(grep -oP '(?<=percentage=)\w+' ${BLOCKCHAIN_PATH}/${LOGFILE} | tail -1)
         if (("$per"=="99"));then
             per="100"
         fi
@@ -121,7 +122,7 @@ function init(){
 
  
     echo "Ḿine 2 blocks (This will take a few minutes)" >&2
-    aursec-chain -v -d mine blocks 2 >${BLOCKCHAIN_PATH}/log.aursec-init 2>&1 &
+    aursec-chain -v -d mine blocks 2 >${BLOCKCHAIN_PATH}/${LOGFILE} 2>&1 &
     per="0"
     sleep 10
     while (("$per"!="100")) ;do
@@ -135,11 +136,11 @@ function init(){
     echo "" >&2
 
     wait
-    ((verbose))&& cat ${BLOCKCHAIN_PATH}/log.aursec-init >&2
+    ((verbose))&& cat ${BLOCKCHAIN_PATH}/${LOGFILE} >&2
     ((verbose))&& echo "mined blocks" >&2
     tmp=$(systemctl stop aursec-blockchain.service 2>&1)
     ((verbose))&& echo "$tmp" >&2
-    sudo rm ${BLOCKCHAIN_PATH}/log.aursec-init
+    sudo rm ${BLOCKCHAIN_PATH}/${LOGFILE}
 
 }
 
