@@ -50,7 +50,9 @@ function show_hashes() {
     msg2 "Consensus:  $cons_h with $cons_c submissions"
 
     if ((match)); then
-        plain "The hashes match."
+        msg "The hashes match."
+    else
+        warning "The hashes do not match!"
     fi
 }
 
