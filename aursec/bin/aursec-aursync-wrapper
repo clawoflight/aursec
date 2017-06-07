@@ -20,9 +20,9 @@ function aurbuild() {
 	done
 
 	if [[ x"$queue" = x ]]; then
-	    aursec . || exit 1
+	    aursec -v . || exit 1
 	else
-	    aursec < "$queue" || exit 1
+	    aursec -v < "$queue" || exit 1
 	fi
 
 	# Call aurbuild if aursec exited 0
