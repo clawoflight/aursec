@@ -5,15 +5,14 @@
 [![Downloads](https://img.shields.io/github/downloads/clawoflight/aursec/total.svg)](https://github.com/clawoflight/aursec/releases)
 [![AUR Version](https://img.shields.io/aur/version/aursec.svg)](https://aur.archlinux.org/packages/aursec)
 
-> A blockchain approach to securing software packages
+> Blockchain-based security layer for the AUR
 
-This is the repository of our Bachelor's thesis.
 It's goal is to alleviate some of the AUR's security issues by building a hash database in a private Ethereum blockchain.
 
 This repository contains several components:
 
 - The primary program, [aursec](https://github.com/clawoflight/aursec/tree/master/aursec/)
-- The Solidity code for the blockchain, in [Ethereum](https://github.com/clawoflight/aursec/tree/master/Ethereum)
+- The Solidity code (Ethereum smart contract), in [Ethereum](https://github.com/clawoflight/aursec/tree/master/Ethereum)
 - The paper 
 - Our presentations
 
@@ -21,7 +20,7 @@ This repository contains several components:
 
 We manage and test the solidity code using [Populus](https://github.com/pipermerriam/populus), but end users don't need to install that.
 
-The main program is available in the [AUR](https://aur.archlinux.org/aursec).
+The main program **is available in the [AUR](https://aur.archlinux.org/aursec)**.
 To install it by hand, simply call `make install` in the `aursec` folder and create a system user and group named `aursec`.
 
 You will need the following dependencies:
