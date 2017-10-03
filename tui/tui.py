@@ -53,8 +53,8 @@ class OuterContainer:
         self.blocks = blocks.Blocks()
         self.curr_block = self.blocks.get_curr_block()
         self.refresh()
-        thread = Thread(target=self.blocks.run, args=(self.curr_block,))
-        thread.start()
+        self.thread = Thread(target=self.blocks.run, args=(self.curr_block,))
+        self.thread.start()
 
     def main(self):
         """Run the program."""
@@ -64,6 +64,7 @@ class OuterContainer:
 
     def unhandled_input(self, k):
         if k in ('q', 'Q'):
+            self.blocks.stop()
             raise urwid.ExitMainLoop()
         if k in ('r', 'R'):
             self.refresh()
@@ -95,9 +96,9 @@ class Settings(urwid.Columns):
         string = "Settings :"
         self.text = urwid.Text(string)
         self.body = [
-            ('fixed', 15,self.text), 
-            ('fixed', 25,self.transactions), 
-            ('fixed', 20,self.show_all), 
+            ('fixed', 15,self.text),
+            ('fixed', 25,self.transactions),
+            ('fixed', 20,self.show_all),
             ('fixed', 11,self.refresh_b)
         ]
         super().__init__(self.body)

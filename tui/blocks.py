@@ -17,6 +17,7 @@ class Block:
         self.miner = miner
         self.time = time
         self.transactions = transactions
+        self.stop = False
 
 
 class Blocks:
@@ -85,7 +86,13 @@ class Blocks:
 
     def run(self, n):
         for x in range(n, 0, -1):
+            if self.stop == True:
+                break
             self.get_data(x)
+
+    def stop(self):
+        self.stop = True
+
 
     def get_curr_block(self):
         payload = {
