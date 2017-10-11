@@ -1,0 +1,8 @@
+\subsection{Systemd Services} \label{sec:aursec-systemd}
+Since Arch Linux uses Systemd as init system and service manager, it was natural for this project to use it as well.
+
+We use it for two things:
+
+\paragraph*{aursec-blockchain.service} This service simply starts the blockchain process with the correct arguments. Using Systemd gives us an easy way to start the blockchain on boot with the correct configuration and a CPU quota to limit the impact on other running programs.
+
+\paragraph*{aursec-blockchain-mine.timer} This timer is used to periodically mine blocks on the chain, thereby making the next wave of hashes available to other users. A Systemd timer works similarly to a Cron job, but with more control, and is easier to provide in a package.

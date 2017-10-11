@@ -1,0 +1,122 @@
+\documentclass[11pt]{scrartcl}
+
+%\usepackage[utf8]{inputenc} % use UTF-8 as input encoding - not necessary with xelatex
+%\renewcommand{\baselinestretch}{2} % Line height
+\usepackage[T1]{fontenc} % make non-ASCII characters cut&pastable in PDF
+\usepackage{lmodern} % easiest way to get outline fonts with T1 encoding
+\usepackage[english=american]{csquotes} % automatic quotation style
+\usepackage[american]{babel}
+\usepackage{abstract}
+
+\usepackage{amsmath,amssymb} % math
+\usepackage{caption} % For caption*
+\usepackage[hidelinks, colorlinks=true]{hyperref} % Make links from things
+
+\usepackage{graphicx} % images
+\DeclareGraphicsExtensions{.eps,.pdf,.png,.jpg,.gif}
+\graphicspath{{./img/}}
+\usepackage{tabularx} % tabulars
+\usepackage{array,booktabs} % rules for frontpage
+\usepackage{titling} % "vars" for titlepage
+\usepackage{minted} % syntax highlighting
+\usepackage{csquotes} % display quotes
+\usepackage{cleveref}
+\usepackage{framed}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
+% Setup the page geometry
+\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm]{geometry}
+%\usepackage[a4paper,margin=5cm,top=3cm,bottom=3cm,left=2.7cm,right=2.7cm]{geometry}
+
+
+
+\title{AURsec}
+\newcommand{\titlesub}{Detecting and preventing targeted attacks in the Arch User Repository: A~blockchain-based~approach}
+\author{Bennett Piater \& Lukas Krismer}
+\newcommand{\leader}{Supervisor: Christian Sillaber}
+\newcommand{\university}{University of Innsbruck}
+\newcommand{\course}{Bachelor thesis}
+\date{\today}
+
+\begin{document}
+  %%% Boilerplate
+  \thispagestyle{empty}
+
+  %frontpage
+  \input{frontpage.tex}
+
+  % \input{formal}f
+
+
+  \pagenumbering{Roman}
+  \begin{abstract}
+    \input{abstract}
+  \end{abstract}
+
+  \section*{Foreword}
+  \input{foreword.tex}
+  \pagebreak
+
+
+  \tableofcontents
+  \listoffigures
+  % \listoftables
+  \pagebreak
+
+
+  %%% Content starts here
+  \pagenumbering{arabic}
+
+  \section{Introduction}  %(1/2 page)
+    \input{intro}
+
+  \section{Related Work}
+    \input{background}
+    \input{otherApproaches}
+
+  \section{Motivation: Security Issues of the AUR} %(1 1/2 pages)
+    \label{sec:security_issues}
+    \input{security_issues} % BENNETT
+
+  \section{AURsec}
+    % TODO: maybe main tool - aursec; initialization - aursec-init; API - aursec-chain
+    \input{core_solution} %LUKAS
+    \input{detailedDescription/blockchain} % LUKAS
+    \input{detailedDescription/aursec-init} % LUKAS
+    \input{detailedDescription/aursec} % Bennett
+    \input{detailedDescription/aursec-chain} % LUKAS
+    \input{detailedDescription/systemd} % Bennett
+    \subsection{Terminal User Interface} %(1/2 page)
+    \input{tui}
+    \subsection{Integration with AUR Helpers} \label{sec:integration}
+    In order to achieve a meaningful security improvement for most users, integrations with common AUR helpers are necessary because hardly anyone builds AUR packages by hand.
+
+    We focused on \texttt{aurutils}~\cite{gh:aurutils} because it is one of the few AUR helpers focused on security, which is also the reason why we use it in our daily life.
+
+    After some discussion with its author, Alad Wenter, we decided to provide a wrapper which integrates \texttt{aursec} with \texttt{aurutils}; It's existing users can now take advantage of our improved security with minimal effort.
+
+  % NOTE: Maybe in the appendix
+  %\section{Lessons learned} %(1 page)
+    %\input{learned.tex}
+  \section{Evaluation}
+    \input{eval}
+
+  \section{Discussion}
+    \input{discussion}
+
+  % TODO: conclusion:
+
+  \appendix
+  \include{appendix}
+
+
+  %%% Content ends here
+  \pagebreak
+  \bibliographystyle{plain}
+  \bibliography{Literature.bib}
+
+\end{document}

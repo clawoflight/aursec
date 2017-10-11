@@ -1,0 +1,30 @@
+\label{sec:discuss}
+Simulated attacks of the kind discussed in Section \ref{sec:attack_scenarios} have been detected effectively in our experiments, and the core toolchain is convenient to use and performant.
+Also synchronization between users and automatic mining works as expected.
+
+However, our approach has several major disadvantages that necessarily follow from using a blockchain: Every user must have a full copy of the chain on his machine, which requires a non-negligible amount of hard drive memory at best.
+The local copies must also be kept in sync, which requires a background process and near-permanent network connection.
+Finally, the fact that we need a high mining difficulty to prevent the spreading of fake hashes makes our system very computationally expensive for what it is.
+
+\subsection{Alternatives}
+There are other conceivable ways of securing the AUR on the user side.
+The most obvious one would be to do away with the blockchain and replace it with a traditional database accessible through a web service.
+
+That approach has the advantage of being much lighter and more straightforward to use, as it doesn't need local blockchain copies, background processes or periodic mining on every client machine. However, it achieves that by creating a single point of failure (the web service) and a new trust requirement (in the owners of the web service).
+
+In the end, the choice between these approaches involves a trade-off between computational costs and client-side complexity on the one hand, and basic trust on the other.
+
+Other approaches would be the creation of a new, trusted source repository downstream of the AUR, requiring trust in a central authority, or a complete re-design of the AUR itself at the cost of ease of use. Neither of these is particularly appealing, allthough the former is very sensible for specific uses and/or closed organizations, and is already being used for those cases.
+
+
+\subsection{Future Work}
+The system would need several months of testing with hundreds of users in order to assess its actual performance, so we are looking forward to more engagement from the community when AURsec advances.
+To date, we have not received enough feedback or run our project with enough people to draw meaningful conclusions.
+
+However, we have already started working on a large update that will make the system more secure.
+The main improvement is an extended smart contract that does not merely return the most common hash and its submission count, but also returns the count for the second most common hash.
+
+This will allow us to factor the proportion between the two counts into the trust instead of the current simple trust threshold.
+We also need to address the mining difficulty: that is, the system must be usable, but at the same time hard to manipulate. This will require more testing.
+Depending on the mining difficulty that we choose, we might also make the periodic mining mine for a set time instead of a set number of blocks, in order to adjust the mining-effort of each user .
+Finally, we want to use Systemd's cgroups resource management more effectively in order to limit the performance and battery impact of running our project in the background.

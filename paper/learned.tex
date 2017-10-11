@@ -1,0 +1,39 @@
+% Ethereum - Solidity
+% RPC
+% Bash as a programming language
+% Python - Urwid
+
+\subsubsection*{Ethereum --- Solidity}
+Programming on a blockchain is a very interesting concept, but it seemed like it would take some getting used to. Thankfully, Solidity, the main language used on Ethereum, is a cleanly designed language which abstracts the blockchain away very nicely.
+
+In practice, writing for Ethereum turned out to be enjoyable. Solidity reads like a half-way mix between C and Javascript, and most things that we rely on in this project happen automatically: Guaranteeing that the code cannot be modified, the ACID properties of transactions, etc. Solidity even supports some automatic formal verification, but not yet for \texttt{struct}s, so we cannot make use of it for our program.
+
+All in all, Solidity is ideally suited for writing secure, \enquote{intelligent} (self-enforcing) databases.
+
+\subsubsection*{JSON RPC}
+The JSON PRC is used by \texttt{aursec-chain} for remote access to the block. Methods can be called or transactions can be sent by sending a JSON Object to the block chain. The answer from the block chain is also always a JSON Object. We learned how to parse JSON using python- and bash scripts. The best example is visible in the code of aursec-tui (Section~\ref{sec:tui}).
+
+\subsubsection*{Bash}
+Using Bash as a programming language was interesting. The language has many pitfalls~\cite{bash:pitfalls} and its syntax can be strange, even arcane; At the same time, we were often surprised by the advanced features that are provided directly by the language, such as string substitutions, regular expression matching or associative arrays.
+
+These are the lessons that we learned about Bash (and whish we had known from the start):
+
+\begin{itemize}
+	\item Treat it as a functional programming language while structuring a program --- design in pipelines/streams.
+	\item Error handling is hard to do well.
+	Whenever possible, use \texttt{set -e} to abort on error and exit handlers for cleanup.
+	\item Use a static analysis tool such as \emph{Shellcheck}~\cite{bash:shellcheck} to navigate the syntactic pitfalls.
+	\item Find or invent a good way to test.
+\end{itemize}
+
+Bash doesn't provide or recommend a canonical testing framework, but associative arrays and \texttt{eval} allowed us to write our own system for basic unit tests with named test cases, commands to execute, and expected invariants.
+We used it to great effect in narrowing down the best \texttt{firejail} sandbox ruleset, e.g. preventing \texttt{makepkg} from writing to folders other than \texttt{pwd}.
+
+Overall, Bash is powerful and probably the perfect tool for this job, but so different from common programming languages that it took some getting used to.
+
+\subsubsection*{Python-Urwid}
+Urwid \cite{urwid} is a \emph{Terminal User Interface} (TUI) library for Python. It provides ready-made widgets which make it easy to create structured user interfaces. In total there are 20 different Widget-Classes which differ in type (box/flow/fixed) and category (basic/graphic/decoration/container). The basic and the graphic widgets contain the content. The decoration and container widgets are used to structure the TUI.
+
+Buttons, check-boxes and key bindings allow to call functions. This function may add, remove or change widgets on runtime.
+
+Using this library, we learned how to write simple TUIs which are completely modular and can be extended anytime.

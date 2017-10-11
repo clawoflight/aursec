@@ -1,0 +1,100 @@
+\subsection{Main tool - aursec}
+\label{sec:aursec}
+\texttt{aursec} is the primary tool of our thesis. It implements the workflow of Section~\ref{sec:workflow}.
+
+Users can execute it passing a build folder (containing a \texttt{PKGBUILD}) as argument, and it will figure out the package name and version, hash the build files and VCS sources, compare them against the consensus, and present the result to the user.
+
+\texttt{aursec} builds a pipeline of two other tools, \texttt{aursec-hash} and \texttt{aursec-verify-hashes}, which produce all necessary information, one line per build folder/package.
+It then inserts itself into that pipeline and iterates over the lines using a \emph{while-read} loop and traverses the state machine (Section~\ref{sec:workflow} and Figure~\ref{fig:state_machine}) for each item.
+
+This functionality is best explained using an example: One has downloaded a \texttt{PKGBUILD} from the AUR, for example the one that we provide for building \texttt{aursec} from git, which can be seen in Appendix~\ref{sec:our-pkgbuild}. The \texttt{PKGBUILD} is in a folder named after the package.
+The next step is to call our tool: \texttt{aursec aursec-git} or \texttt{ls | aursec}.
+The main tool is a state machine built on the other ones.
+In order to get its information, it builds a pipeline of other tools from which it will read, which can be seen in line 12 of Figure~\ref{src:aursec-pipeline}.
+
+\begin{figure}
+	\begin{minted}[linenos]{bash}
+while read -r -u4 pkg_id pkg_hash cons_h cons_c match; do
+    if [[ x"$pkg_id" = x"ERROR" ]]; then
+            exit $EHASH
+    fi
+    if [[ -z "$pkg_id" || -z "$pkg_hash" || -z "$cons_h"
+       || -z "$cons_c" || -z "$match" ]]; then
+        error "Received invalid data from aursec-verify-hashes!"
+        exit $ECHAIN
+    fi
+
+    state_machine
+
+# This will automagically use all remaining arguments, or read from stdin.
+done 4< <(aursec-hash "$@" | aursec-verify-hashes || echo ERROR)
+	\end{minted}
+	\caption{Pipeline creation in aursec}
+	\label{src:aursec-pipeline}
+\end{figure}
+
+The first tool in the pipeline is \texttt{aursec-hash}, which has the straightforward task of producing an ID (\texttt{\$pkgname-\$pkgver-\$pkgrel}) and a hash from \texttt{PKGBUILD}s.
+It receives the paths to folders containing them on \texttt{stdin} or as arguments.
+
+The id could be parsed from the \texttt{.SRCINFO}, which is a plain text file.
+However, VCS packages do not have up-to-date version information in their \texttt{PKGBUILD}, which means that it must be interpreted my \texttt{makepkg}, which will update the sources and generate the current version by calling the \texttt{pkgver()} function, an example of which can be seen at line 22 of Appendix~\ref{sec:our-pkgbuild}
+This is annoying, but we only source the \texttt{PKGBUILD} in a \texttt{firejail}~\cite{wiki:firejail} sandbox to minimize the inherent risk of executing foreign turing-complete code.
+
+This allows us to get an accurate ID for VCS packages, but also gives us the opportunity to include the actual sources in the hash, thereby compensating for the lack of hashes in the \texttt{PKGBUILD} of VCS packages.
+
+The \texttt{PKGBUILD} is hashed after stripping its comments. VCS sources, if they exist, are hashed using a \texttt{find} command.
+Finally, all hashes are combined by another call to the hash command.
+Currently, \texttt{sha256sum} is used for its good speed and security.
+
+\texttt{aursec-hash} then writes the space-separated id and hash for every package that it processed to \texttt{stdout}, one line per package.
+For our example \texttt{PKGBUILD}, the output looks like this:
+
+\begin{verbatim}
+aursec-git-v0.11.r0.15ea0e9-1
+    0bccd006ecf636e91cc924a7e6f9f25c26164de715c8972d146505b8e7ec1afc
+\end{verbatim}
+
+That information is piped into \texttt{aursec-verify-hashes}, which is responsible for the blockchain interaction.
+
+% TODO: @lukas sollen wir wirklich hier direkt aursec-chain usw. erklären?
+% Ich fände es sinnvoller, den Workflow vom primären tool und den von den blockchain sachen zu trennen, sonst wird das etwas zu unübersichtlich, denke ich...
+% Also vielleicht weiter unten anschauen, was genau an dieser stelle passiert ist.
+It fetches the current consensus for every package ID on \texttt{stdin} using \texttt{aursec-chain} (Section \ref{sec:aursec-chain}), computes whether it matches with the locally computed hash, and appends that data to the input stream on \texttt{stdout}. Doing this in a separate pipeline step is worth it because requests from the blockchain are comparatively slow, making the concurrency highly useful.
+
+The resulting output for our example looks like this:
+
+\begin{minted}{bash}
+aursec-git-v0.11.r0.15ea0e9-1  # Package ID
+0bccd006ecf636e91cc924a7e6f9f25c26164de715c8972d146505b8e7ec1afc  # Local hash
+c54d99fb6c4797cd994fcef74082396aaadbbcf44021932e04c65b77745e45cd  # Consensus
+2  # Number of times the consensus was committed
+0  # Whether the hashes match
+\end{minted}
+
+This would actually be one space-separated line, but we split it here for readability. Note that the hash doesn't match the remote consensus: That's because we modified the \texttt{PKGBUILD} slightly before including it in this paper.
+
+This output is then read by \texttt{aursec}, which uses it to traverse the state machine from Figure~\ref{fig:state_machine}, which results in the following output for our example:
+
+\begin{verbatim}
+==> WARNING: Consensus count 2 for aursec-git-v0.11.r0.15ea0e9-1 is below
+the threshold of 12!
+  -> Local hash: 0bccd006ecf636e91cc924a7e6f9f25c26164de715c8972d146505b8e7ec1afc
+  -> Consensus:  c54d99fb6c4797cd994fcef74082396aaadbbcf44021932e04c65b77745e45cd
+with 2 submissions
+==> WARNING: The hashes do not match!
+Continue anyway? [y]es, [w]ithout submitting, [N]o
+>
+\end{verbatim}
+
+If \texttt{yes} is selected, the hash will be submitted to the blockchain. If one selects \texttt{no}, the program immediately exits with a non-zero status, which allows it to be used within scripts --- and more importantly AUR helpers, which would also cancel the build step at this point.
+If one selects \texttt{without submitting}, the program continues, but the hash will not be submitted.
+
+% TODO: where to put this?
+\subsubsection{Architecture} \label{sec:aur-architecture}
+
+We designed \texttt{aursec} to follow UNIX conventions.
+Modular design is important, so we created small tools doing one thing and doing it well. In order to adhere to the \emph{universal interface} \cite{Salus:1994}, our tools work on streams of text on \texttt{stdin} and \texttt{stdout}, making them highly reusable. These steps allowed us to maximise concurrency using a pipeline and blocking I/O.
+
+This architecture has several advantages: It is straightforward to understand because it follows standard UNIX patterns, which also makes it very maintainable.
+The free 3-level parallelism gained by the pipeline is a very useful advantage in itself, even more so because all 3 tools are primarily I/O-bound: \texttt{aursec-hash} reads and hashes lots of files, \texttt{aursec-verify-hashes} constantly queries (and waits for) the blockchain, and \texttt{aursec} tends to spend much time waiting for user input.
+Thus, the concurrency is even more important because it allows work to continue in the background while \texttt{aursec} waits for the user. Indeed, the background tasks tend to be finished in most practical situations before the user has had time to inspect the second or third warning.

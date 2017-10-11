@@ -1,0 +1,77 @@
+\label{sec:motivation}
+Ease of use appears to have been, if not the only, at least the primary design consideration of the Arch User Repository. This creates so many security issues that it is actually quite a task to address them all.
+
+% PKGBUILDS
+\subsection{Local Package Creation}
+One of the most obvious problems is the installation procedure itself.
+Arch packages are created locally from a bash file, the so-called \texttt{PKGBUILD} \cite{wiki:PKGBUILD}, containing metadata such as name and version, the URLs and checksums of upstream sources, and functions for the compilation and packaging steps.
+
+The AUR contains these \texttt{PKGBUILD}s and possible patches to be applied to the upstream sources in a git repository per package.
+A package file can be produced by cloning its repository and using a tool called \texttt{makepkg} \cite{wiki:PackageCreation}, which sources the script, downloads and verifies the sources, and calls the compilation and packaging functions.
+
+This means that users can verify what they are compiling as opposed to blindly trusting binaries created by third parties; however, it also means that the maintainers of AUR packages have a means of executing arbitrary shell commands on users' machines.
+
+This is aggravated by the fact that \texttt{PKGBUILD}s can include a \texttt{.install} file into the built package, which will be executed \emph{as root} when the package is actually installed.
+The risk increases further if \emph{AUR helpers} are used, because some of them are unsafe in that they execute code before giving users the opportunity to inspect it, or disincentivize them from doing so.
+
+\subsection{The Trust Issue}
+Another problem is that users are not given any reason to trust the maintainers.
+Unlike the official repositories, where maintainers are vetted, packages are (often manually) audited before being accepted, and everything must be signed with a trusted OpenPGP key, anyone can create an account and submit a new package to the AUR in a few minutes.
+There is no admission procedure or audit system and no OpenPGP web of trust in order to minimize the time needed to publish a package or update.
+
+\texttt{makepkg} can verify OpenPGP signatures for upstream sources, but the \texttt{PKGBUILD} itself could only be signed by using signed git commits, which is unfortunately not enforced or even officially recommended --- and not supported by any AUR helper anyway.
+
+Except when using the AUR helper \texttt{bauerbill} \cite{bauerbill}, which provides a basic user-side trust management system (see Section~\ref{sec:security_comparison}), the only way to be maintain reasonable trust is to manually read every single file, which is cumbersome.
+Since only security-conscious users are willing to put in so much effort before trusting a \texttt{PKGBUILD}, most users are left vulnerable.
+
+\subsection{Adopting orphan packages}
+The trust issue is aggravated by the fact that packages can silently and quickly be taken over by other maintainers due to the orphan/adoption system.
+
+When maintainers want to stop maintaining a package, but the package is still useful and actively developed upstream, they have the option to \emph{orphan} it rather than deleting it.
+Orphan packages can be \emph{adopted} by any AUR user, at any time, without delay.
+This feature was designed to minimize update delay, which it does effectively; however, it also makes it easy for malicious agents to take over popular orphaned packages, manipulate them, and immediately orphan them afterwards.
+
+\begin{center}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{threat1n}
+	\caption[Threat Assessment]{Threat Assessment of the Arch User Repository}
+	\label{fig:threat}
+\end{figure}
+\end{center}
+
+\subsection{Concrete Attack Scenarios}
+\label{sec:attack_scenarios}
+We used the CORAS \cite{Dahl:2007} threat modeling language to arrange the security issues in such a way that concrete attack scenarios are intuitive to comprehend and retrace. The resulting threat diagram can be seen in Figure~\ref{fig:threat}.
+
+Many of the AUR's security issues, which emerged out of its design, are not easily solvable and are only included for completeness. However, Figure~\ref{fig:threat} shows that the vulnerabilities converge inwards and meet in only three points; This means that security issues further along the right of the diagram tend to be more promising candidates in the search for solvable problems.
+
+This knowledge leads to two concrete attack scenarios that could be preempted without redesigning the AUR. These are outlined below.
+
+% Threats:
+\subsubsection{Tampered VCS Sources: Malicious Upstream}
+\label{sec:vcs_attack}
+In some cases, the user is not adequately protected against malicious (or compromised) upstreams:
+The AUR supports so-called \emph{VCS packages} \cite{wiki:VCSPackages}, which download sources from a version control system, such as Git or Mercurial, instead of downloading a fixed archive. This relieves maintainers from updating their \texttt{PKGBUILD} for every new commit.
+\texttt{makepkg} will even automatically calculate the up-to-date version number using for instance tags and commit numbers.
+
+VCS packages were primarily designed to simplify the installation of up-to-date packages from source, and they do that well; however they also introduce a security issue:
+Since the \texttt{PKGBUILD} does not need to be updated between versions, it cannot contain checksums for the new version either.
+This used to be thought a small issue since most modern version-control systems use cryptographic hash functions for commit identification and integrity verification.
+However, all popular ones use SHA-1, which has already been broken \cite{Stevens:2017}.
+This means that attacks on VCS repositories using hash collision are possible.
+In that light, users don't have a way to verify the authenticity of the source which they are downloading while building a VCS package, unless they can trust the upstream itself, meaning that no-one will notice if the upstream is compromised or makes malicious changes.
+There is no way to counter this except to manually audit the upstream sources, which \emph{should} primarily be the maintainer's responsibility.
+
+\subsubsection{Tampered Packages: Malicious Maintainer}
+\label{sec:maint_attack}
+Users are also not adequately protected against malicious maintainers:
+
+Because it is easy to gain access to a package, e.g. by adopting an orphan or simply by creating it, and nothing is verified or audited before publication, it is easy for a malicious agent to modify a package.
+Additionally, since the \texttt{PKGBUILD} is not signed or hashed, users will not notice if the build instructions for a specific package version were modified. This allows targeted attacks:
+
+If the time at which targets will update their machine is known and one has access to an AUR package which they expected to update, malicious code can be introduced into the corresponding \texttt{PKGBUILD} or \texttt{.install} files within that update window.
+This could be as simple as changing the checksum if one also has access to the upstream source code (even a very careful user has no chance of noticing this attack), or executing innocuous code in the install file or \texttt{PKGBUILD} itself.
+
+The malicious change could be reverted immediately afterwards. If the time frame is short, no other AUR user (and thus, \emph{no-one}) would ever notice.
+One can only defend against this with a good local trust model, such as that possible with \texttt{bauerbill}, or manual cryptographic verification of the git commit to the AUR, if the attack was conducted by adopting an orphan package --- assuming that the maintainer signs his commits, which is only rarely the case.

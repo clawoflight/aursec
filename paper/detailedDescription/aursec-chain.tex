@@ -1,0 +1,29 @@
+\subsubsection{API - aursec-chain}\label{sec:aursec-chain}
+\texttt{aursec-chain} is a shell script which allows the user and other scripts to interact with our blockchain.
+The script itself communicates with the blockchain through the JSON RPC.
+It provides the commands to start and stop mining, mine a number of blocks, get the current consensus hash of a versioned package and commit a hash of a versioned package.
+In our command pipeline, \texttt{aursec-verify-hashes} calls \texttt{aursec-chain get-hash \$ID}.
+For our example \texttt{PKGBUILD}, the command looks like this:
+
+\begin{verbatim}
+aursec-chain get-hash aursec-git-v0.11.r0.15ea0e9-1
+\end{verbatim}
+
+this returns
+
+\begin{verbatim}
+c54d99fb6c4797cd994fcef74082396aaadbbcf44021932e04c65b77745e45cd 2
+\end{verbatim}
+
+which means that \texttt{\ldots745e45cd} is the current consensus hash and it was committed two times.
+
+Furthermore \texttt{aursec} calls \texttt{aursec-chain commit-hash \$ID \$HASH} when the local hash is trusted in order to include it in the blockchain and update the consensus.
+
+For our example \texttt{PKGBUILD}, the command looks like this:
+
+\begin{verbatim}
+aursec-chain commit-hash aursec-git-v0.11.r0.15ea0e9-1
+		0bccd006ecf636e91cc924a7e6f9f25c26164de715c8972d146505b8e7ec1afc
+\end{verbatim}
+
+\texttt{aursec-chain} is also indirectly used by the systemd-service \texttt{aursec-blockchain-mine.timer}, which periodically mines blocks.

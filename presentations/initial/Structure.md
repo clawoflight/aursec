@@ -29,7 +29,6 @@ Am Anfang werden wir auf die AUR und ihre Probleme eingehen und später zeigen w
 ## Was ist die AUR
 
     AUR = Arch User Repository
-    __TODO:__ Add Info to AUR
 
 
 ## Sicherheitsprobleme der AUR
@@ -37,7 +36,6 @@ Am Anfang werden wir auf die AUR und ihre Probleme eingehen und später zeigen w
     Threat-Diagramm
 
 Die Angriffsmöglichkeiten sind breit gefächert:
-__TODO:__ Alle Angriffsmöglichkeiten kurz erklären
 
 
 ## unser Projekt
@@ -45,7 +43,6 @@ __TODO:__ Alle Angriffsmöglichkeiten kurz erklären
 
     Threatdiagramm
 
-__TODO:__ Welche Probleme werden gelöst welche nicht
 
 ### Begriffserklärung: Blockchain
 
@@ -74,7 +71,6 @@ Unser Programm schaltet sich ein sobald ein neues Paket gebaut wird. Als erstes 
 - Web- oder CLI-Interface
 - Integration
 
-__TODO:__ Teile erklären
 
 ### Verwendete Technologien
 
@@ -83,7 +79,6 @@ __TODO:__ Teile erklären
 - Python ?? 
 - yaourt ....
 
-__TODO:__ Formulierung
 
 
 ## Zeitplan
@@ -107,4 +102,3 @@ __TODO:__ Formulierung
     ??.05 Abgabe des Papers
     ??.05 Abschlusspräsentation                                    [L]
 
-__TODO:__ Formulierung

@@ -1,0 +1,207 @@
+\section{A sample \texttt{PKGBUILD}}\label{sec:our-pkgbuild}
+
+\begin{minted}[linenos]{bash}
+# Maintainer: Bennett Piater <bennett at piater dot name>
+
+pkgname=(aursec-git aursec-tui-git)
+pkgver=v0.11.r0.15ea0e9
+pkgrel=1
+pkgdesc='Verify AUR package sources against hashes stored in a blockchain.'
+arch=(any)
+url="https://github.com/clawoflight/${pkgbase%-git}"
+license=('custom:MPL2')
+
+provides=("${pkgname%-git}")
+conflicts=("${pkgname%-git}")
+
+depends=(firejail geth vim bc)
+makedepends=(pandoc git)
+checkdepends=(shellcheck)
+
+source=("git+https://github.com/clawoflight/${pkgname%-git}.git")
+sha256sums=('SKIP')
+validpgpkeys=('871F10477DB3DDED5FC447B226C7E577EF967808')
+
+pkgver() {
+    cd "${pkgname%-git}"
+    printf "%s" "$(git describe --long | sed 's/\([^-]*-\)g/r\1/;s/-/./g')"
+}
+
+build() {
+    cd "${pkgname%-git}/aursec"
+    make
+    cd "../tui"
+    make
+}
+
+check() {
+    cd "${pkgname%-git}/aursec"
+    make -k check
+}
+
+package_aursec-git() {
+    install=aursec-git.install
+    optdepends=("aursec-tui: to manually inspect the blockchain.")
+
+    cd "${pkgname%-git}/aursec"
+    make PREFIX="/usr" DESTDIR="$pkgdir/" install
+}
+
+package_aursec-tui-git() {
+    pkgdesc='Inspect the aursec blockchain'
+    depends=(python python-requests python-urwid aursec)
+    provides=(aursec-tui)
+    conflicts=(aursec-tui)
+
+    cd "aursec/tui"
+    make PREFIX="/usr" DESTDIR="$pkgdir/" install
+}
+\end{minted}
+
+\section{Smart Contract}\label{sec:contract}
+\begin{minted}[linenos]{javascript}
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+// Copyright 2016-2017 Lukas Krismer and Bennett Piater.
+
+pragma solidity ^0.4.0;
+import "contracts/Owned.sol";
+
+/**
+ * @title Registry of AUR package hashes
+ * @author Bennett Piater
+ */
+contract AURPackageRegistry is Owned {
+
+    // Struct that holds the consensus
+    // and the number of submissions for each hash for a package.
+    struct PackageData {
+        string currentConsensusPkgHash;
+        mapping (string => uint) timesHashSubmitted;
+    }
+
+    // Map package IDs "$pkgname-$pkgver-$pkgrel" to the corresponding struct
+    mapping (string => PackageData) packages;
+
+    // Map a hash to a map of blockchain wallet addresses (users).
+    // This allows checking whether a user submitted a hash.
+    mapping (string => mapping (address => bool)) addressesThatSubmittedAHash;
+
+    event PkgHashSubmitted(string indexed packageID, string pkgHash,
+        uint submissionCount, address indexed submitter);
+    event ConsensusFormed(string indexed packageID, string pkgHash,
+        uint submissionCount);
+
+    /**
+     * @notice Get the current consensus and how many nodes submitted it
+     * for a given package,version,release combination.
+     *
+     * @param packageID The id of the package to submit: pkgname-pkgver-pkgrel
+     *
+     * @return pkgHash The hash of the package, or the empty string if none is stored.
+     * @return submissionCount The number of nodes that submitted this hash
+     */
+    function getCurrentConsensus(string packageID) constant
+    returns (string pkgHash, uint submissionCount) {
+        string hash = packages[packageID].currentConsensusPkgHash;
+        return (hash, packages[packageID].timesHashSubmitted[hash]);
+    }
+
+    /**
+     * @notice Submit a new hash for a package.
+     *
+     * @param packageID The id of the package to submit: pkgname-pkgver-pkgrel
+     * @param pkgHash The hash of the package
+     * @return success Whether the submission succeeded
+     */
+    function submitPkgHash(string packageID, string pkgHash) returns (bool success) {
+        // Only allow every address (=user) to submit a hash once
+        if (addressesThatSubmittedAHash[pkgHash][msg.sender])
+            return false;
+        addressesThatSubmittedAHash[pkgHash][msg.sender] = true;
+
+        PackageData package = packages[packageID];
+        package.timesHashSubmitted[pkgHash] += 1;
+        // Trigger notification
+        PkgHashSubmitted(packageID, pkgHash,
+            package.timesHashSubmitted[pkgHash], msg.sender);
+
+        // If this hash has become the new consensus
+        if (package.timesHashSubmitted[pkgHash] >
+            package.timesHashSubmitted[package.currentConsensusPkgHash]) {
+
+            package.currentConsensusPkgHash = pkgHash;
+            // Trigger notification
+            ConsensusFormed(packageID, pkgHash, package.timesHashSubmitted[pkgHash]);
+        }
+
+        return true;
+    }
+}
+\end{minted}
+
+\newpage
+\section{Adding Bootnodes}\label{sec:init-boot}
+This section explains how mining and non-mining bootnodes can be created and integrated into our network.\newline
+
+\textbf{Mining bootnodes} can only be initialized automatically with \emph{aursec-init} on Arch Linux.
+After doing so, instead of starting the systemd services, use the command
+\begin{verbatim}
+sudo su aursec -c '/usr/bin/geth --fast --port 30200 --rpcport 8105 --nodiscover
+--ipcdisable --rpc --rpcapi "eth,web3,miner" --datadir /var/aursec/chain --cache 512
+--networkid 42 --verbosity 4 --unlock 0 --password /var/aursec/password console'
+\end{verbatim}
+
+to get a geth console. To get your node-url run \texttt{admin.nodeInfo}. Copy the url and close the console (Ctrl+D or exit). To start the node use
+
+\begin{verbatim}
+sudo su aursec -c '/usr/bin/geth --fast --port 30200 --rpcport 8105 --nodiscover
+--ipcdisable --rpc --rpcapi "eth,web3,miner" --datadir /var/aursec/chain --cache 512
+--networkid 42 --verbosity 4 --unlock 0 --password /var/aursec/password'
+\end{verbatim}
+
+Now start the \texttt{aursec-blockchain-mine.timer}.
+To integrate the bootnode to the network, read the corresponding paragraph below.\linebreak
+
+\textbf{Non-mining bootnodes} only require the \texttt{geth} package and can be set up on any system.
+To initialize the bootnode run the following commands:
+\begin{verbatim}
+> bootnode -genkey $PathToKeyfile
+> bootnode -nodekey $PathToKeyfile -addr 30200
+\end{verbatim}
+The node-url will be shown in the first line after the second command.
+To integrate the bootnode into the network, read the following paragraph.
+
+
+\paragraph*{Integrate the Bootnode}
+Copy the node-url consisting of \texttt{nodeUrl@yourip:30200} to our \texttt{aursec-blockchain.service} \footnote{https://github.com/clawoflight/aursec/blob/master/aursec/lib/aursec-blockchain.service} after the \texttt{--bootnodes} argument and submit a pull request.
+
+
+\newpage
+\section{Contributions}\label{sec:resp}
+We split our work into areas of responsibility for which one of us was responsible (see Table \ref{tab:responsibilities}). However, usually both of us worked on any given area.
+\begin{table}[!htb]
+\centering
+\caption{Contributions}
+\label{tab:responsibilities}
+\begin{tabular}{|l|L{5.5cm}|L{5.5cm}|}
+\hline
+Name & Code &  Paper \\ \hline
+Bennett Piater & Solidity (Smart Contracts), automatic mining, hashing of packages, main command pipeline , aurutils wrapper, AUR-Packages   &
+Abstract,
+Motivation (Complete Section \ref{sec:motivation}),
+AURsec (Main tool up to and including architecture, Systemd services, Integration with AUR Helpers ) ( \Cref{sec:aursec,sec:aur-architecture,sec:aursec-systemd,sec:integration} including Appendix \ref{sec:our-pkgbuild}),
+Solidity code (Appendix \ref{sec:contract}),
+Evaluation (Complete Section \ref{sec:eval}),
+Discussion (Complete Section \ref{sec:discuss})
+\\ \hline
+Lukas Krismer &  Initialization of the blockchain, Integration of the contract, bash-API for ethereum , Terminal-User-Interface, Initialization of the bootnode &
+Forword,
+Introduction (Complete Section \ref{sec:intro}),
+Related Work (Complete Section \ref{sec:related}),
+AURsec(workflow, blockchain implementation, initialization, API, Terminal User Interface, bootnode) ( \Cref{sec:AURsec,sec:workflow,sec:aur-block,sec:aursec-init,sec:aursec-chain,sec:tui} including Appendix \ref{sec:init-boot}),
+Contributions (Appendix \ref{sec:resp})\\ \hline
+\end{tabular}
+\end{table}
+

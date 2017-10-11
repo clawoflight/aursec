@@ -1,0 +1,26 @@
+\subsection{Blockchain implementation}\label{sec:aur-block}
+In our approach we used Ethereum as blockchain and Solidity as the programming language for the smart contract.
+We have chosen Ethereum because our blockchain has to fulfill several requirements:
+
+Since we target Arch Linux, it must be easy to install on this platform.
+This is covered by the \emph{geth} package which is available in the official community repository and can be directly installed using pacman.
+The blockchain also needs to provide an API which allows external scripts to work with it.
+
+Ethereum provides two APIs:
+An IPC (interprocess communication) API, which allows connecting an interactive \emph{geth} console to a running blockchain, but is not convenient for external scripts,
+and an HTTP RPC (remote procedure call) API which allows to send HTTP requests containing JSON bodies.
+These requests can be sent with external scripts and programs since nearly every programming and scripting language (including bash) has HTTP support.
+In our approach the shell script \texttt{aursec-chain}~(Section~\ref{sec:aursec-chain}) and the Python script \texttt{aursec-tui}~(Section~\ref{sec:tui}) use this API to interact with the blockchain.
+
+The blockchain also needs to support smart contracts in order to allow us to use the blockchain functionally.
+Ethereum not only supports smart contracts, they are it's main feature.
+The specially developed high-level language \emph{Solidity} allows to write smart contracts in little time.
+
+Our smart contract (Appendix~\ref{sec:contract}) provides two public functions which allow users to submit hashes (line 56) and to request the current consensus hash of a versioned package (line 43).
+The contract allows each user to commit a hash only once: further commits of the same hash by the same user will not be considered in order to prevent manipulation of the consensus. This is implemented by keeping track of who submitted a hash (lines 58-60).
+
+Finally, the blockchain needs to to provide an easy way to create private networks separate from the main one.
+It would be safer to use the main blockchain because larger chains are harder to manipulate, and miners would get currency worth real money (in addition to secure software downloads) for their work, but we decided against that because the main blockchain takes up a lot of disk space and has much higher mining costs than makes sense for our application.
+Ethereum provides possibilities to create private networks easily; It is only required to choose a network ID and to host the bootnode that is required to build the peer to peer network.
+Our bootnode is active 24/7 on a DigitalOcean droplet provided by our supervisor.
+Appendix \ref{sec:init-boot} explains how a new bootnode is added to the aursec-network.

@@ -1,0 +1,12 @@
+The Arch Linux User Repository is fundamentally insecure.
+It was designed for simplicity and rapid iteration, leaving its users unprotected against many kinds of attacks.
+
+This project increases its security by:
+\begin{enumerate}
+	\item Analyzing its security issues
+	\item Creating a threat model
+	\item Solving one of these issues, the \emph{lack of verified release checksums}, thereby protecting users against targeted attacks and compromised sources.
+\end{enumerate}
+
+For this purpose we compare the downloaded package sources with the hashes submitted by other users in a secure database where every user is allowed to upload each hash only once.
+The database of choice was a blockchain capable of smart contracts because it is distributed and fulfills our security requirements.

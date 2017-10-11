@@ -1,0 +1,12 @@
+\label{sec:tui}
+\texttt{aursec-tui} is a urwid-based Python script. The TUI gives an overview over all mined blocks, their hashes, the miner of the block and any transactions which are saved in the block.
+
+It is split in two parts. The first part is needed to gain the data from the blockchain and save it, the other part formats the information and displays it.
+To display the results as fast as possible, the data is fetched in a background thread.
+Any additional data will be displayed after the next refresh.
+The script offers the user two settings for filtering the results:
+\emph{only mine} shows all blocks which were mined by the user himself,
+while \emph{only transactions} shows all blocks which contains at least one transaction.
+The settings can be combined with the result that all blocks mined by the user and containing transactions will be displayed.
+All hash-commit transactions are parsed into readable text.
+Any other transaction is shown with the text \emph{``Transaction is no hash-commit''}.

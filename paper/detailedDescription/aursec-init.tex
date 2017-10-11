@@ -1,0 +1,11 @@
+\subsection{Initialization - aursec-init}\label{sec:aursec-init}
+Aursec-init is a shell script which allows the user to create all requirements for using our project.
+It can also be used to rebuild the local copy of the blockchain, effectively re-installing from scratch.
+
+First, it creates all needed folders and markers.
+These markers track when hash commits and mining take place and are used by the systemd-service \textit{aursec-blockchain-mine} to adjust the mining effort based on recent hash commits.
+Then, it creates the blockchain from our \emph{genesis block}, which is the first block in the blockchain.
+After that, the synchronization of the blockchain begins.
+In the meantime, the generation of the first two \emph{Directed Acyclic Graphs} (DAG) is stated.
+Every DAG is a \~1GB dataset which is needed for mining new blocks \cite{wiki:DAG}.
+Finally, the script mines a few blocks to gain enough currency to enable committing of hashes right after the initialization.

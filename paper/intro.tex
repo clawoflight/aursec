@@ -1,0 +1,34 @@
+\label{sec:intro}
+The Arch Linux distribution constitutes a simple infrastructure which makes it easy to customize and participate in its development. As such, it provides packaging tools that facilitate the creation of custom packages and has attracted a very active community.
+These facts necessitated the establishment of a place where active users could make their own packages available for others to use.
+
+To address this issue, \texttt{ftp://ftp.archlinux.org/income} was created as a staging area; packages could be stored there until official maintainers would adopted them. However, waiting for the maintainers' participation implied a certain delay, so another solution was needed.
+The next improvement constituted the \emph{Trusted User Repositories}, in which some privileged users, many more than the maintainers, were allowed to host their own repositories for anyone to use.
+
+To completely remove the delay the \emph{Arch User Repository} (AUR) was created. The custom repositories were consolidated into one single repository, and the requirement to be a \emph{Trusted User} was dropped.
+Thanks to the removal of all middlemen, everyone can now upload their packages to one central location. \cite{wiki:AUR}
+
+The AUR is similar in design to PyPI (for Python), NPM (for Javascript) and rubygems.org, where all users can share their packages. All 4 platforms share a focus on simplicity, ease of use, and rapid iteration (creation of packages and roll-out of updates) at the expense of security.
+The desire to allow anyone to use the system and to push out updates rapidly makes it hard to include proper vetting of contributors or auditing of software, thereby enlarging the possibility attacks.
+
+\subsection*{Improving the Security of the AUR}
+Most of the AUR's security issues are inherent to its design and thus cannot be solved without changing the AUR's concept in its entirety.
+Nevertheless, some of them, which make users susceptible to targeted attacks through manipulated packages, can be remedied without modifying the AUR directly. That is the purpose of this paper.
+
+Since targeted attacks only affect a small percentage of total users, they could be prevented by performing an additional integrity check which raises alarm if someone receives a different package than the majority of users.
+
+This solution approach requires a tamper-proof, trust-less, preferably distributed database through which the most-seen hashes of a package can be tracked. Blockchains are a possible choice, as they fulfill all of these requirements.
+Our tool \emph{aursec} hashes per-package information from the AUR and compares it to the most submitted hash of the corresponding package version stored in an Ethereum blockchain.
+If the hashes differ, the user is warned of a possible attack.
+
+
+% TODO: @important quick structure introduction?
+% NOTE: I would ask christian
+% Maybe ~one sentence about each section...
+
+% Section 2 introduces blockchains, why we use one and why we chose Ethereum specifically.
+% Section 3 is a threat assessment of the AUR including two concrete attack scenarios against which we want to defend.
+% Section 4 describes our solution and implementation in detail.
+% Section 5 lists some of the things we learned while working on our solution which may be of interest to readers.
+% Section 6 discusses inherent qualities of our approach and compares it to other possible approaches.
+% Section 7 evaluates our work by demonstrating how well we solved the problem that we set out to solve as well as discussing its usability and sensibility according to our experience and feedback from users.

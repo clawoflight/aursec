@@ -1,0 +1,15 @@
+\subsection{Other Approaches}
+\emph{AUR helpers} have been developed to make the usage of the AUR easier.
+They are designed to assist users with installing and updating packages from the AUR by automating some or all of the workflow (A detailed comparison can be found in the Arch Wiki~\cite{wiki:aur-helper}).
+Some of them also give some degree of additional security compared to fully manual building.
+In this section we want to look at \emph{yaourt}, \emph{bauerbill} and \emph{aurutils}.
+
+Yaourt is the most popular AUR helper, but it is also one of the most insecure approaches~\cite{wiki:aur-helper}.
+The user can use a command-line parameter to skip the only security layer, the manual \texttt{PKGBUILD}-check.
+Users of Bauerbill and aurutils always have to check their \texttt{PKGBUILD}s.
+Furthermore, aurutils makes the manual verification of \texttt{PKGBUILD}s easier by creating \emph{diffs} which show the changes between the last installed version and the current \texttt{PKGBUILD}.
+Aurutils does not install the packages directly using pacman;
+Instead, it adds or updates the package into a local repository.
+These packages can be cryptographically signed by the user to ensure that they cannot be manipulated after they were created.
+Pacman can then access this repository and install packages from it like from the official ones.
+Bauerbill directly installs the packages after the \texttt{PKGBUILD}-check using pacman, but it displays if the maintainer of a package has changed since the last update.
