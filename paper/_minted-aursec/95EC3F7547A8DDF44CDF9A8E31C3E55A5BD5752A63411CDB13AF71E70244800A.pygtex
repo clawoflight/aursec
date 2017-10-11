@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+aursec\PYGZhy{}git\PYGZhy{}v0.11.r0.15ea0e9\PYGZhy{}1  \PYG{c+c1}{\PYGZsh{} Package ID}
+563786a91d5f56efcb5066899033b2d5649e963b995e9305fd94e65c1bff2a50  \PYG{c+c1}{\PYGZsh{} Local hash}
+c54d99fb6c4797cd994fcef74082396aaadbbcf44021932e04c65b77745e45cd  \PYG{c+c1}{\PYGZsh{} Consensus}
+\PYG{l+m}{2}  \PYG{c+c1}{\PYGZsh{} Number of times the consensus was committed}
+\PYG{l+m}{0}  \PYG{c+c1}{\PYGZsh{} Whether the hashes match}
+\end{Verbatim}

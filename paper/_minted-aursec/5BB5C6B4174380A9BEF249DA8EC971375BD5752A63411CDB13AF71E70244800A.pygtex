@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{while} \PYG{n+nb}{read} \PYGZhy{}r \PYGZhy{}u4 pkg\PYGZus{}id pkg\PYGZus{}hash cons\PYGZus{}h cons\PYGZus{}c match\PYG{p}{;} \PYG{k}{do}
+    \PYG{k}{if} \PYG{o}{[[} x\PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}pkg\PYGZus{}id}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{=} x\PYG{l+s+s2}{\PYGZdq{}ERROR\PYGZdq{}} \PYG{o}{]]}\PYG{p}{;} \PYG{k}{then}
+            \PYG{n+nb}{exit} \PYG{n+nv}{\PYGZdl{}EHASH}
+    \PYG{k}{fi}
+    \PYG{k}{if} \PYG{o}{[[} \PYGZhy{}z \PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}pkg\PYGZus{}id}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{||} \PYGZhy{}z \PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}pkg\PYGZus{}hash}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{||} \PYGZhy{}z \PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}cons\PYGZus{}h}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{||} \PYGZhy{}z \PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}cons\PYGZus{}c}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{||} \PYGZhy{}z \PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}match}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{]]}\PYG{p}{;} \PYG{k}{then}
+        error \PYG{l+s+s2}{\PYGZdq{}Received invalid data from aursec\PYGZhy{}verify\PYGZhy{}hashes!\PYGZdq{}}
+        \PYG{n+nb}{exit} \PYG{n+nv}{\PYGZdl{}ECHAIN}
+    \PYG{k}{fi}
+
+    state\PYGZus{}machine
+
+\PYG{c+c1}{\PYGZsh{} This will automagically use all remaining arguments, or read from stdin.}
+\PYG{k}{done} \PYG{l+m}{4}\PYGZlt{} \PYGZlt{}\PYG{o}{(}aursec\PYGZhy{}hash \PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}@}\PYG{l+s+s2}{\PYGZdq{}} \PYG{p}{|} aursec\PYGZhy{}verify\PYGZhy{}hashes \PYG{o}{||} \PYG{n+nb}{echo} ERROR\PYG{o}{)}
+\end{Verbatim}

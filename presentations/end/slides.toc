@@ -1,0 +1,5 @@
+\select@language {english}
+\beamer@sectionintoc {1}{Background: AUR}{3}{0}{1}
+\beamer@sectionintoc {2}{Our Project}{7}{0}{2}
+\beamer@sectionintoc {3}{Implementation Details}{11}{0}{3}
+\beamer@sectionintoc {4}{Comparison and Summary}{19}{0}{4}

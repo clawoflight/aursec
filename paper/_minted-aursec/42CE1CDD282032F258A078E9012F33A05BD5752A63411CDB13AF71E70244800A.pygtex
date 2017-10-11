@@ -1,0 +1,57 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Maintainer: Bennett Piater \PYGZlt{}bennett at piater dot name\PYGZgt{}}
+
+\PYG{n+nv}{pkgname}\PYG{o}{=(}aursec\PYGZhy{}git aursec\PYGZhy{}tui\PYGZhy{}git\PYG{o}{)}
+\PYG{n+nv}{pkgver}\PYG{o}{=}v0.11.r0.15ea0e9
+\PYG{n+nv}{pkgrel}\PYG{o}{=}\PYG{l+m}{1}
+\PYG{n+nv}{pkgdesc}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}Verify AUR package sources against hashes stored in a blockchain.\PYGZsq{}}
+\PYG{n+nv}{arch}\PYG{o}{=(}any\PYG{o}{)}
+\PYG{n+nv}{url}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}https://github.com/clawoflight/}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgbase}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}
+\PYG{n+nv}{license}\PYG{o}{=(}\PYG{l+s+s1}{\PYGZsq{}custom:MPL2\PYGZsq{}}\PYG{o}{)}
+
+\PYG{n+nv}{provides}\PYG{o}{=(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgname}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{o}{)}
+\PYG{n+nv}{conflicts}\PYG{o}{=(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgname}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{o}{)}
+
+\PYG{n+nv}{depends}\PYG{o}{=(}firejail geth vim bc\PYG{o}{)}
+\PYG{n+nv}{makedepends}\PYG{o}{=(}pandoc git\PYG{o}{)}
+\PYG{n+nv}{checkdepends}\PYG{o}{=(}shellcheck\PYG{o}{)}
+
+\PYG{n+nv}{source}\PYG{o}{=(}\PYG{l+s+s2}{\PYGZdq{}git+https://github.com/clawoflight/}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgname}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{.git\PYGZdq{}}\PYG{o}{)}
+\PYG{n+nv}{sha256sums}\PYG{o}{=(}\PYG{l+s+s1}{\PYGZsq{}SKIP\PYGZsq{}}\PYG{o}{)}
+\PYG{n+nv}{validpgpkeys}\PYG{o}{=(}\PYG{l+s+s1}{\PYGZsq{}871F10477DB3DDED5FC447B226C7E577EF967808\PYGZsq{}}\PYG{o}{)}
+
+pkgver\PYG{o}{()} \PYG{o}{\PYGZob{}}
+    \PYG{n+nb}{cd} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgname}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}
+    \PYG{n+nb}{printf} \PYG{l+s+s2}{\PYGZdq{}\PYGZpc{}s\PYGZdq{}} \PYG{l+s+s2}{\PYGZdq{}}\PYG{k}{\PYGZdl{}(}git describe \PYGZhy{}\PYGZhy{}long \PYG{p}{|} sed \PYG{l+s+s1}{\PYGZsq{}s/\PYGZbs{}([\PYGZca{}\PYGZhy{}]*\PYGZhy{}\PYGZbs{})g/r\PYGZbs{}1/;s/\PYGZhy{}/./g\PYGZsq{}}\PYG{k}{)}\PYG{l+s+s2}{\PYGZdq{}}
+\PYG{o}{\PYGZcb{}}
+
+build\PYG{o}{()} \PYG{o}{\PYGZob{}}
+    \PYG{n+nb}{cd} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgname}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{/aursec\PYGZdq{}}
+    make
+    \PYG{n+nb}{cd} \PYG{l+s+s2}{\PYGZdq{}../tui\PYGZdq{}}
+    make
+\PYG{o}{\PYGZcb{}}
+
+check\PYG{o}{()} \PYG{o}{\PYGZob{}}
+    \PYG{n+nb}{cd} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgname}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{/aursec\PYGZdq{}}
+    make \PYGZhy{}k check
+\PYG{o}{\PYGZcb{}}
+
+package\PYGZus{}aursec\PYGZhy{}git\PYG{o}{()} \PYG{o}{\PYGZob{}}
+    \PYG{n+nv}{install}\PYG{o}{=}aursec\PYGZhy{}git.install
+    \PYG{n+nv}{optdepends}\PYG{o}{=(}\PYG{l+s+s2}{\PYGZdq{}aursec\PYGZhy{}tui: to manually inspect the blockchain.\PYGZdq{}}\PYG{o}{)}
+
+    \PYG{n+nb}{cd} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nv}{pkgname}\PYG{p}{\PYGZpc{}\PYGZhy{}git}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{/aursec\PYGZdq{}}
+    make \PYG{n+nv}{PREFIX}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}/usr\PYGZdq{}} \PYG{n+nv}{DESTDIR}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}pkgdir}\PYG{l+s+s2}{/\PYGZdq{}} install
+\PYG{o}{\PYGZcb{}}
+
+package\PYGZus{}aursec\PYGZhy{}tui\PYGZhy{}git\PYG{o}{()} \PYG{o}{\PYGZob{}}
+    \PYG{n+nv}{pkgdesc}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}Inspect the aursec blockchain\PYGZsq{}}
+    \PYG{n+nv}{depends}\PYG{o}{=(}python python\PYGZhy{}requests python\PYGZhy{}urwid aursec\PYG{o}{)}
+    \PYG{n+nv}{provides}\PYG{o}{=(}aursec\PYGZhy{}tui\PYG{o}{)}
+    \PYG{n+nv}{conflicts}\PYG{o}{=(}aursec\PYGZhy{}tui\PYG{o}{)}
+
+    \PYG{n+nb}{cd} \PYG{l+s+s2}{\PYGZdq{}aursec/tui\PYGZdq{}}
+    make \PYG{n+nv}{PREFIX}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}/usr\PYGZdq{}} \PYG{n+nv}{DESTDIR}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}pkgdir}\PYG{l+s+s2}{/\PYGZdq{}} install
+\PYG{o}{\PYGZcb{}}
+\end{Verbatim}

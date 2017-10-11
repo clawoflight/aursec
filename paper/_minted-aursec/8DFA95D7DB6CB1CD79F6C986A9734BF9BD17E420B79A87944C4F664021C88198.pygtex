@@ -1,0 +1,81 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{// This Source Code Form is subject to the terms of the Mozilla Public}
+\PYG{c+c1}{// License, v. 2.0. If a copy of the MPL was not distributed with this}
+\PYG{c+c1}{// file, You can obtain one at http://mozilla.org/MPL/2.0/.}
+\PYG{c+c1}{// Copyright © 2016\PYGZhy{}2017 Lukas Krismer and Bennett Piater.}
+
+\PYG{n+nx}{pragma} \PYG{n+nx}{solidity} \PYG{o}{\PYGZca{}}\PYG{l+m+mf}{0.4.0}\PYG{p}{;}
+\PYG{k+kr}{import} \PYG{l+s+s2}{\PYGZdq{}contracts/Owned.sol\PYGZdq{}}\PYG{p}{;}
+
+\PYG{c+cm}{/**}
+\PYG{c+cm}{ * @title Registry of AUR package hashes}
+\PYG{c+cm}{ * @author Bennett Piater}
+\PYG{c+cm}{ */}
+\PYG{n+nx}{contract} \PYG{n+nx}{AURPackageRegistry} \PYG{n+nx}{is} \PYG{n+nx}{Owned} \PYG{p}{\PYGZob{}}
+
+    \PYG{c+c1}{// Struct that holds the consensus}
+    \PYG{c+c1}{// and the number of submissions for each hash for a package.}
+    \PYG{n+nx}{struct} \PYG{n+nx}{PackageData} \PYG{p}{\PYGZob{}}
+        \PYG{n+nx}{string} \PYG{n+nx}{currentConsensusPkgHash}\PYG{p}{;}
+        \PYG{n+nx}{mapping} \PYG{p}{(}\PYG{n+nx}{string} \PYG{p}{=\PYGZgt{}} \PYG{n+nx}{uint}\PYG{p}{)} \PYG{n+nx}{timesHashSubmitted}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{c+c1}{// Map package IDs \PYGZdq{}\PYGZdl{}pkgname\PYGZhy{}\PYGZdl{}pkgver\PYGZhy{}\PYGZdl{}pkgrel\PYGZdq{} to the corresponding struct}
+    \PYG{n+nx}{mapping} \PYG{p}{(}\PYG{n+nx}{string} \PYG{p}{=\PYGZgt{}} \PYG{n+nx}{PackageData}\PYG{p}{)} \PYG{n+nx}{packages}\PYG{p}{;}
+
+    \PYG{c+c1}{// Map a hash to a map of blockchain wallet addresses (users).}
+    \PYG{c+c1}{// This allows checking whether a user submitted a hash.}
+    \PYG{n+nx}{mapping} \PYG{p}{(}\PYG{n+nx}{string} \PYG{p}{=\PYGZgt{}} \PYG{n+nx}{mapping} \PYG{p}{(}\PYG{n+nx}{address} \PYG{p}{=\PYGZgt{}} \PYG{n+nx}{bool}\PYG{p}{))} \PYG{n+nx}{addressesThatSubmittedAHash}\PYG{p}{;}
+
+    \PYG{n+nx}{event} \PYG{n+nx}{PkgHashSubmitted}\PYG{p}{(}\PYG{n+nx}{string} \PYG{n+nx}{indexed} \PYG{n+nx}{packageID}\PYG{p}{,} \PYG{n+nx}{string} \PYG{n+nx}{pkgHash}\PYG{p}{,}
+        \PYG{n+nx}{uint} \PYG{n+nx}{submissionCount}\PYG{p}{,} \PYG{n+nx}{address} \PYG{n+nx}{indexed} \PYG{n+nx}{submitter}\PYG{p}{);}
+    \PYG{n+nx}{event} \PYG{n+nx}{ConsensusFormed}\PYG{p}{(}\PYG{n+nx}{string} \PYG{n+nx}{indexed} \PYG{n+nx}{packageID}\PYG{p}{,} \PYG{n+nx}{string} \PYG{n+nx}{pkgHash}\PYG{p}{,}
+        \PYG{n+nx}{uint} \PYG{n+nx}{submissionCount}\PYG{p}{);}
+
+    \PYG{c+cm}{/**}
+\PYG{c+cm}{     * @notice Get the current consensus and how many nodes submitted it}
+\PYG{c+cm}{     * for a given package,version,release combination.}
+\PYG{c+cm}{     *}
+\PYG{c+cm}{     * @param packageID The id of the package to submit: pkgname\PYGZhy{}pkgver\PYGZhy{}pkgrel}
+\PYG{c+cm}{     *}
+\PYG{c+cm}{     * @return pkgHash The hash of the package, or the empty string if none is stored.}
+\PYG{c+cm}{     * @return submissionCount The number of nodes that submitted this hash}
+\PYG{c+cm}{     */}
+    \PYG{k+kd}{function} \PYG{n+nx}{getCurrentConsensus}\PYG{p}{(}\PYG{n+nx}{string} \PYG{n+nx}{packageID}\PYG{p}{)} \PYG{n+nx}{constant}
+    \PYG{n+nx}{returns} \PYG{p}{(}\PYG{n+nx}{string} \PYG{n+nx}{pkgHash}\PYG{p}{,} \PYG{n+nx}{uint} \PYG{n+nx}{submissionCount}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n+nx}{string} \PYG{n+nx}{hash} \PYG{o}{=} \PYG{n+nx}{packages}\PYG{p}{[}\PYG{n+nx}{packageID}\PYG{p}{].}\PYG{n+nx}{currentConsensusPkgHash}\PYG{p}{;}
+        \PYG{k}{return} \PYG{p}{(}\PYG{n+nx}{hash}\PYG{p}{,} \PYG{n+nx}{packages}\PYG{p}{[}\PYG{n+nx}{packageID}\PYG{p}{].}\PYG{n+nx}{timesHashSubmitted}\PYG{p}{[}\PYG{n+nx}{hash}\PYG{p}{]);}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{c+cm}{/**}
+\PYG{c+cm}{     * @notice Submit a new hash for a package.}
+\PYG{c+cm}{     *}
+\PYG{c+cm}{     * @param packageID The id of the package to submit: pkgname\PYGZhy{}pkgver\PYGZhy{}pkgrel}
+\PYG{c+cm}{     * @param pkgHash The hash of the package}
+\PYG{c+cm}{     * @return success Whether the submission succeeded}
+\PYG{c+cm}{     */}
+    \PYG{k+kd}{function} \PYG{n+nx}{submitPkgHash}\PYG{p}{(}\PYG{n+nx}{string} \PYG{n+nx}{packageID}\PYG{p}{,} \PYG{n+nx}{string} \PYG{n+nx}{pkgHash}\PYG{p}{)} \PYG{n+nx}{returns} \PYG{p}{(}\PYG{n+nx}{bool} \PYG{n+nx}{success}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{c+c1}{// Only allow every address (=user) to submit a hash once}
+        \PYG{k}{if} \PYG{p}{(}\PYG{n+nx}{addressesThatSubmittedAHash}\PYG{p}{[}\PYG{n+nx}{pkgHash}\PYG{p}{][}\PYG{n+nx}{msg}\PYG{p}{.}\PYG{n+nx}{sender}\PYG{p}{])}
+            \PYG{k}{return} \PYG{k+kc}{false}\PYG{p}{;}
+        \PYG{n+nx}{addressesThatSubmittedAHash}\PYG{p}{[}\PYG{n+nx}{pkgHash}\PYG{p}{][}\PYG{n+nx}{msg}\PYG{p}{.}\PYG{n+nx}{sender}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{true}\PYG{p}{;}
+
+        \PYG{n+nx}{PackageData} \PYG{k+kr}{package} \PYG{o}{=} \PYG{n+nx}{packages}\PYG{p}{[}\PYG{n+nx}{packageID}\PYG{p}{];}
+        \PYG{k+kr}{package}\PYG{p}{.}\PYG{n+nx}{timesHashSubmitted}\PYG{p}{[}\PYG{n+nx}{pkgHash}\PYG{p}{]} \PYG{o}{+=} \PYG{l+m+mi}{1}\PYG{p}{;}
+        \PYG{c+c1}{// Trigger notification}
+        \PYG{n+nx}{PkgHashSubmitted}\PYG{p}{(}\PYG{n+nx}{packageID}\PYG{p}{,} \PYG{n+nx}{pkgHash}\PYG{p}{,}
+            \PYG{k+kr}{package}\PYG{p}{.}\PYG{n+nx}{timesHashSubmitted}\PYG{p}{[}\PYG{n+nx}{pkgHash}\PYG{p}{],} \PYG{n+nx}{msg}\PYG{p}{.}\PYG{n+nx}{sender}\PYG{p}{);}
+
+        \PYG{c+c1}{// If this hash has become the new consensus}
+        \PYG{k}{if} \PYG{p}{(}\PYG{k+kr}{package}\PYG{p}{.}\PYG{n+nx}{timesHashSubmitted}\PYG{p}{[}\PYG{n+nx}{pkgHash}\PYG{p}{]} \PYG{o}{\PYGZgt{}}
+            \PYG{k+kr}{package}\PYG{p}{.}\PYG{n+nx}{timesHashSubmitted}\PYG{p}{[}\PYG{k+kr}{package}\PYG{p}{.}\PYG{n+nx}{currentConsensusPkgHash}\PYG{p}{])} \PYG{p}{\PYGZob{}}
+
+            \PYG{k+kr}{package}\PYG{p}{.}\PYG{n+nx}{currentConsensusPkgHash} \PYG{o}{=} \PYG{n+nx}{pkgHash}\PYG{p}{;}
+            \PYG{c+c1}{// Trigger notification}
+            \PYG{n+nx}{ConsensusFormed}\PYG{p}{(}\PYG{n+nx}{packageID}\PYG{p}{,} \PYG{n+nx}{pkgHash}\PYG{p}{,} \PYG{k+kr}{package}\PYG{p}{.}\PYG{n+nx}{timesHashSubmitted}\PYG{p}{[}\PYG{n+nx}{pkgHash}\PYG{p}{]);}
+        \PYG{p}{\PYGZcb{}}
+
+        \PYG{k}{return} \PYG{k+kc}{true}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}
