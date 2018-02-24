@@ -1,7 +1,7 @@
 dependencies:
   cache_directories:
-    - "~/.cabal"
-    - "~/shellcheck"
+    - ~/.cabal
+    - ~/shellcheck
 
   pre:
     - sudo apt-get install cabal-install
