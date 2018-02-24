@@ -34,6 +34,6 @@ while read -r pkg_id hash; do
 	fi
 
 	# Print to output stream
-	printf "%s %s %s %d %d\n" "$pkg_id" "$hash" "$remote_hash" "$remote_count" "$match"
+	printf "%s %s %s %d %d\\n" "$pkg_id" "$hash" "$remote_hash" "$remote_count" "$match"
 	unset pkg_id hash remote_hash remote_count
 done

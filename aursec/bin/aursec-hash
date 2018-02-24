@@ -47,11 +47,11 @@ function vcs_hash() {
 	# TODO: ignore the .folders of all VCS supported by makepkg
 
 	find "$@" -not -path '*/.git*' \
-	 -not -path '*/.svn*' \
-	 -not -path '*/.hg*' \
-	 -not -path '*/.bzr*' \
-	 -type f -readable \
-	 -exec sha256sum "{}" \;
+		-not -path '*/.svn*' \
+		-not -path '*/.hg*' \
+		-not -path '*/.bzr*' \
+		-type f -readable \
+		-exec sha256sum "{}" \;
 
 }
 
@@ -62,8 +62,8 @@ function basic_hash() {
 
 	# Patches and install scripts
 	find . -maxdepth 1 \( -name .SRCINFO \
-	 -o -name \*.patch -o -name \*.install \) \
-	 -exec sha256sum "{}" +
+		-o -name \*.patch -o -name \*.install \) \
+		-exec sha256sum "{}" +
 
 	# PKGBUILD without comments TODO: what else could be improved here? Maybe sorting - but how to make that work with scripts?
 	sed "s/#.*//" PKGBUILD | sha256sum -
@@ -106,12 +106,12 @@ function hash_pkg() {
 
 # Parse the arguments
 while true; do
-    case "$1" in
-        -)
+	case "$1" in
+		-)
 			explicit_stdin=1
 			shift
-            break ;;
-        -v|--verbose)
+			break ;;
+		-v|--verbose)
 			verbose=1
 			shift
 			;;
@@ -123,17 +123,17 @@ while true; do
 			no_vcs=1
 			shift
 			;;
-        -h|--help)
-            help
-            exit 0 ;;
-        *) break ;;
-    esac
+		-h|--help)
+			help
+			exit 0 ;;
+		*) break ;;
+	esac
 done
 
 # Don't wait for input on stdin if stdin is a tty and the user didn't add a -
 if (( $# == 0 )) && { (( explicit_stdin != 1 )) && tty -s; }; then
-    usage
-    exit 1
+	usage
+	exit 1
 fi
 
 if ((debug)); then

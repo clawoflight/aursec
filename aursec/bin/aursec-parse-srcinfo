@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1702,SC1703,SC1009
 # Small script that parses a .SRCINFO file
 # and outputs any vcs download folders that were found.
 #

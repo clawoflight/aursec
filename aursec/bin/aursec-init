@@ -54,7 +54,7 @@ function get_current_block() {
     declare block_hexnum
     ((verbose)) && echo "Getting current block" >&2
     block_hexnum=$(curl localhost:${PORT} "${silence}" -m 30 -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber", "id":1}' | grep -oP '(?<="result".")\w+')
-    printf "%d\n" "$block_hexnum"
+    printf "%d\\n" "$block_hexnum"
 }
 
 # Creates blockchain and account
@@ -108,19 +108,19 @@ function init(){
         if (("$per"=="99"));then
             per="100"
         fi
-        tmp="Generate DAG: $per% \r"
+        tmp="Generate DAG: $per% \\r"
         echo -ne "$tmp" >&2
     done
     echo "" >&2
 
     echo "Wait for synchronisation" >&2
-    while [[ $(get_current_block) -le 5 ]]; do 
+    while [[ $(get_current_block) -le 5 ]]; do
         sleep 15
-    done 
-    
+    done
+
     ((verbose))&& echo "synched" >&2
 
- 
+
     echo "Ḿine 2 blocks (This will take a few minutes)" >&2
     aursec-chain -v -d mine blocks 2 >${BLOCKCHAIN_PATH}/${LOGFILE} 2>&1 &
     per="0"
@@ -129,10 +129,10 @@ function init(){
         per=$(sudo journalctl -eu aursec-blockchain | grep -oP '(?<=percentage=)\w+' | tail -1)
         if (("$per"=="99"));then
             per="100"
-        fi 
-        tmp="Generate DAG: $per% \r"
+        fi
+        tmp="Generate DAG: $per% \\r"
         echo -ne "$tmp" >&2
-    done  
+    done
     echo "" >&2
 
     wait
