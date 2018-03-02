@@ -1,0 +1,33 @@
+# vim: ts=2 sw=2
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: ubuntu:xenial
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cabal-deps
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update
+            apt-get --assume-yes install ca-certificates cabal-install git
+            cabal update
+            git clone https://github.com/koalaman/shellcheck
+            cd shellcheck
+            cabal install
+      - run:
+          name: Run shellcheck
+          command: |
+            mkdir -p $CIRCLE_TEST_REPORTS/shellcheck
+            ~/.cabal/bin/shellcheck -s bash -e SC1091 -x aursec/bin/*
+            # ~/.cabal/bin/shellcheck -e SC1091 -xf checkstyle aursec/bin/* > $CIRCLE_TEST_REPORTS/shellcheck/check.xml
+      - save_cache:
+          key: cabal-deps
+          paths:
+            - "~/.cabal"
+            - "~/shellcheck"
+
